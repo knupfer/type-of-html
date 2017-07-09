@@ -1,0 +1,45 @@
+name:                type-of-html
+version:             0.1.0.0
+synopsis:            High performance type driven html generation.
+description:         This library makes most invalid html documents compile time errors and uses advanced type level features to realise compile time computations.
+license:             BSD3
+license-file:        LICENSE
+author:              Florian Knupfer
+maintainer:          fknupfer@gmail.com
+copyright:           2017, Florian Knupfer
+category:            Language
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:    Html
+  hs-source-dirs:     src
+  default-language:   Haskell2010
+  ghc-options:        -Wall -O2
+  build-depends:      base >=4.9 && <4.10
+                    , text
+                    , bytestring
+
+executable dumpCore
+  build-depends:      type-of-html
+                    , base
+                    , dump-core
+                    , text
+                    , bytestring
+  hs-source-dirs:     src
+  main-is:            Main.hs
+  default-language:   Haskell2010
+  ghc-options:        -Wall -fplugin=DumpCore -O2 -ddump-simpl-stats
+
+executable bench
+  main-is:            Bench.hs
+  hs-source-dirs:     bench
+  ghc-options:        -Wall -O2
+  default-language:   Haskell2010
+  build-depends:      base
+                    , type-of-html
+                    , text
+                    , bytestring
+                    , blaze-html
+                    , criterion
