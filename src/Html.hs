@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -18,7 +20,7 @@ import Data.String
 import Data.Kind
 import Data.Proxy
 import Data.Type.Bool
-import Data.Monoid
+import Data.Type.Equality
 
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
@@ -204,156 +206,6 @@ data Element
   | Wbr
   | Xmp
   deriving (Show, Enum, Bounded)
-
--- lots of type families, this will simplify with ghc8.2 AppendSymbol
-
-type family ShowE e where
-  ShowE A = "a"
-  ShowE Abbr = "abbr"
-  ShowE Acronym = "acronym"
-  ShowE Address = "address"
-  ShowE Applet = "applet"
-  ShowE Area = "area"
-  ShowE Article = "article"
-  ShowE Aside = "aside"
-  ShowE Audio = "audio"
-  ShowE B = "b"
-  ShowE Base = "base"
-  ShowE Basefont = "basefont"
-  ShowE Bdi = "bdi"
-  ShowE Bdo = "bdo"
-  ShowE Bgsound = "bgsound"
-  ShowE Big = "big"
-  ShowE Blink = "blink"
-  ShowE Blockquote = "blockquote"
-  ShowE Body = "body"
-  ShowE Br = "br"
-  ShowE Button = "button"
-  ShowE Canvas = "canvas"
-  ShowE Caption = "caption"
-  ShowE Center = "center"
-  ShowE Cite = "cite"
-  ShowE Code = "code"
-  ShowE Col = "col"
-  ShowE Colgroup = "colgroup"
-  ShowE Command = "command"
-  ShowE Content = "content"
-  ShowE Data = "data"
-  ShowE Datalist = "datalist"
-  ShowE Dd = "dd"
-  ShowE Del = "del"
-  ShowE Details = "details"
-  ShowE Dfn = "dfn"
-  ShowE Dialog = "dialog"
-  ShowE Dir = "dir"
-  ShowE Div = "div"
-  ShowE Dl = "dl"
-  ShowE Dt = "dt"
-  ShowE 'Element = "element"
-  ShowE Em = "em"
-  ShowE Embed = "embed"
-  ShowE Fieldset = "fieldset"
-  ShowE Figcaption = "figcaption"
-  ShowE Figure = "figure"
-  ShowE Font = "font"
-  ShowE Footer = "footer"
-  ShowE Form = "form"
-  ShowE Frame = "frame"
-  ShowE Frameset = "frameset"
-  ShowE H1 = "h1"
-  ShowE H2 = "h2"
-  ShowE H3 = "h3"
-  ShowE H4 = "h4"
-  ShowE H5 = "h5"
-  ShowE H6 = "h6"
-  ShowE Head = "head"
-  ShowE Header = "header"
-  ShowE Hgroup = "hgroup"
-  ShowE Hr = "hr"
-  ShowE Html = "html"
-  ShowE I = "i"
-  ShowE Iframe = "iframe"
-  ShowE Image = "image"
-  ShowE Img = "img"
-  ShowE Input = "input"
-  ShowE Ins = "ins"
-  ShowE Isindex = "isindex"
-  ShowE Kbd = "kbd"
-  ShowE Keygen = "keygen"
-  ShowE Label = "label"
-  ShowE Legend = "legend"
-  ShowE Li = "li"
-  ShowE Link = "link"
-  ShowE Listing = "listing"
-  ShowE Main = "main"
-  ShowE Map = "map"
-  ShowE Mark = "mark"
-  ShowE Marquee = "marquee"
-  ShowE Math = "math"
-  ShowE Menu = "menu"
-  ShowE Menuitem = "menuitem"
-  ShowE Meta = "meta"
-  ShowE Meter = "meter"
-  ShowE Multicol = "multicol"
-  ShowE Nav = "nav"
-  ShowE Nextid = "nextid"
-  ShowE Nobr = "nobr"
-  ShowE Noembed = "noembed"
-  ShowE Noframes = "noframes"
-  ShowE Noscript = "noscript"
-  ShowE Object = "object"
-  ShowE Ol = "ol"
-  ShowE Optgroup = "optgroup"
-  ShowE Option = "option"
-  ShowE Output = "output"
-  ShowE P = "p"
-  ShowE Param = "param"
-  ShowE Picture = "picture"
-  ShowE Plaintext = "plaintext"
-  ShowE Pre = "pre"
-  ShowE Progress = "progress"
-  ShowE Q = "q"
-  ShowE Rp = "rp"
-  ShowE Rt = "rt"
-  ShowE Rtc = "rtc"
-  ShowE Ruby = "ruby"
-  ShowE S = "s"
-  ShowE Samp = "samp"
-  ShowE Script = "script"
-  ShowE Section = "section"
-  ShowE Select = "select"
-  ShowE Shadow = "shadow"
-  ShowE Slot = "slot"
-  ShowE Small = "small"
-  ShowE Source = "source"
-  ShowE Spacer = "spacer"
-  ShowE Span = "span"
-  ShowE Strike = "strike"
-  ShowE Strong = "strong"
-  ShowE Style = "style"
-  ShowE Sub = "sub"
-  ShowE Summary = "summary"
-  ShowE Sup = "sup"
-  ShowE Svg = "svg"
-  ShowE Table = "table"
-  ShowE Tbody = "tbody"
-  ShowE Td = "td"
-  ShowE Template = "template"
-  ShowE Textarea = "textarea"
-  ShowE Tfoot = "tfoot"
-  ShowE Th = "th"
-  ShowE Thead = "thead"
-  ShowE Time = "time"
-  ShowE Title = "title"
-  ShowE Tr = "tr"
-  ShowE Track = "track"
-  ShowE Tt = "tt"
-  ShowE U = "u"
-  ShowE Ul = "ul"
-  ShowE Var = "var"
-  ShowE Video = "video"
-  ShowE Wbr = "wbr"
-  ShowE Xmp = "xmp"
 
 type family OpenTag e where
   OpenTag A = "<a>"
@@ -651,233 +503,244 @@ type family CloseTag e where
   CloseTag Wbr = "</wbr>"
   CloseTag Xmp = "</xmp>"
 
-class Render a where render :: (Monoid b, IsString b) => a -> b
+type family Flatten a where
+  Flatten (a # b) = Combine (Flatten a) (Flatten b)
+  Flatten (a > ())= If (HasNoContent (GetInfo a)) (Open a) (Open a, ((), Close a))
+  Flatten (a > b) = Combine (Open a, Flatten b) (Close a)
+  Flatten [a # b] = [Flatten (a # b)]
+  Flatten [a > b] = [Flatten (a > b)]
+  Flatten (Helper _ a) = Flatten a
+  Flatten x = x
 
--- Generated instances:
--- unlines [ "instance Render (Proxy '" ++ show x ++ ") where render _ = \"" ++ map toLower (show x) ++ "\"" | x <- [(minBound :: Element)..]]
+type family Combine a b where
+  Combine (a, b) c = (a, Combine b c)
+  Combine a b = (a, b)
 
-instance Render (Proxy A)          where render _ = "a"
-instance Render (Proxy Abbr)       where render _ = "abbr"
-instance Render (Proxy Acronym)    where render _ = "acronym"
-instance Render (Proxy Address)    where render _ = "address"
-instance Render (Proxy Applet)     where render _ = "applet"
-instance Render (Proxy Area)       where render _ = "area"
-instance Render (Proxy Article)    where render _ = "article"
-instance Render (Proxy Aside)      where render _ = "aside"
-instance Render (Proxy Audio)      where render _ = "audio"
-instance Render (Proxy B)          where render _ = "b"
-instance Render (Proxy Base)       where render _ = "base"
-instance Render (Proxy Basefont)   where render _ = "basefont"
-instance Render (Proxy Bdi)        where render _ = "bdi"
-instance Render (Proxy Bdo)        where render _ = "bdo"
-instance Render (Proxy Bgsound)    where render _ = "bgsound"
-instance Render (Proxy Big)        where render _ = "big"
-instance Render (Proxy Blink)      where render _ = "blink"
-instance Render (Proxy Blockquote) where render _ = "blockquote"
-instance Render (Proxy Body)       where render _ = "body"
-instance Render (Proxy Br)         where render _ = "br"
-instance Render (Proxy Button)     where render _ = "button"
-instance Render (Proxy Canvas)     where render _ = "canvas"
-instance Render (Proxy Caption)    where render _ = "caption"
-instance Render (Proxy Center)     where render _ = "center"
-instance Render (Proxy Cite)       where render _ = "cite"
-instance Render (Proxy Code)       where render _ = "code"
-instance Render (Proxy Col)        where render _ = "col"
-instance Render (Proxy Colgroup)   where render _ = "colgroup"
-instance Render (Proxy Command)    where render _ = "command"
-instance Render (Proxy Content)    where render _ = "content"
-instance Render (Proxy Data)       where render _ = "data"
-instance Render (Proxy Datalist)   where render _ = "datalist"
-instance Render (Proxy Dd)         where render _ = "dd"
-instance Render (Proxy Del)        where render _ = "del"
-instance Render (Proxy Details)    where render _ = "details"
-instance Render (Proxy Dfn)        where render _ = "dfn"
-instance Render (Proxy Dialog)     where render _ = "dialog"
-instance Render (Proxy Dir)        where render _ = "dir"
-instance Render (Proxy Div)        where render _ = "div"
-instance Render (Proxy Dl)         where render _ = "dl"
-instance Render (Proxy Dt)         where render _ = "dt"
-instance Render (Proxy 'Element)   where render _ = "element"
-instance Render (Proxy Em)         where render _ = "em"
-instance Render (Proxy Embed)      where render _ = "embed"
-instance Render (Proxy Fieldset)   where render _ = "fieldset"
-instance Render (Proxy Figcaption) where render _ = "figcaption"
-instance Render (Proxy Figure)     where render _ = "figure"
-instance Render (Proxy Font)       where render _ = "font"
-instance Render (Proxy Footer)     where render _ = "footer"
-instance Render (Proxy Form)       where render _ = "form"
-instance Render (Proxy Frame)      where render _ = "frame"
-instance Render (Proxy Frameset)   where render _ = "frameset"
-instance Render (Proxy H1)         where render _ = "h1"
-instance Render (Proxy H2)         where render _ = "h2"
-instance Render (Proxy H3)         where render _ = "h3"
-instance Render (Proxy H4)         where render _ = "h4"
-instance Render (Proxy H5)         where render _ = "h5"
-instance Render (Proxy H6)         where render _ = "h6"
-instance Render (Proxy Head)       where render _ = "head"
-instance Render (Proxy Header)     where render _ = "header"
-instance Render (Proxy Hgroup)     where render _ = "hgroup"
-instance Render (Proxy Hr)         where render _ = "hr"
-instance Render (Proxy Html)       where render _ = "html"
-instance Render (Proxy I)          where render _ = "i"
-instance Render (Proxy Iframe)     where render _ = "iframe"
-instance Render (Proxy Image)      where render _ = "image"
-instance Render (Proxy Img)        where render _ = "img"
-instance Render (Proxy Input)      where render _ = "input"
-instance Render (Proxy Ins)        where render _ = "ins"
-instance Render (Proxy Isindex)    where render _ = "isindex"
-instance Render (Proxy Kbd)        where render _ = "kbd"
-instance Render (Proxy Keygen)     where render _ = "keygen"
-instance Render (Proxy Label)      where render _ = "label"
-instance Render (Proxy Legend)     where render _ = "legend"
-instance Render (Proxy Li)         where render _ = "li"
-instance Render (Proxy Link)       where render _ = "link"
-instance Render (Proxy Listing)    where render _ = "listing"
-instance Render (Proxy Main)       where render _ = "main"
-instance Render (Proxy Map)        where render _ = "map"
-instance Render (Proxy Mark)       where render _ = "mark"
-instance Render (Proxy Marquee)    where render _ = "marquee"
-instance Render (Proxy Math)       where render _ = "math"
-instance Render (Proxy Menu)       where render _ = "menu"
-instance Render (Proxy Menuitem)   where render _ = "menuitem"
-instance Render (Proxy Meta)       where render _ = "meta"
-instance Render (Proxy Meter)      where render _ = "meter"
-instance Render (Proxy Multicol)   where render _ = "multicol"
-instance Render (Proxy Nav)        where render _ = "nav"
-instance Render (Proxy Nextid)     where render _ = "nextid"
-instance Render (Proxy Nobr)       where render _ = "nobr"
-instance Render (Proxy Noembed)    where render _ = "noembed"
-instance Render (Proxy Noframes)   where render _ = "noframes"
-instance Render (Proxy Noscript)   where render _ = "noscript"
-instance Render (Proxy Object)     where render _ = "object"
-instance Render (Proxy Ol)         where render _ = "ol"
-instance Render (Proxy Optgroup)   where render _ = "optgroup"
-instance Render (Proxy Option)     where render _ = "option"
-instance Render (Proxy Output)     where render _ = "output"
-instance Render (Proxy P)          where render _ = "p"
-instance Render (Proxy Param)      where render _ = "param"
-instance Render (Proxy Picture)    where render _ = "picture"
-instance Render (Proxy Plaintext)  where render _ = "plaintext"
-instance Render (Proxy Pre)        where render _ = "pre"
-instance Render (Proxy Progress)   where render _ = "progress"
-instance Render (Proxy Q)          where render _ = "q"
-instance Render (Proxy Rp)         where render _ = "rp"
-instance Render (Proxy Rt)         where render _ = "rt"
-instance Render (Proxy Rtc)        where render _ = "rtc"
-instance Render (Proxy Ruby)       where render _ = "ruby"
-instance Render (Proxy S)          where render _ = "s"
-instance Render (Proxy Samp)       where render _ = "samp"
-instance Render (Proxy Script)     where render _ = "script"
-instance Render (Proxy Section)    where render _ = "section"
-instance Render (Proxy Select)     where render _ = "select"
-instance Render (Proxy Shadow)     where render _ = "shadow"
-instance Render (Proxy Slot)       where render _ = "slot"
-instance Render (Proxy Small)      where render _ = "small"
-instance Render (Proxy Source)     where render _ = "source"
-instance Render (Proxy Spacer)     where render _ = "spacer"
-instance Render (Proxy Span)       where render _ = "span"
-instance Render (Proxy Strike)     where render _ = "strike"
-instance Render (Proxy Strong)     where render _ = "strong"
-instance Render (Proxy Style)      where render _ = "style"
-instance Render (Proxy Sub)        where render _ = "sub"
-instance Render (Proxy Summary)    where render _ = "summary"
-instance Render (Proxy Sup)        where render _ = "sup"
-instance Render (Proxy Svg)        where render _ = "svg"
-instance Render (Proxy Table)      where render _ = "table"
-instance Render (Proxy Tbody)      where render _ = "tbody"
-instance Render (Proxy Td)         where render _ = "td"
-instance Render (Proxy Template)   where render _ = "template"
-instance Render (Proxy Textarea)   where render _ = "textarea"
-instance Render (Proxy Tfoot)      where render _ = "tfoot"
-instance Render (Proxy Th)         where render _ = "th"
-instance Render (Proxy Thead)      where render _ = "thead"
-instance Render (Proxy Time)       where render _ = "time"
-instance Render (Proxy Title)      where render _ = "title"
-instance Render (Proxy Tr)         where render _ = "tr"
-instance Render (Proxy Track)      where render _ = "track"
-instance Render (Proxy Tt)         where render _ = "tt"
-instance Render (Proxy U)          where render _ = "u"
-instance Render (Proxy Ul)         where render _ = "ul"
-instance Render (Proxy Var)        where render _ = "var"
-instance Render (Proxy Video)      where render _ = "video"
-instance Render (Proxy Wbr)        where render _ = "wbr"
-instance Render (Proxy Xmp)        where render _ = "xmp"
+type family HasNoContent a where
+  HasNoContent (ElementInfo _ NoContent _) = True
+  HasNoContent _ = False
 
-instance (Render a, Render b) => Render (Either a b) where
-  render (Right x) = render x
-  render (Left x) = render x
+type family PruneTags a where
+  PruneTags ((), a) = PruneTags a
+  PruneTags (a , ()) = PruneTags a
+  PruneTags [a] = [PruneTags a]
+  PruneTags (Close a, b) = IsOmitable' (GetInfo a) (Close a, b)
+  PruneTags (a, b) = (a, PruneTags b)
+  PruneTags (Helper a b) = PruneTags b
+  PruneTags a = a
 
-instance (Render a) => Render (Maybe a) where
-  render (Just x) = render x
-  render _ = ""
+type family IsOmitable' a b where
+  IsOmitable' (ElementInfo _ _ RightOmission) (_,c) = PruneTags c
+  IsOmitable' (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c)) = PruneTags(Close b, c)
+  IsOmitable' (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c) = (b, PruneTags c)
+  IsOmitable' (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d)) = PruneTags(Open x, d)
+  IsOmitable' (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c =
+      IsOmitable' (ElementInfo a b (LastChildOrFollowedBy xs)) c
+  IsOmitable' _ (c,d) = (c, PruneTags d)
 
-instance Render () where
-  render _ = ""
+type family IsOmitable a b where
+  IsOmitable (ElementInfo _ _ RightOmission) _ = True
+  IsOmitable (ElementInfo _ _ (LastChildOrFollowedBy _)) (Close _) = True
+  IsOmitable (ElementInfo _ _ (LastChildOrFollowedBy '[])) _ = False
+  IsOmitable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (Open x) = True
+  IsOmitable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) (Open x) =
+      IsOmitable (ElementInfo a b (LastChildOrFollowedBy xs)) (Open x)
+  IsOmitable _ _ = False
 
-instance Render String where
-  render = fromString
+type family RenderRecursive a where
+  RenderRecursive [a] = [RenderRecursive a]
+  RenderRecursive (a, b) = (RenderRecursive a, RenderRecursive b)
+  RenderRecursive a = RenderTag a
 
-instance Render T.Text where
-  render = fromString . T.unpack
+type family RenderTag a where
+  RenderTag (Open a) = Proxy (OpenTag a)
+  RenderTag (Close a) = Proxy (CloseTag a)
+  RenderTag EndOfOpen = Proxy ">"
+  RenderTag a = a
 
-instance Render LT.Text where
-  render = fromString . LT.unpack
+type family Fuse a where
+  Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy "FUSED", c)
+  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol)) = Proxy "FUSED"
+  Fuse (a, b) = (a, Fuse b)
+  Fuse [a] = [Fuse a]
+  Fuse a = a
 
-instance Render TLB.Builder where
-  render = fromString . LT.unpack . TLB.toLazyText
+class FlattenV a where
+  flatten :: a -> Flatten a
 
-instance Render BS8.ByteString where
-  render = fromString . BS8.unpack
+instance (CombineV (Flatten a) (Flatten b), FlattenV a, FlattenV b) => FlattenV (a # b) where
+  flatten (a :#: b) = combine (flatten a) (flatten b)
 
-instance Render LBS8.ByteString where
-  render = fromString . LBS8.unpack
+instance (FlattenV (Helper (HasNoContent (GetInfo a)) (a > ()))) => FlattenV (a > ()) where
+  flatten x = flatten (Helper x :: Helper (HasNoContent (GetInfo a)) (a > ()))
 
-instance (Render a, Render b) => Render (a # b) where
-  render (a :#: b) = render a <> render b
+instance (Flatten (a > ()) ~ Open a) => FlattenV (Helper 'True (a > ())) where
+  flatten (Helper (Child _)) = Open
+  flatten (Helper (WithAttributes _ _)) = Open
 
-instance Render (a # b) => Render [a # b] where
-  render = foldMap render
+instance (Flatten (a > ()) ~ (Open a, Combine (Flatten ()) (Close a))) => FlattenV (Helper 'False (a > ())) where
+  flatten (Helper (Child _)) = combine (Open :: Open a, ()) (Close :: Close a)
+  flatten (Helper (WithAttributes _ _)) = combine (Open :: Open a, ()) (Close :: Close a)
 
-instance Render (a > b) => Render [a > b] where
-  render = foldMap render
+instance {-# OVERLAPPABLE #-} (Flatten (a > b) ~ (Open a, Combine (Flatten b) (Close a)),FlattenV b, CombineV (Open a, Flatten b) (Close a)) => FlattenV (a > b) where
+  flatten (Child b) = combine (Open :: Open a, flatten b) (Close :: Close a)
+  flatten (WithAttributes _ b) = combine (Open :: Open a, flatten b) (Close :: Close a)
 
-instance Render [(String, String)] where
-  render xs = let escape = id in fromString $ concat [" " <> escape a <> "=" <> escape b | (a,b) <- xs ]
+instance (FlattenV (a # b)) => FlattenV [a # b] where
+  flatten = map flatten
 
-instance Render (Proxy (GetInfo a), a > b) => Render (a > b) where
-  render x = render (Proxy :: Proxy (GetInfo a), x)
+instance (FlattenV (a > b)) => FlattenV [a > b] where
+  flatten = map flatten
 
-instance (KnownSymbol (OpenTag a), KnownSymbol (CloseTag a), KnownSymbol (ShowE a), Render (Proxy a), Render b) => Render (Proxy (ElementInfo x y NoOmission), a > b) where
-  render (_, Child a) =
-    fromString (symbolVal (Proxy :: Proxy (OpenTag a)))
-    <> render a
-    <> fromString (symbolVal (Proxy :: Proxy (CloseTag a)))
-  render (_, WithAttributes xs a) =
-    let tag = fromString (symbolVal (Proxy :: Proxy (ShowE a)))
-    in openTag (tag <> render xs) <> render a
-        <> fromString (symbolVal (Proxy :: Proxy (CloseTag a)))
+instance {-# OVERLAPPABLE #-} (Flatten x ~ x) => FlattenV x where
+  flatten x = x
 
-instance (KnownSymbol (OpenTag a), KnownSymbol (CloseTag a), KnownSymbol (ShowE a), Render (Proxy a), Render b) => Render (Proxy (ElementInfo x y RightOmission), a > b) where
-  render (_, Child a) =
-    fromString (symbolVal (Proxy :: Proxy (OpenTag a)))
-    <> render a
-  render (_, WithAttributes xs a) =
-    let tag = fromString (symbolVal (Proxy :: Proxy (ShowE a)))
-    in openTag (tag <> render xs) <> render a
+class CombineV a b where
+  combine :: a -> b -> Combine a b
 
-instance (Render (a > b)) => Show (a > b) where
-  show = render
+instance CombineV b c => CombineV (a,b) c where
+  combine (a,b) c = (a, combine b c)
 
-instance (Render (a # b)) => Show (a # b) where
-  show = render
+instance {-# OVERLAPPABLE #-} (Combine a b ~ (a,b)) => CombineV a b where
+  combine a b = (a, b)
 
-{-# INLINE openTag #-}
-openTag :: (Monoid a, IsString a) => a -> a
-openTag s = "<" <> s <> ">"
+newtype Helper (a :: Bool) b = Helper b
+class PruneV a where
+  prune :: a -> PruneTags a
 
-{-# INLINE closeTag #-}
-closeTag :: (Monoid a, IsString a) => a -> a
-closeTag s = "</" <> s <> ">"
+instance PruneV a => PruneV ((), a) where
+  prune = prune . snd
+
+instance PruneV a => PruneV (a, ()) where
+  prune = prune . fst
+
+instance PruneV a => PruneV [a] where
+  prune = map prune
+
+instance (PruneV (Helper (PruneTags (Close a, b) == PruneTags b) (Close a, b))) => PruneV (Close a, b) where
+  prune x = prune (Helper x :: Helper (PruneTags (Close a, b) == PruneTags b) (Close a, b))
+
+instance {-# OVERLAPPABLE #-} (PruneV b, PruneTags (a,b) ~ (a, PruneTags b)) => PruneV (a, b) where
+  prune (x,y) = (x, prune y)
+
+instance {-# OVERLAPPABLE #-} PruneTags a ~ a => PruneV a where
+  prune = id
+
+instance (PruneV b, PruneTags b ~ PruneTags (a,b)) => PruneV (Helper 'True (a,b)) where
+  prune (Helper x) = prune $ snd x
+
+instance (PruneV b, (a, PruneTags b) ~ PruneTags (a,b)) => PruneV (Helper 'False (a,b)) where
+  prune (Helper (x,y)) = (x, prune y)
+
+class RenderTagV a where
+  renderTagV :: a -> RenderTag a
+
+instance RenderTagV (Open a) where
+  renderTagV _ = Proxy
+
+instance RenderTagV (Close a) where
+  renderTagV _ = Proxy
+
+instance RenderTagV EndOfOpen where
+  renderTagV _ = Proxy
+
+instance {-# OVERLAPPABLE #-} (RenderTag a ~ a) => RenderTagV a where
+  renderTagV = id
+
+class RenderV a where
+  renderTag :: a -> RenderRecursive a
+
+instance {-# OVERLAPPING #-} RenderV a => RenderV [a] where
+  renderTag = map renderTag
+
+instance (RenderV a, RenderV b) => RenderV (a,b) where
+  renderTag (a,b) = (renderTag a, renderTag b)
+
+instance {-# OVERLAPPABLE #-} (RenderTagV a, RenderRecursive a ~ RenderTag a) => RenderV a where
+  renderTag = renderTagV
+
+class DoRender a where
+  doRender :: IsString b => a -> b
+
+instance KnownSymbol a => DoRender (Proxy a) where
+  doRender = fromString . symbolVal
+
+instance DoRender a => DoRender (Maybe a) where
+  doRender Nothing = ""
+  doRender (Just x) = doRender x
+
+instance DoRender Attribute where
+  doRender (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
+
+instance DoRender String where
+  doRender = fromString
+instance DoRender T.Text where
+  doRender = fromString . T.unpack
+instance DoRender LT.Text where
+  doRender = fromString . LT.unpack
+instance DoRender TLB.Builder where
+  doRender = fromString . LT.unpack . TLB.toLazyText
+instance DoRender BS8.ByteString where
+  doRender = fromString . BS8.unpack
+instance DoRender LBS8.ByteString where
+  doRender = fromString . LBS8.unpack
+
+class Generate a where
+  generate :: IsString b => a -> [b]
+
+instance (DoRender a, Generate b) => Generate (Maybe a, b) where
+  generate (Nothing, b) = generate b
+  generate (Just a, b) = generate (a, b)
+
+instance (Generate (a,b), Generate c) => Generate ([(a,b)], c) where
+  generate (a, b) = concatMap generate a ++ generate b
+
+instance (Generate (Proxy t), Generate c) => Generate ([Proxy t], c) where
+  generate (a, b) = concatMap generate a ++ generate b
+
+instance {-# OVERLAPPABLE #-} (DoRender a, Generate b) => Generate (a, b) where
+  generate (a, b) = doRender a : generate b
+
+instance {-# OVERLAPPABLE #-} DoRender a => Generate a where
+  generate x = [doRender x]
+
+instance Generate (a,b) => Generate [(a,b)] where
+  generate = concatMap generate
+
+instance Generate (Proxy t) => Generate [Proxy t] where
+  generate = concatMap generate
+
+class FuseV a where
+  fuse :: a -> Fuse a
+
+instance (KnownSymbol x, KnownSymbol y, FuseV (Proxy "FUSED", a)) => FuseV (Proxy x, (Proxy y, a)) where
+  fuse (_, (_, a)) = fuse (Proxy :: Proxy "FUSED", a)
+
+instance (KnownSymbol x, KnownSymbol y) => FuseV (Proxy x, Proxy y) where
+  fuse _ = Proxy :: Proxy "FUSED"
+
+instance {-# OVERLAPPABLE #-} (FuseV b, Fuse (a, b) ~ (a, Fuse b)) => FuseV (a, b) where
+  fuse (x,y) = (x, fuse y)
+
+instance FuseV a => FuseV [a] where
+  fuse = map fuse
+
+instance {-# OVERLAPPABLE #-} Fuse a ~ a => FuseV a where
+  fuse = id
+
+render :: (FlattenV a, PruneV (Flatten a), RenderV (PruneTags (Flatten a)), FuseV (RenderRecursive (PruneTags (Flatten a))), IsString c, Generate (Fuse (RenderRecursive (PruneTags (Flatten a)))), Monoid c) => a -> c
+render
+  = mconcat
+  . generate
+  . fuse
+  . renderTag
+  . prune
+  . flatten
+
+data EndOfOpen = EndOfOpen
+data Open (a :: Element) = Open
+data Close (a :: Element) = Close
+newtype Attribute = Attribute [(String, String)]
 
 data (#) a b = (:#:) a b
 (#) :: a -> b -> a # b
@@ -1201,7 +1064,6 @@ type family GetInfo a where
     NoOmission
 
 -- keygen
-
 
   GetInfo Label = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent, PalpableContent ]
@@ -1535,8 +1397,7 @@ type family GetInfo a where
 data TagOmission
   = NoOmission
   | RightOmission
---  | LastChildOrFollowedBy [Element]
-type LastChildOrFollowedBy (x :: [Element]) = NoOmission
+  | LastChildOrFollowedBy [Element]
 
 type family TestPaternity a b c :: Bool where
   TestPaternity a (ElementInfo _ ps _) (ElementInfo cs _ _) = CheckContentCategory ps (a ': cs)
@@ -1615,7 +1476,6 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a (a : xs) = True
   Elem a (_ : xs) = Elem a xs
   Elem a '[] = False
-
 
 -- Generated Code:
 -- unlines $ map (\x -> map toLower (show x) ++ "_ :: (" ++ show x ++ " ?> a) => a -> " ++ show x ++ " > a\n"++ map toLower (show x) ++ "_ = Child\n" ) [(minBound :: Element) ..]
