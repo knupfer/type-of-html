@@ -4,70 +4,11 @@
 module Main where
 
 import Html
+import qualified Data.Text.Lazy.IO as T
+import qualified Data.Text.Lazy.Builder as T
 
 main :: IO ()
-main = putStrLn $ render (bigPage "TEST")
+main = T.putStrLn $ T.toLazyText $ render (bigTable (1000,50))
 
-bigPage :: ('Title ?> a) =>
-         a
-         -> 'Html
-            > (('Head
-                > (('Meta > ())
-                   # (('Title > a)
-                      # (('Script > ()) # (('Link > ()) # ('Style > ()))))))
-               # ('Body
-                  > (('H1 > (('Img > ()) # ('Strong > ())))
-                     # (('Div > (('Div > ('Img > ())) # ('Div > ('Img > ()))))
-                        # ('Div
-                           > ('Form
-                              > ('Fieldset
-                                 > (('Div
-                                     > ('Div
-                                        > (('Div
-                                            > (('Label > ())
-                                               # (('Select
-                                                   > (('Option > ())
-                                                      # ('Option > ())))
-                                                  # ('Div > ()))))
-                                           # ('I > ()))))
-                                    # ('Button > ('I > ()))))))))))
-bigPage x =
-  html_
-    ( head_
-      ( meta_ ()
-      # title_ x
-      # script_ ()
-      # link_ ()
-      # style_ ()
-      )
-    # body_
-      ( h1_
-        ( img_ ()
-        # strong_ ()
-        )
-      # div_
-        ( div_ (img_ ())
-        # div_ (img_ ())
-        )
-      # div_
-        ( form_
-          ( fieldset_
-            ( div_
-              ( div_
-                ( div_
-                  ( label_ ()
-                  # select_
-                    ( option_ ()
-                    # option_ ()
-                    )
-                  # div_ ()
-                  )
-                # i_ ()
-                )
-              )
-            # button_ (i_ ())
-            )
-          )
-        )
-      )
-    )
+bigTable :: (Int, Int) -> 'Table > ['Tr > ['Td > String]]
+bigTable (n, m) = table_ $ replicate n (tr_ $ map (td_ . show) [1..m])

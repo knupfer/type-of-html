@@ -27,28 +27,28 @@ main = defaultMain
     , bench "lazy text"   $ nf (render . minimal :: LT.Text -> LT.Text) "TEST"
     , bench "builder"     $ nf (TLB.toLazyText . render . minimal :: TLB.Builder -> LT.Text) "TEST"
     , bench "blaze"       $ nf (RT.renderHtml . blazeMinimal) "TEST"
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . render . bestMinimal) "TEST"
+    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestMinimal) "TEST"
     ]
   , bgroup "hello world"
     [ bench "strict text" $ nf (render . helloWorld :: T.Text -> T.Text) "TEST"
     , bench "lazy text"   $ nf (render . helloWorld :: LT.Text -> LT.Text) "TEST"
     , bench "builder"     $ nf (TLB.toLazyText . render . helloWorld :: TLB.Builder -> LT.Text) "TEST"
     , bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld) "TEST"
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . render . bestHelloWorld) "TEST"
+    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestHelloWorld) "TEST"
     ]
   , bgroup "big page"
     [ bench "strict text" $ nf (render . bigPage :: T.Text -> T.Text) "TEST"
     , bench "lazy text"   $ nf (render . bigPage :: LT.Text -> LT.Text) "TEST"
     , bench "builder"     $ nf (TLB.toLazyText . render . bigPage :: TLB.Builder -> LT.Text) "TEST"
     , bench "blaze"       $ nf (RT.renderHtml . blazeBigPage) "TEST"
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . render . bestBigPage) "TEST"
+    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigPage) "TEST"
     ]
   , bgroup "big table"
     [ bench "strict text" $ nf (render . bigTable :: (Int, Int) -> T.Text) (10,10)
     , bench "lazy text"   $ nf (render . bigTable :: (Int, Int) -> LT.Text) (10,10)
     , bench "builder"     $ nf (TLB.toLazyText . render . bigTable :: (Int, Int) -> LT.Text) (10,10)
     , bench "blaze"       $ nf (RT.renderHtml . blazeBigTable) (10,10)
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . render . bestBigTable) (10,10)
+    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigTable) (10,10)
     ]
   ]
 
@@ -66,7 +66,7 @@ bestBigPage x = "<html><head><meta><title>" <> x <> "</title><script></script><l
 bestBigTable :: (Int,Int) -> TLB.Builder
 bestBigTable (n, m)
   = "<table>"
-  <> stimes n ("<tr>" <> foldMap (\x -> "<td>" <> fromString (show x)) [1..m])
+  <> mconcat (replicate n ("<tr>" <> mconcat (map (\x -> "<td>" <> fromString (show x)) [1..m])))
   <> "</table>"
 
 -- Blaze based functions

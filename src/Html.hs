@@ -505,7 +505,7 @@ type family CloseTag e where
 
 type family Flatten a where
   Flatten (a # b) = Combine (Flatten a) (Flatten b)
-  Flatten (a > ())= If (HasNoContent (GetInfo a)) (Open a) (Open a, ((), Close a))
+  Flatten (a > ())= If (HasNoContent (GetInfo a)) (Open a) (Open a, Close a)
   Flatten (a > b) = Combine (Open a, Flatten b) (Close a)
   Flatten [a # b] = [Flatten (a # b)]
   Flatten [a > b] = [Flatten (a > b)]
@@ -572,19 +572,17 @@ instance (CombineV (Flatten a) (Flatten b), FlattenV a, FlattenV b) => FlattenV 
   flatten (a :#: b) = combine (flatten a) (flatten b)
 
 instance (FlattenV (Helper (HasNoContent (GetInfo a)) (a > ()))) => FlattenV (a > ()) where
-  flatten x = flatten (Helper x :: Helper (HasNoContent (GetInfo a)) (a > ()))
+  flatten _ = flatten (Helper undefined :: Helper (HasNoContent (GetInfo a)) (a > ()))
 
 instance (Flatten (a > ()) ~ Open a) => FlattenV (Helper 'True (a > ())) where
-  flatten (Helper (Child _)) = Open
-  flatten (Helper (WithAttributes _ _)) = Open
+  flatten _ = Open
 
-instance (Flatten (a > ()) ~ (Open a, Combine (Flatten ()) (Close a))) => FlattenV (Helper 'False (a > ())) where
-  flatten (Helper (Child _)) = combine (Open :: Open a, ()) (Close :: Close a)
-  flatten (Helper (WithAttributes _ _)) = combine (Open :: Open a, ()) (Close :: Close a)
+instance (Flatten (a > ()) ~ (Open a, Close a)) => FlattenV (Helper 'False (a > ())) where
+  flatten _ = (Open, Close)
 
-instance {-# OVERLAPPABLE #-} (Flatten (a > b) ~ (Open a, Combine (Flatten b) (Close a)),FlattenV b, CombineV (Open a, Flatten b) (Close a)) => FlattenV (a > b) where
-  flatten (Child b) = combine (Open :: Open a, flatten b) (Close :: Close a)
-  flatten (WithAttributes _ b) = combine (Open :: Open a, flatten b) (Close :: Close a)
+instance {-# OVERLAPPABLE #-} (Flatten (a > b) ~ (Open a, Combine (Flatten b) (Close a)),FlattenV b, CombineV (Flatten b) (Close a)) => FlattenV (a > b) where
+  flatten (Child b) = (Open, combine (flatten b) (Close :: Close a))
+--  flatten (WithAttributes _ b) = combine (Open :: Open a, flatten b) (Close :: Close a)
 
 instance (FlattenV (a # b)) => FlattenV [a # b] where
   flatten = map flatten
@@ -606,7 +604,7 @@ instance {-# OVERLAPPABLE #-} (Combine a b ~ (a,b)) => CombineV a b where
 
 newtype Helper (a :: Bool) b = Helper b
 class PruneV a where
-  prune :: a -> PruneTags a
+  prune :: a -> RenderRecursive (PruneTags a)
 
 instance PruneV a => PruneV ((), a) where
   prune = prune . snd
@@ -620,94 +618,82 @@ instance PruneV a => PruneV [a] where
 instance (PruneV (Helper (PruneTags (Close a, b) == PruneTags b) (Close a, b))) => PruneV (Close a, b) where
   prune x = prune (Helper x :: Helper (PruneTags (Close a, b) == PruneTags b) (Close a, b))
 
-instance {-# OVERLAPPABLE #-} (PruneV b, PruneTags (a,b) ~ (a, PruneTags b)) => PruneV (a, b) where
-  prune (x,y) = (x, prune y)
+instance {-# OVERLAPPABLE #-} (PruneV b, RenderRecursive (PruneTags (Open a, b)) ~ (Proxy (OpenTag a), RenderRecursive (PruneTags b))) => PruneV (Open a, b) where
+  prune (_,y) = (Proxy, prune y)
 
-instance {-# OVERLAPPABLE #-} PruneTags a ~ a => PruneV a where
+instance {-# OVERLAPPABLE #-} (PruneV a, PruneV b, RenderRecursive (PruneTags (a,b)) ~ (RenderRecursive (PruneTags a),RenderRecursive (PruneTags b)) ) => PruneV (a, b) where
+  prune (x,y) = (prune x, prune y)
+
+instance PruneV (Open a) where
+  prune _ = Proxy
+
+instance PruneV (Close a) where
+  prune _ = Proxy
+
+instance {-# OVERLAPPABLE #-} (PruneTags a ~ a, RenderRecursive a ~ a) => PruneV a where
   prune = id
 
 instance (PruneV b, PruneTags b ~ PruneTags (a,b)) => PruneV (Helper 'True (a,b)) where
   prune (Helper x) = prune $ snd x
 
-instance (PruneV b, (a, PruneTags b) ~ PruneTags (a,b)) => PruneV (Helper 'False (a,b)) where
-  prune (Helper (x,y)) = (x, prune y)
+instance (PruneV b, RenderRecursive (PruneTags (Close a, b)) ~ (Proxy (CloseTag a), RenderRecursive (PruneTags b))) => PruneV (Helper 'False (Close a,b)) where
+  prune (Helper (_,y)) = (Proxy, prune y)
 
-class RenderTagV a where
-  renderTagV :: a -> RenderTag a
-
-instance RenderTagV (Open a) where
-  renderTagV _ = Proxy
-
-instance RenderTagV (Close a) where
-  renderTagV _ = Proxy
-
-instance RenderTagV EndOfOpen where
-  renderTagV _ = Proxy
-
-instance {-# OVERLAPPABLE #-} (RenderTag a ~ a) => RenderTagV a where
-  renderTagV = id
-
-class RenderV a where
-  renderTag :: a -> RenderRecursive a
-
-instance {-# OVERLAPPING #-} RenderV a => RenderV [a] where
-  renderTag = map renderTag
-
-instance (RenderV a, RenderV b) => RenderV (a,b) where
-  renderTag (a,b) = (renderTag a, renderTag b)
-
-instance {-# OVERLAPPABLE #-} (RenderTagV a, RenderRecursive a ~ RenderTag a) => RenderV a where
-  renderTag = renderTagV
-
-class DoRender a where
+class DoRender a b where
   doRender :: IsString b => a -> b
 
-instance KnownSymbol a => DoRender (Proxy a) where
+instance KnownSymbol a => DoRender (Proxy a) b where
   doRender = fromString . symbolVal
 
-instance DoRender a => DoRender (Maybe a) where
+instance DoRender a b => DoRender (Maybe a) b where
   doRender Nothing = ""
   doRender (Just x) = doRender x
 
-instance DoRender Attribute where
+instance DoRender Attribute b where
   doRender (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
 
-instance DoRender String where
-  doRender = fromString
-instance DoRender T.Text where
-  doRender = fromString . T.unpack
-instance DoRender LT.Text where
-  doRender = fromString . LT.unpack
-instance DoRender TLB.Builder where
-  doRender = fromString . LT.unpack . TLB.toLazyText
-instance DoRender BS8.ByteString where
-  doRender = fromString . BS8.unpack
-instance DoRender LBS8.ByteString where
+instance {-# OVERLAPPING #-} DoRender String String where doRender = id
+instance DoRender String a where doRender = fromString
+
+instance {-# OVERLAPPING #-} DoRender T.Text T.Text where doRender = id
+instance DoRender T.Text a where doRender = fromString . T.unpack
+
+instance {-# OVERLAPPING #-} DoRender LT.Text LT.Text where doRender = id
+instance DoRender LT.Text a where doRender = fromString . LT.unpack
+
+instance {-# OVERLAPPING #-} DoRender TLB.Builder TLB.Builder where doRender = id
+instance DoRender TLB.Builder a where doRender = fromString . LT.unpack . TLB.toLazyText
+
+instance {-# OVERLAPPING #-} DoRender BS8.ByteString BS8.ByteString where doRender = id
+instance DoRender BS8.ByteString a where doRender = fromString . BS8.unpack
+
+instance {-# OVERLAPPING #-} DoRender LBS8.ByteString LBS8.ByteString where doRender = id
+instance DoRender LBS8.ByteString a where
   doRender = fromString . LBS8.unpack
 
-class Generate a where
+class Generate a b where
   generate :: IsString b => a -> [b]
 
-instance (DoRender a, Generate b) => Generate (Maybe a, b) where
+instance (DoRender a str, Generate b str) => Generate (Maybe a, b) str where
   generate (Nothing, b) = generate b
   generate (Just a, b) = generate (a, b)
 
-instance (Generate (a,b), Generate c) => Generate ([(a,b)], c) where
+instance (Generate (a,b) str, Generate c str) => Generate ([(a,b)], c) str where
   generate (a, b) = concatMap generate a ++ generate b
 
-instance (Generate (Proxy t), Generate c) => Generate ([Proxy t], c) where
+instance (Generate (Proxy t) str, Generate c str) => Generate ([Proxy t], c) str where
   generate (a, b) = concatMap generate a ++ generate b
 
-instance {-# OVERLAPPABLE #-} (DoRender a, Generate b) => Generate (a, b) where
+instance {-# OVERLAPPABLE #-} (DoRender a str, Generate b str) => Generate (a, b) str where
   generate (a, b) = doRender a : generate b
 
-instance {-# OVERLAPPABLE #-} DoRender a => Generate a where
+instance {-# OVERLAPPABLE #-} DoRender a str => Generate a str where
   generate x = [doRender x]
 
-instance Generate (a,b) => Generate [(a,b)] where
+instance Generate (a,b) str => Generate [(a,b)] str where
   generate = concatMap generate
 
-instance Generate (Proxy t) => Generate [Proxy t] where
+instance Generate (Proxy t) str => Generate [Proxy t] str where
   generate = concatMap generate
 
 class FuseV a where
@@ -728,12 +714,10 @@ instance FuseV a => FuseV [a] where
 instance {-# OVERLAPPABLE #-} Fuse a ~ a => FuseV a where
   fuse = id
 
-render :: (FlattenV a, PruneV (Flatten a), RenderV (PruneTags (Flatten a)), FuseV (RenderRecursive (PruneTags (Flatten a))), IsString c, Generate (Fuse (RenderRecursive (PruneTags (Flatten a)))), Monoid c) => a -> c
 render
   = mconcat
   . generate
   . fuse
-  . renderTag
   . prune
   . flatten
 
@@ -749,7 +733,8 @@ infixr 5 #
 
 data (>) (a :: Element) b where
   Child :: (a ?> b) => b -> a > b
-  WithAttributes :: (a ?> b) => [(String, String)] -> b -> a > b
+--  WithAttributes :: (a ?> b) => [(String, String)] -> b -> a > b
+
 infixr 8 >
 
 data ElementInfo
@@ -1424,9 +1409,9 @@ type family CheckString (a :: Element) where
                    (() :: Constraint)
                    (TypeError (ShowType a :<>: Text " can't contain a string"))
 
-(?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b > c)
-f ? xs = addAttributes xs . f
-infixr 9 ?
+--(?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b > c)
+--f ? xs = addAttributes xs . f
+--infixr 9 ?
 
 type family Rep n x where
   Rep 0 _ = TypeError (Text "Can't replicate 0 times")
@@ -1442,9 +1427,9 @@ instance {-# OVERLAPPING #-} Replicate 1 x where
 instance (Replicate (n-1) x, Rep n x ~ (x # Rep (n-1) x)) => Replicate n x where
   replicateH _ x = x # replicateH (Proxy :: Proxy (n-1)) x
 
-addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a > b)
-addAttributes xs (Child b) = WithAttributes xs b
-addAttributes xs (WithAttributes xs0 b) = WithAttributes (xs0 ++ xs) b
+-- addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a > b)
+-- addAttributes xs (Child b) = WithAttributes xs b
+-- addAttributes xs (WithAttributes xs0 b) = WithAttributes (xs0 ++ xs) b
 
 data ContentCategory
   = MetadataContent
