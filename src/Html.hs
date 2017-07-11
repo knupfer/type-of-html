@@ -714,10 +714,17 @@ instance FuseV a => FuseV [a] where
 instance {-# OVERLAPPABLE #-} Fuse a ~ a => FuseV a where
   fuse = id
 
+instance (FlattenV (a # b), PruneV (Flatten (a # b)), Generate (RenderRecursive (PruneTags (Flatten (a # b)))) String) => Show (a # b) where
+  show = render
+
+instance (FlattenV (a > b), PruneV (Flatten (a > b)), Generate (RenderRecursive (PruneTags (Flatten (a > b)))) String) => Show (a > b) where
+  show = render
+
+render :: (FlattenV a, PruneV (Flatten a), IsString c, Generate (RenderRecursive (PruneTags (Flatten a))) c, Monoid c) => a -> c
 render
   = mconcat
   . generate
-  . fuse
+--  . fuse
   . prune
   . flatten
 
