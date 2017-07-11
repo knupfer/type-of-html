@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
@@ -714,13 +715,20 @@ instance FuseV a => FuseV [a] where
 instance {-# OVERLAPPABLE #-} Fuse a ~ a => FuseV a where
   fuse = id
 
-instance (FlattenV (a # b), PruneV (Flatten (a # b)), Generate (RenderRecursive (PruneTags (Flatten (a # b)))) String) => Show (a # b) where
+instance Render (a # b) String => Show (a # b) where
   show = render
 
-instance (FlattenV (a > b), PruneV (Flatten (a > b)), Generate (RenderRecursive (PruneTags (Flatten (a > b)))) String) => Show (a > b) where
+instance Render (a > b) String => Show (a > b) where
   show = render
 
-render :: (FlattenV a, PruneV (Flatten a), IsString c, Generate (RenderRecursive (PruneTags (Flatten a))) c, Monoid c) => a -> c
+type Render a b
+  = ( FlattenV a
+    , PruneV (Flatten a)
+    , IsString b
+    , Generate (RenderRecursive (PruneTags (Flatten a))) b
+    , Monoid b)
+
+render :: Render a b => a -> b
 render
   = mconcat
   . generate
