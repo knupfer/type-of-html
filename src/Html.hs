@@ -21,7 +21,6 @@ import Data.String
 import Data.Kind
 import Data.Proxy
 import Data.Type.Bool
-import Data.Type.Equality
 
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
@@ -561,84 +560,67 @@ type family RenderTag a where
 
 type family Fuse a where
   Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy "FUSED", c)
-  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol)) = Proxy "FUSED"
-  Fuse (a, b) = (a, Fuse b)
-  Fuse [a] = [Fuse a]
-  Fuse a = a
+  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = Proxy "FUSED"
+  Fuse (Proxy (a :: Symbol), (b, c))                   = (Proxy a, Fuse c)
+  Fuse (a, b)                                          = (Proxy "", Fuse b)
+  Fuse (Proxy (a :: Symbol))                           = Proxy a
+  Fuse a                                               = Proxy ""
 
-class FlattenV a where
-  flatten :: a -> Flatten a
+type Render html string = (IsString string, FlatR (Fuse (RenderRecursive (PruneTags (Flatten html)))) string, FlatR html string, Monoid string)
 
-instance (CombineV (Flatten a) (Flatten b), FlattenV a, FlattenV b) => FlattenV (a # b) where
-  flatten (a :#: b) = combine (flatten a) (flatten b)
+{-# INLINE render #-}
+render :: Render a b => a -> b
+render = mconcat . renderList
 
-instance (FlattenV (Helper (HasNoContent (GetInfo a)) (a > ()))) => FlattenV (a > ()) where
-  flatten _ = flatten (Helper undefined :: Helper (HasNoContent (GetInfo a)) (a > ()))
+{-# INLINE renderList #-}
+renderList :: Render a b => a -> [b]
+renderList x = g elements contents
+  where contents = flatR x
+        elements = flatR (f x)
+        f :: x -> Fuse (RenderRecursive (PruneTags (Flatten x)))
+        f = undefined
+        g (a:as) (b:bs) = a:b:g as bs
+        g as [] = as
+        g [] bs = bs
 
-instance (Flatten (a > ()) ~ Open a) => FlattenV (Helper 'True (a > ())) where
-  flatten _ = Open
+class FlatR a b where
+  flatR :: (IsString b, Monoid b) => a -> [b]
 
-instance (Flatten (a > ()) ~ (Open a, Close a)) => FlattenV (Helper 'False (a > ())) where
-  flatten _ = (Open, Close)
+instance (KnownSymbol a, FlatR b str) => FlatR (Proxy a, b) str where
+  {-# INLINE flatR #-}
+  flatR _ = doRender (Proxy :: Proxy a):flatR (undefined :: b)
 
-instance {-# OVERLAPPABLE #-} (Flatten (a > b) ~ (Open a, Combine (Flatten b) (Close a)),FlattenV b, CombineV (Flatten b) (Close a)) => FlattenV (a > b) where
-  flatten (Child b) = (Open, combine (flatten b) (Close :: Close a))
---  flatten (WithAttributes _ b) = combine (Open :: Open a, flatten b) (Close :: Close a)
+instance KnownSymbol a => FlatR (Proxy a) str where
+  {-# INLINE flatR #-}
+  flatR _ = [doRender (Proxy :: Proxy a)]
 
-instance (FlattenV (a # b)) => FlattenV [a # b] where
-  flatten = map flatten
+instance {-# OVERLAPPABLE #-} DoRender a str => FlatR a str where
+  {-# INLINE flatR #-}
+  flatR x = [doRender x]
 
-instance (FlattenV (a > b)) => FlattenV [a > b] where
-  flatten = map flatten
+instance FlatR () str where
+  {-# INLINE flatR #-}
+  flatR _ = []
 
-instance {-# OVERLAPPABLE #-} (Flatten x ~ x) => FlattenV x where
-  flatten x = x
+instance (FlatR a str, FlatR b str) => FlatR (a # b) str where
+  {-# INLINE flatR #-}
+  flatR (a :#: b) = flatR a ++ flatR b
 
-class CombineV a b where
-  combine :: a -> b -> Combine a b
+instance FlatR b str => FlatR (a > b) str where
+  {-# INLINE flatR #-}
+  flatR (Child x) = flatR x
 
-instance CombineV b c => CombineV (a,b) c where
-  combine (a,b) c = (a, combine b c)
+instance (FlatR (a > b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a > b))))) str) => FlatR [a > b] str where
+  {-# INLINE flatR #-}
+  flatR xs = [mconcat (concatMap renderList xs)]
 
-instance {-# OVERLAPPABLE #-} (Combine a b ~ (a,b)) => CombineV a b where
-  combine a b = (a, b)
+instance (FlatR (a # b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a # b))))) str) => FlatR [a # b] str where
+  {-# INLINE flatR #-}
+  flatR xs = [mconcat (concatMap renderList xs)]
+
 
 newtype Helper (a :: Bool) b = Helper b
-class PruneV a where
-  prune :: a -> RenderRecursive (PruneTags a)
 
-instance PruneV a => PruneV ((), a) where
-  prune = prune . snd
-
-instance PruneV a => PruneV (a, ()) where
-  prune = prune . fst
-
-instance PruneV a => PruneV [a] where
-  prune = map prune
-
-instance (PruneV (Helper (PruneTags (Close a, b) == PruneTags b) (Close a, b))) => PruneV (Close a, b) where
-  prune x = prune (Helper x :: Helper (PruneTags (Close a, b) == PruneTags b) (Close a, b))
-
-instance {-# OVERLAPPABLE #-} (PruneV b, RenderRecursive (PruneTags (Open a, b)) ~ (Proxy (OpenTag a), RenderRecursive (PruneTags b))) => PruneV (Open a, b) where
-  prune (_,y) = (Proxy, prune y)
-
-instance {-# OVERLAPPABLE #-} (PruneV a, PruneV b, RenderRecursive (PruneTags (a,b)) ~ (RenderRecursive (PruneTags a),RenderRecursive (PruneTags b)) ) => PruneV (a, b) where
-  prune (x,y) = (prune x, prune y)
-
-instance PruneV (Open a) where
-  prune _ = Proxy
-
-instance PruneV (Close a) where
-  prune _ = Proxy
-
-instance {-# OVERLAPPABLE #-} (PruneTags a ~ a, RenderRecursive a ~ a) => PruneV a where
-  prune = id
-
-instance (PruneV b, PruneTags b ~ PruneTags (a,b)) => PruneV (Helper 'True (a,b)) where
-  prune (Helper x) = prune $ snd x
-
-instance (PruneV b, RenderRecursive (PruneTags (Close a, b)) ~ (Proxy (CloseTag a), RenderRecursive (PruneTags b))) => PruneV (Helper 'False (Close a,b)) where
-  prune (Helper (_,y)) = (Proxy, prune y)
 
 class DoRender a b where
   doRender :: IsString b => a -> b
@@ -672,69 +654,13 @@ instance {-# OVERLAPPING #-} DoRender LBS8.ByteString LBS8.ByteString where doRe
 instance DoRender LBS8.ByteString a where
   doRender = fromString . LBS8.unpack
 
-class Generate a b where
-  generate :: IsString b => a -> [b]
-
-instance (DoRender a str, Generate b str) => Generate (Maybe a, b) str where
-  generate (Nothing, b) = generate b
-  generate (Just a, b) = generate (a, b)
-
-instance (Generate (a,b) str, Generate c str) => Generate ([(a,b)], c) str where
-  generate (a, b) = concatMap generate a ++ generate b
-
-instance (Generate (Proxy t) str, Generate c str) => Generate ([Proxy t], c) str where
-  generate (a, b) = concatMap generate a ++ generate b
-
-instance {-# OVERLAPPABLE #-} (DoRender a str, Generate b str) => Generate (a, b) str where
-  generate (a, b) = doRender a : generate b
-
-instance {-# OVERLAPPABLE #-} DoRender a str => Generate a str where
-  generate x = [doRender x]
-
-instance Generate (a,b) str => Generate [(a,b)] str where
-  generate = concatMap generate
-
-instance Generate (Proxy t) str => Generate [Proxy t] str where
-  generate = concatMap generate
-
-class FuseV a where
-  fuse :: a -> Fuse a
-
-instance (KnownSymbol x, KnownSymbol y, FuseV (Proxy "FUSED", a)) => FuseV (Proxy x, (Proxy y, a)) where
-  fuse (_, (_, a)) = fuse (Proxy :: Proxy "FUSED", a)
-
-instance (KnownSymbol x, KnownSymbol y) => FuseV (Proxy x, Proxy y) where
-  fuse _ = Proxy :: Proxy "FUSED"
-
-instance {-# OVERLAPPABLE #-} (FuseV b, Fuse (a, b) ~ (a, Fuse b)) => FuseV (a, b) where
-  fuse (x,y) = (x, fuse y)
-
-instance FuseV a => FuseV [a] where
-  fuse = map fuse
-
-instance {-# OVERLAPPABLE #-} Fuse a ~ a => FuseV a where
-  fuse = id
-
 instance Render (a # b) String => Show (a # b) where
+  {-# INLINE show #-}
   show = render
 
 instance Render (a > b) String => Show (a > b) where
+  {-# INLINE show #-}
   show = render
-
-type Render a b
-  = ( FlattenV a
-    , PruneV (Flatten a)
-    , IsString b
-    , Generate (RenderRecursive (PruneTags (Flatten a))) b
-    , Monoid b)
-
-render :: Render a b => a -> b
-render
-  = mconcat
-  . generate
---  . fuse
-  . prune
-  . flatten
 
 data EndOfOpen = EndOfOpen
 data Open (a :: Element) = Open
