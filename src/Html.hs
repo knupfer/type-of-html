@@ -566,7 +566,20 @@ type family Fuse a where
   Fuse (Proxy (a :: Symbol))                           = Proxy a
   Fuse a                                               = Proxy ""
 
-type Render html string = (IsString string, FlatR (Fuse (RenderRecursive (PruneTags (Flatten html)))) string, FlatR html string, Monoid string)
+type Render html string
+  = ( IsString string
+    , FlatR
+      ( Fuse
+        ( RenderRecursive
+          ( PruneTags
+            ( Flatten html
+            )
+          )
+        )
+      ) string
+    , FlatR html string
+    , Monoid string
+    )
 
 render :: Render a b => a -> b
 render = mconcat . renderList
@@ -642,6 +655,8 @@ instance {-# OVERLAPPING #-} DoRender LBS8.ByteString LBS8.ByteString where doRe
 instance DoRender LBS8.ByteString a where
   doRender = fromString . LBS8.unpack
 
+instance {-# OVERLAPPABLE #-} Show a => DoRender a b where doRender = fromString . show
+
 instance Render (a # b) String => Show (a # b) where
   show = render
 
@@ -681,14 +696,10 @@ type family GetInfo a where
     PhrasingContent
     NoOmission
 
--- TODO: Acronym
-
   GetInfo Address = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (HeadingContent :|: SectioningContent :|: SingleElement Address :|: SingleElement Header :|: SingleElement Footer))
     NoOmission
-
--- TODO: Applet
 
   GetInfo Area = ElementInfo
     [ FlowContent, PhrasingContent ]
@@ -720,8 +731,6 @@ type family GetInfo a where
     NoContent
     RightOmission
 
--- basefont
-
   GetInfo Bdi = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
@@ -731,12 +740,6 @@ type family GetInfo a where
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
     NoOmission
-
--- bgsound
-
--- big
-
--- blink
 
   GetInfo Blockquote = ElementInfo
     [ FlowContent, SectioningRoot, PalpableContent ]
@@ -768,8 +771,6 @@ type family GetInfo a where
     FlowContent
     NoOmission
 
--- center
-
   GetInfo Cite = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
@@ -789,10 +790,6 @@ type family GetInfo a where
     '[]
     (SingleElement Col)
     NoOmission -- complicated rules
-
--- command
-
--- content
 
   GetInfo Data = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
@@ -829,8 +826,6 @@ type family GetInfo a where
     FlowContent
     NoOmission
 
--- dir
-
   GetInfo Div = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :|: SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template)
@@ -845,8 +840,6 @@ type family GetInfo a where
     '[]
     (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
     (LastChildOrFollowedBy '[Dd]) -- really?
-
--- element
 
   GetInfo Em = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
@@ -873,8 +866,6 @@ type family GetInfo a where
     (SingleElement Figcaption :|: FlowContent)
     NoOmission
 
--- font
-
   GetInfo Footer = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (SingleElement Footer :|: SingleElement Header))
@@ -884,10 +875,6 @@ type family GetInfo a where
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (SingleElement Form))
     NoOmission
-
--- frame
-
--- frameset
 
   GetInfo H1 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
@@ -954,28 +941,20 @@ type family GetInfo a where
     NoContent -- complicated
     NoOmission
 
--- image
-
   GetInfo Img = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent, InteractiveContent ]
     NoContent
     RightOmission
-
--- input
 
   GetInfo Ins = ElementInfo
     [ FlowContent, PhrasingContent ]
     TransparentContent
     NoOmission
 
--- isindex
-
   GetInfo Kbd = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
     NoOmission
-
--- keygen
 
   GetInfo Label = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent, PalpableContent ]
@@ -997,13 +976,10 @@ type family GetInfo a where
     NoContent
     RightOmission
 
--- listing
-
   GetInfo Main = ElementInfo
     [ FlowContent, PalpableContent ]
     FlowContent
     NoOmission
-
 
   GetInfo Map = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
@@ -1014,8 +990,6 @@ type family GetInfo a where
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
     NoOmission
-
--- marquee
 
   GetInfo Menu = ElementInfo
     [ FlowContent, PalpableContent ]
@@ -1037,18 +1011,10 @@ type family GetInfo a where
     (PhrasingContent :&: NOT (SingleElement Meter))
     NoOmission
 
--- multicol
-
   GetInfo Nav = ElementInfo
     [ FlowContent, SectioningContent, PalpableContent ]
     FlowContent
     NoOmission
-
--- nobr
-
--- noembed
-
--- noframes
 
   GetInfo Noscript = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
@@ -1095,8 +1061,6 @@ type family GetInfo a where
     [ FlowContent, PhrasingContent, EmbeddedContent ]
     (SingleElement Source :|: SingleElement Img)
     NoOmission
-
--- plaintext
 
   GetInfo Pre = ElementInfo
     [ FlowContent, PalpableContent ]
@@ -1158,8 +1122,6 @@ type family GetInfo a where
     (SingleElement Option :|: SingleElement Optgroup)
     NoOmission
 
--- shadow
-
   GetInfo Slot = ElementInfo
     [ FlowContent, PhrasingContent ]
     TransparentContent
@@ -1175,14 +1137,10 @@ type family GetInfo a where
     NoContent
     RightOmission
 
--- spacer
-
   GetInfo Span = ElementInfo
     [ FlowContent, PhrasingContent ]
     PhrasingContent
     NoOmission
-
--- strike
 
   GetInfo Strong = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
@@ -1270,8 +1228,6 @@ type family GetInfo a where
     NoContent
     RightOmission
 
--- tt
-
   GetInfo U = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
@@ -1297,13 +1253,9 @@ type family GetInfo a where
     NoContent
     RightOmission
 
--- xmp
-
--- nextid
-
   GetInfo _ = ElementInfo
-    '[]
-    NoContent
+    [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
+    (FlowContent :|: PhrasingContent :|: EmbeddedContent :|: InteractiveContent :|: PalpableContent)
     NoOmission
 
 data TagOmission
@@ -1407,8 +1359,8 @@ address_ = Child
 applet_ :: (Applet ?> a) => a -> Applet > a
 applet_ = Child
 
-area_ :: (Area ?> a) => a -> Area > a
-area_ = Child
+area_ :: Area > ()
+area_ = Child ()
 
 article_ :: (Article ?> a) => a -> Article > a
 article_ = Child
@@ -1422,8 +1374,8 @@ audio_ = Child
 b_ :: (B ?> a) => a -> B > a
 b_ = Child
 
-base_ :: (Base ?> a) => a -> Base > a
-base_ = Child
+base_ :: Base > ()
+base_ = Child ()
 
 basefont_ :: (Basefont ?> a) => a -> Basefont > a
 basefont_ = Child
@@ -1449,8 +1401,8 @@ blockquote_ = Child
 body_ :: (Body ?> a) => a -> Body > a
 body_ = Child
 
-br_ :: (Br ?> a) => a -> Br > a
-br_ = Child
+br_ :: Br > ()
+br_ = Child ()
 
 button_ :: (Button ?> a) => a -> Button > a
 button_ = Child
@@ -1470,8 +1422,8 @@ cite_ = Child
 code_ :: (Code ?> a) => a -> Code > a
 code_ = Child
 
-col_ :: (Col ?> a) => a -> Col > a
-col_ = Child
+col_ :: Col > ()
+col_ = Child ()
 
 colgroup_ :: (Colgroup ?> a) => a -> Colgroup > a
 colgroup_ = Child
@@ -1521,8 +1473,8 @@ element_ = Child
 em_ :: (Em ?> a) => a -> Em > a
 em_ = Child
 
-embed_ :: (Embed ?> a) => a -> Embed > a
-embed_ = Child
+embed_ :: Embed > ()
+embed_ = Child ()
 
 fieldset_ :: (Fieldset ?> a) => a -> Fieldset > a
 fieldset_ = Child
@@ -1575,8 +1527,8 @@ header_ = Child
 hgroup_ :: (Hgroup ?> a) => a -> Hgroup > a
 hgroup_ = Child
 
-hr_ :: (Hr ?> a) => a -> Hr > a
-hr_ = Child
+hr_ :: Hr > ()
+hr_ = Child ()
 
 html_ :: (Html ?> a) => a -> Html > a
 html_ = Child
@@ -1584,14 +1536,14 @@ html_ = Child
 i_ :: (I ?> a) => a -> I > a
 i_ = Child
 
-iframe_ :: (Iframe ?> a) => a -> Iframe > a
-iframe_ = Child
+iframe_ :: Iframe > ()
+iframe_ = Child ()
 
 image_ :: (Image ?> a) => a -> Image > a
 image_ = Child
 
-img_ :: (Img ?> a) => a -> Img > a
-img_ = Child
+img_ :: Img > ()
+img_ = Child ()
 
 input_ :: (Input ?> a) => a -> Input > a
 input_ = Child
@@ -1617,8 +1569,8 @@ legend_ = Child
 li_ :: (Li ?> a) => a -> Li > a
 li_ = Child
 
-link_ :: (Link ?> a) => a -> Link > a
-link_ = Child
+link_ :: Link > ()
+link_ = Child ()
 
 listing_ :: (Listing ?> a) => a -> Listing > a
 listing_ = Child
@@ -1641,11 +1593,11 @@ math_ = Child
 menu_ :: (Menu ?> a) => a -> Menu > a
 menu_ = Child
 
-menuitem_ :: (Menuitem ?> a) => a -> Menuitem > a
-menuitem_ = Child
+menuitem_ :: Menuitem > ()
+menuitem_ = Child ()
 
-meta_ :: (Meta ?> a) => a -> Meta > a
-meta_ = Child
+meta_ :: Meta > ()
+meta_ = Child ()
 
 meter_ :: (Meter ?> a) => a -> Meter > a
 meter_ = Child
@@ -1689,8 +1641,8 @@ output_ = Child
 p_ :: (P ?> a) => a -> P > a
 p_ = Child
 
-param_ :: (Param ?> a) => a -> Param > a
-param_ = Child
+param_ :: Param > ()
+param_ = Child ()
 
 picture_ :: (Picture ?> a) => a -> Picture > a
 picture_ = Child
@@ -1743,8 +1695,8 @@ slot_ = Child
 small_ :: (Small ?> a) => a -> Small > a
 small_ = Child
 
-source_ :: (Source ?> a) => a -> Source > a
-source_ = Child
+source_ :: Source > ()
+source_ = Child ()
 
 spacer_ :: (Spacer ?> a) => a -> Spacer > a
 spacer_ = Child
@@ -1806,8 +1758,8 @@ title_ = Child
 tr_ :: (Tr ?> a) => a -> Tr > a
 tr_ = Child
 
-track_ :: (Track ?> a) => a -> Track > a
-track_ = Child
+track_ :: Track > ()
+track_ = Child ()
 
 tt_ :: (Tt ?> a) => a -> Tt > a
 tt_ = Child
@@ -1824,8 +1776,8 @@ var_ = Child
 video_ :: (Video ?> a) => a -> Video > a
 video_ = Child
 
-wbr_ :: (Wbr ?> a) => a -> Wbr > a
-wbr_ = Child
+wbr_ :: Wbr > ()
+wbr_ = Child ()
 
 xmp_ :: (Xmp ?> a) => a -> Xmp > a
 xmp_ = Child

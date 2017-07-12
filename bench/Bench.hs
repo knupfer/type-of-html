@@ -131,9 +131,6 @@ helloWorld x =
       )
     )
 
---bigTypeTable :: (Enum a, Num a, Show a, Replicate n ('Tr > ['Td > String]), 'Table ?> Rep n ('Tr > ['Td > String])) => (Proxy n, a) -> 'Table > Rep n ('Tr > ['Td > String])
---bigTypeTable (n, m) = table_ $ replicateH n (tr_ $ map (td_ . show) [1..m])
-
 bigPage :: ('Title ?> a) =>
          a
          -> 'Html
@@ -160,20 +157,20 @@ bigPage :: ('Title ?> a) =>
 bigPage x =
   html_
     ( head_
-      ( meta_ ()
+      ( meta_
       # title_ x
       # script_ ()
-      # link_ ()
+      # link_
       # style_ ()
       )
     # body_
       ( h1_
-        ( img_ ()
+        ( img_
         # strong_ ()
         )
       # div_
-        ( div_ (img_ ())
-        # div_ (img_ ())
+        ( div_ img_
+        # div_ img_
         )
       # div_
         ( form_
@@ -198,5 +195,5 @@ bigPage x =
       )
     )
 
-bigTable :: (Int, Int) -> 'Table > ['Tr > ['Td > String]]
-bigTable (n, m) = table_ $ replicate n (tr_ $ map (td_ . show) [1..m])
+bigTable :: (Int, Int) -> 'Table > ['Tr > ['Td > Int]]
+bigTable (n, m) = table_ . replicate n . tr_ $ map td_ [1..m]
