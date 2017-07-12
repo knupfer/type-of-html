@@ -568,11 +568,9 @@ type family Fuse a where
 
 type Render html string = (IsString string, FlatR (Fuse (RenderRecursive (PruneTags (Flatten html)))) string, FlatR html string, Monoid string)
 
-{-# INLINE render #-}
 render :: Render a b => a -> b
 render = mconcat . renderList
 
-{-# INLINE renderList #-}
 renderList :: Render a b => a -> [b]
 renderList x = g elements contents
   where contents = flatR x
@@ -587,40 +585,30 @@ class FlatR a b where
   flatR :: (IsString b, Monoid b) => a -> [b]
 
 instance (KnownSymbol a, FlatR b str) => FlatR (Proxy a, b) str where
-  {-# INLINE flatR #-}
   flatR _ = doRender (Proxy :: Proxy a):flatR (undefined :: b)
 
 instance KnownSymbol a => FlatR (Proxy a) str where
-  {-# INLINE flatR #-}
   flatR _ = [doRender (Proxy :: Proxy a)]
 
 instance {-# OVERLAPPABLE #-} DoRender a str => FlatR a str where
-  {-# INLINE flatR #-}
   flatR x = [doRender x]
 
 instance FlatR () str where
-  {-# INLINE flatR #-}
   flatR _ = []
 
 instance (FlatR a str, FlatR b str) => FlatR (a # b) str where
-  {-# INLINE flatR #-}
   flatR (a :#: b) = flatR a ++ flatR b
 
 instance FlatR b str => FlatR (a > b) str where
-  {-# INLINE flatR #-}
   flatR (Child x) = flatR x
 
 instance (FlatR (a > b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a > b))))) str) => FlatR [a > b] str where
-  {-# INLINE flatR #-}
-  flatR xs = [mconcat (concatMap renderList xs)]
+  flatR xs = [mconcat $ concatMap renderList xs]
 
 instance (FlatR (a # b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a # b))))) str) => FlatR [a # b] str where
-  {-# INLINE flatR #-}
-  flatR xs = [mconcat (concatMap renderList xs)]
-
+  flatR xs = [mconcat $ concatMap renderList xs]
 
 newtype Helper (a :: Bool) b = Helper b
-
 
 class DoRender a b where
   doRender :: IsString b => a -> b
@@ -655,11 +643,9 @@ instance DoRender LBS8.ByteString a where
   doRender = fromString . LBS8.unpack
 
 instance Render (a # b) String => Show (a # b) where
-  {-# INLINE show #-}
   show = render
 
 instance Render (a > b) String => Show (a > b) where
-  {-# INLINE show #-}
   show = render
 
 data EndOfOpen = EndOfOpen
