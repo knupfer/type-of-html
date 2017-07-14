@@ -1,18 +1,18 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ConstraintKinds           #-}
+{-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE AllowAmbiguousTypes       #-}
+{-# LANGUAGE MultiParamTypeClasses     #-}
+{-# LANGUAGE OverloadedStrings         #-}
+{-# LANGUAGE TypeFamilies              #-}
+{-# LANGUAGE DataKinds                 #-}
+{-# LANGUAGE TypeOperators             #-}
+{-# LANGUAGE UndecidableInstances      #-}
+{-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE GADTs                     #-}
+{-# LANGUAGE ScopedTypeVariables       #-}
 
 module Html where
 
@@ -22,38 +22,38 @@ import Data.Proxy
 import Data.Type.Bool
 import Data.Monoid
 
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as LT
-import qualified Data.Text.Lazy.Builder as TLB
-import qualified Data.ByteString.Char8 as BS8
+import qualified Data.Text                  as T
+import qualified Data.Text.Lazy             as LT
+import qualified Data.Text.Lazy.Builder     as TLB
+import qualified Data.ByteString.Char8      as BS8
 import qualified Data.ByteString.Lazy.Char8 as LBS8
 
 {-# DEPRECATED
 
-  Acronym ,
-  Applet ,
-  Basefont ,
-  Big ,
-  Blink ,
-  Center ,
-  Command ,
-  Content ,
-  Dir ,
-  Font ,
-  Frame ,
-  Frameset ,
-  Isindex ,
-  Keygen ,
-  Listing ,
-  Marquee ,
-  Multicol ,
-  Noembed ,
+  Acronym   ,
+  Applet    ,
+  Basefont  ,
+  Big       ,
+  Blink     ,
+  Center    ,
+  Command   ,
+  Content   ,
+  Dir       ,
+  Font      ,
+  Frame     ,
+  Frameset  ,
+  Isindex   ,
+  Keygen    ,
+  Listing   ,
+  Marquee   ,
+  Multicol  ,
+  Noembed   ,
   Plaintext ,
-  Shadow ,
-  Spacer ,
-  Strike ,
-  Tt ,
-  Xmp ,
+  Shadow    ,
+  Spacer    ,
+  Strike    ,
+  Tt        ,
+  Xmp       ,
   Nextid
 
  "This is an obsolete API and is no longer guaranteed to work." #-}
