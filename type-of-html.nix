@@ -1,4 +1,4 @@
-{ mkDerivation, base, blaze-html, bytestring, criterion, dump-core
+{ mkDerivation, base, blaze-html, bytestring, criterion, hspec
 , stdenv, text
 }:
 mkDerivation {
@@ -9,8 +9,9 @@ mkDerivation {
   isExecutable = true;
   libraryHaskellDepends = [ base bytestring text ];
   executableHaskellDepends = [
-    base blaze-html bytestring criterion dump-core text
+    base blaze-html bytestring criterion text
   ];
+  testHaskellDepends = [ base hspec ];
   description = "High performance type driven html generation";
   license = stdenv.lib.licenses.bsd3;
 }
