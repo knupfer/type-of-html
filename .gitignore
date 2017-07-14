@@ -1,0 +1,5 @@
+*~
+dist
+*.prof
+result
+criterion
