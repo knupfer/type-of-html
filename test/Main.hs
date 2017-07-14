@@ -1,14 +1,18 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-module HtmlSpec where
+{-# LANGUAGE DataKinds        #-}
+
+module Main where
 
 import Html
 import Test.Hspec
 
 import Data.Proxy
 
+main :: IO ()
+main = hspec spec
+
 spec :: Spec
-spec = do
+spec = parallel $ do
 
   describe "render" $ do
 

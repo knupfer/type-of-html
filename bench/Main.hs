@@ -8,6 +8,7 @@ module Main where
 
 import Html
 
+import Data.Proxy
 import Data.String
 import Data.Semigroup (Semigroup(..))
 import Control.Monad
@@ -44,11 +45,14 @@ main = defaultMain
     , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigPage) "TEST"
     ]
   , bgroup "big table"
-    [ bench "strict text" $ nf (render . bigTable :: (Int, Int) -> T.Text) (10,10)
-    , bench "lazy text"   $ nf (render . bigTable :: (Int, Int) -> LT.Text) (10,10)
-    , bench "builder"     $ nf (TLB.toLazyText . render . bigTable :: (Int, Int) -> LT.Text) (10,10)
-    , bench "blaze"       $ nf (RT.renderHtml . blazeBigTable) (10,10)
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigTable) (10,10)
+    [ bench "strict text" $ nf (render . bigTable :: (Int, Int) -> T.Text) (5,5)
+    , bench "lazy text"   $ nf (render . bigTable :: (Int, Int) -> LT.Text) (5,5)
+    , bench "builder"     $ nf (TLB.toLazyText . render . bigTable :: (Int, Int) -> LT.Text) (5,5)
+    , bench "(type) strict text" $ nf (render . bigTypeTable :: (Proxy 5, Int) -> T.Text) (Proxy,5)
+    , bench "(type) lazy text"   $ nf (render . bigTypeTable :: (Proxy 5, Int) -> LT.Text) (Proxy,5)
+    , bench "(type) builder"     $ nf (TLB.toLazyText . render . bigTypeTable :: (Proxy 5, Int) -> LT.Text) (Proxy,5)
+    , bench "blaze"       $ nf (RT.renderHtml . blazeBigTable) (5,5)
+    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigTable) (5,5)
     ]
   ]
 
@@ -66,7 +70,7 @@ bestBigPage x = "<html><head><meta><title>" <> x <> "</title><script></script><l
 bestBigTable :: (Int,Int) -> TLB.Builder
 bestBigTable (n, m)
   = "<table>"
-  <> mconcat (replicate n ("<tr>" <> mconcat (map (\x -> "<td>" <> fromString (show x)) [1..m])))
+  <> mconcat (replicate n ("<tr>" <> mconcat (map (\x -> "<td>" <> fromString (show x) <> "</td>") [1..m]) <> "</tr>"))
   <> "</table>"
 
 -- Blaze based functions
@@ -197,3 +201,10 @@ bigPage x =
 
 bigTable :: (Int, Int) -> 'Table > ['Tr > ['Td > Int]]
 bigTable (n, m) = table_ . replicate n . tr_ $ map td_ [1..m]
+
+bigTypeTable
+  :: ( Replicate n ('Tr > ['Td > Int])
+     , 'Table ?> Rep n ('Tr > ['Td > Int])
+     )
+  => (Proxy n, Int) -> 'Table > Rep n ('Tr > ['Td > Int])
+bigTypeTable (n, m) = table_ . replicateH n . tr_ $ map td_ [1..m]
