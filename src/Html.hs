@@ -17,10 +17,10 @@
 module Html where
 
 import GHC.TypeLits
-import Data.String
-import Data.Kind
+import GHC.Exts
 import Data.Proxy
 import Data.Type.Bool
+import Data.Monoid
 
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
@@ -569,10 +569,32 @@ type family Fuse a where
 type Render html string
   = ( IsString string
     , FlatR
-      ( Fuse
-        ( RenderRecursive
-          ( PruneTags
-            ( Flatten html
+        ( Fuse
+          ( RenderRecursive
+            ( PruneTags
+              ( Flatten html
+              )
+            )
+          )
+      ) string
+    , FlatR
+       ( Init
+        ( Fuse
+          ( RenderRecursive
+            ( PruneTags
+              ( Flatten html
+              )
+            )
+          )
+        )
+      ) string
+    , FlatR
+      ( Last'
+        ( Fuse
+          ( RenderRecursive
+            ( PruneTags
+              ( Flatten html
+              )
             )
           )
         )
@@ -581,11 +603,38 @@ type Render html string
     , Monoid string
     )
 
+type family Init xs where
+  Init (a, (b,c)) = (a, Init (b, c))
+  Init (a, b) = a
+  Init a = a
+
+type family Last' a where
+  Last' (a, as) = Last' as
+  Last' a = a
+
+{-# INLINE render #-}
 render :: Render a b => a -> b
 render = mconcat . renderList
 
+{-# NOINLINE renderList #-}
 renderList :: Render a b => a -> [b]
-renderList x = g elements contents
+renderList = renderList_
+
+{-# INLINE renderListB #-}
+renderListB :: Render a TLB.Builder => a -> [TLB.Builder]
+renderListB x =
+    augment (\c n -> foldr2_ (zipWithFB_ c (<>)) n elements contents) closing
+  where contents = flatR x
+        elements = flatR (f x)
+        closing = flatR (g x)
+        f :: x -> Init (Fuse (RenderRecursive (PruneTags (Flatten x))))
+        f = undefined
+        g :: x -> Last' (Fuse (RenderRecursive (PruneTags (Flatten x))))
+        g = undefined
+
+{-# INLINE renderList_ #-}
+renderList_ :: Render a b => a -> [b]
+renderList_ x = g elements contents
   where contents = flatR x
         elements = flatR (f x)
         f :: x -> Fuse (RenderRecursive (PruneTags (Flatten x)))
@@ -594,31 +643,79 @@ renderList x = g elements contents
         g as [] = as
         g [] bs = bs
 
+{-# INLINE renderListLT #-}
+renderListLT :: Render a LT.Text => a -> [LT.Text]
+renderListLT = renderList_
+
+{-# INLINE renderListT #-}
+renderListT :: Render a T.Text => a -> [T.Text]
+renderListT = renderList_
+
+{-# INLINE renderListS #-}
+renderListS :: Render a String => a -> [String]
+renderListS = renderList_
+
+{-# RULES
+"renderList/builder"     renderList = renderListB
+"renderList/lazy text"   renderList = renderListLT
+"renderList/strict text" renderList = renderListT
+"renderList/string"      renderList = renderListS
+  #-}
+
+{-# INLINE [0] zipWithFB_ #-}
+zipWithFB_ :: (a -> b -> c) -> (d -> e -> a) -> d -> e -> b -> c
+zipWithFB_ c f = \x y r -> (x `f` y) `c` r
+
+{-# INLINE [0] foldr2_ #-}
+foldr2_ :: Monoid a => (a -> a -> c -> c) -> c -> [a] -> [a] -> c
+foldr2_ k z = go
+  where
+        go []     _      = z
+        go _      []     = z
+        go (x:xs) (y:ys) = k x y (go xs ys)
+
+foldr2_left_ :: (a -> b -> c -> d) -> d -> a -> ([b] -> c) -> [b] -> d
+foldr2_left_ _k  z _x _r []     = z
+foldr2_left_  k _z  x  r (y:ys) = k x y (r ys)
+
+{-# RULES
+"foldr2/left_"   forall k z ys (g:: forall b.(a->b->b)->b->b) .
+                  foldr2_ k z (build g) ys = g (foldr2_left_  k z) (\_ -> z) ys
+ #-}
+
 class FlatR a b where
   flatR :: (IsString b, Monoid b) => a -> [b]
 
 instance (KnownSymbol a, FlatR b str) => FlatR (Proxy a, b) str where
+  {-# INLINE flatR #-}
   flatR _ = doRender (Proxy :: Proxy a):flatR (undefined :: b)
 
 instance KnownSymbol a => FlatR (Proxy a) str where
+  {-# INLINE flatR #-}
   flatR _ = [doRender (Proxy :: Proxy a)]
 
 instance {-# OVERLAPPABLE #-} DoRender a str => FlatR a str where
+  {-# INLINE flatR #-}
   flatR x = [doRender x]
 
 instance FlatR () str where
+  {-# INLINE flatR #-}
   flatR _ = []
 
 instance (FlatR a str, FlatR b str) => FlatR (a # b) str where
+  {-# INLINE flatR #-}
   flatR (a :#: b) = flatR a ++ flatR b
 
 instance FlatR b str => FlatR (a > b) str where
+  {-# INLINE flatR #-}
   flatR (Child x) = flatR x
 
-instance (FlatR (a > b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a > b))))) str) => FlatR [a > b] str where
+instance (FlatR (a > b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a > b))))) str, FlatR (Init (Fuse (RenderRecursive (PruneTags (Flatten (a > b)))))) str, FlatR (Last' (Fuse (RenderRecursive (PruneTags (Flatten (a > b)))))) str) => FlatR [a > b] str where
+  {-# INLINE flatR #-}
   flatR xs = [mconcat $ concatMap renderList xs]
 
-instance (FlatR (a # b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a # b))))) str) => FlatR [a # b] str where
+instance (FlatR (a # b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a # b))))) str, FlatR (Init (Fuse (RenderRecursive (PruneTags (Flatten (a # b)))))) str, FlatR (Last' (Fuse (RenderRecursive (PruneTags (Flatten (a # b)))))) str) => FlatR [a # b] str where
+  {-# INLINE flatR #-}
   flatR xs = [mconcat $ concatMap renderList xs]
 
 newtype Helper (a :: Bool) b = Helper b
@@ -627,13 +724,16 @@ class DoRender a b where
   doRender :: IsString b => a -> b
 
 instance KnownSymbol a => DoRender (Proxy a) b where
+  {-# INLINE doRender #-}
   doRender = fromString . symbolVal
 
 instance DoRender a b => DoRender (Maybe a) b where
+  {-# INLINE doRender #-}
   doRender Nothing = ""
   doRender (Just x) = doRender x
 
 instance DoRender Attribute b where
+  {-# INLINE doRender #-}
   doRender (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
 
 instance {-# OVERLAPPING #-} DoRender String String where doRender = id
