@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators    #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DataKinds        #-}
 
@@ -30,11 +31,15 @@ spec = parallel $ do
 
     it "handles nested elements" $ do
 
+      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
+
       render (div_ (div_ "a"))
         `shouldBe`
         "<div><div>a</div></div>"
 
     it "handles parallel elements" $ do
+
+      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
 
       render (div_ "a" # div_ "b")
         `shouldBe`
@@ -104,6 +109,8 @@ spec = parallel $ do
 
     it "avoids optional closing tags" $ do
 
+      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
+
       -- The closing tag at the end is because we can't know what
       -- element will follow.
 
@@ -133,11 +140,15 @@ spec = parallel $ do
 
     it "handles trailing compile time text" $ do
 
+      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
+
       render (div_ "a" # (Proxy :: Proxy "b"))
         `shouldBe`
         "<div>a</div>b"
 
     it "handles nested compile time text" $ do
+
+      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
 
       render (div_ (Proxy :: Proxy "a"))
         `shouldBe`
@@ -175,6 +186,8 @@ spec = parallel $ do
 
     it "handles tags in a list with parallel elements and a following tag" $ do
 
+      pendingWith "This is a not yet implemented optimization"
+
       render ([td_ "a" # td_ "b"] # td_ "c")
         `shouldBe`
         "<td>a<td>b<td>c</td>"
@@ -186,3 +199,25 @@ spec = parallel $ do
       render ([div_ "a" # td_ "b"] # td_ "c")
         `shouldBe`
         "<div>a</div><td>b</td><td>c</td>"
+
+    it "computes its result lazily" $ do
+
+      take 5 (render (div_ (errorWithoutStackTrace "not lazy" :: String)))
+        `shouldBe`
+        "<div>"
+
+      take 5 (render (errorWithoutStackTrace "not lazy" :: 'Img > ()))
+        `shouldBe`
+        "<img>"
+
+      take 5 (render (errorWithoutStackTrace "not lazy" :: 'Div > String))
+        `shouldBe`
+        "<div>"
+
+      take 12 (render (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))
+        `shouldBe`
+        "<div>a</div>"
+
+      take 17 (render (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))
+        `shouldBe`
+        "<div>a</div><img>"

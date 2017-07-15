@@ -18,7 +18,7 @@ import Html.Type
 import GHC.Exts
 import GHC.TypeLits
 import Data.Proxy
-import Data.Semigroup
+import Data.Semigroup (Semigroup(..))
 
 import qualified Data.Text                  as T
 import qualified Data.Text.Lazy             as LT
@@ -26,9 +26,51 @@ import qualified Data.Text.Lazy.Builder     as TLB
 import qualified Data.ByteString.Char8      as BS8
 import qualified Data.ByteString.Lazy.Char8 as LBS8
 
+-- | Render a html document.  The resulting type can be a String,
+-- strict Text, lazy Text, Builder, ByteString or lazy ByteString.
+-- For performance it is recommended to use a lazy Text or a Builder.
+--
+-- >>> render "a" :: String
+-- "a"
+--
+-- >>> render (div_ "a") :: Text
+-- "<div>a</div>"
+--
+-- For prototyping, there's as well a Show instance:
+--
+-- >>> i_ "a"
+-- <i>a</i>
+--
+-- Please note the extra quotes for String when using show:
+--
+-- >>> show "a" == render "a"
+-- False
+--
+-- >>> show img_ == render img_
+-- True
 {-# INLINE render #-}
 render :: Render a b => a -> b
 render = mconcat . renderList
+
+class Replicate n x where
+  -- | Type level replicate.  This function is quite costly to compile
+  -- for large Nats.  It is a bit more efficient than the conventional
+  -- replicate which you should use instead in non performance
+  -- critical code.
+  --
+  -- >>> render (replicateH (Proxy :: Proxy 2) (div_ "a")) :: String
+  -- "<div>a</div><div>a</div>"
+  replicateH :: Proxy n -> x -> Rep n x
+
+instance {-# OVERLAPPING #-} Replicate 1 x where
+  replicateH _ x = x
+
+instance (Replicate (n-1) x, Rep n x ~ (x # Rep (n-1) x)) => Replicate n x where
+  replicateH _ x = x # replicateH (Proxy :: Proxy (n-1)) x
+
+  -------------------
+  -- internal code --
+  -------------------
 
 {-# NOINLINE renderList #-}
 renderList :: Render a b => a -> [b]
@@ -39,18 +81,18 @@ renderListB :: Render a TLB.Builder => a -> [TLB.Builder]
 renderListB x =
     augment (\c n -> foldr2_ (zipWithFB_ c (<>)) n elements contents) closing
   where contents = flatR x
-        elements = flatR (f x)
-        closing = flatR (g x)
+        elements = listProxies (f x)
+        closing = listProxies (g x)
         f :: x -> Init (Fuse (RenderRecursive (PruneTags (Flatten x))))
         f = undefined
-        g :: x -> Last' (Fuse (RenderRecursive (PruneTags (Flatten x))))
+        g :: x -> Last (Fuse (RenderRecursive (PruneTags (Flatten x))))
         g = undefined
 
 {-# INLINE renderList_ #-}
 renderList_ :: Render a b => a -> [b]
 renderList_ x = g elements contents
   where contents = flatR x
-        elements = flatR (f x)
+        elements = listProxies (f x)
         f :: x -> Fuse (RenderRecursive (PruneTags (Flatten x)))
         f = undefined
         g (a:as) (b:bs) = a:b:g as bs
@@ -107,16 +149,27 @@ foldr2_left_  k _z  x  r (y:ys) = k x y (r ys)
 -- addAttributes xs (WithAttributes xs0 b) = WithAttributes (xs0 ++ xs) b
 
 
+class ListProxies a b where
+  listProxies :: (IsString b, Monoid b) => a -> [b]
+
+instance (KnownSymbol a, ListProxies b str) => ListProxies (Proxy a, b) str where
+  {-# INLINE listProxies #-}
+  listProxies _ = doRender (Proxy :: Proxy a):listProxies (undefined :: b)
+
+instance KnownSymbol a => ListProxies (Proxy a) str where
+  {-# INLINE listProxies #-}
+  listProxies _ = [doRender (Proxy :: Proxy a)]
+
 class FlatR a b where
   flatR :: (IsString b, Monoid b) => a -> [b]
 
-instance (KnownSymbol a, FlatR b str) => FlatR (Proxy a, b) str where
-  {-# INLINE flatR #-}
-  flatR _ = doRender (Proxy :: Proxy a):flatR (undefined :: b)
-
 instance KnownSymbol a => FlatR (Proxy a) str where
   {-# INLINE flatR #-}
-  flatR _ = [doRender (Proxy :: Proxy a)]
+  flatR _ = []
+
+instance KnownSymbol a => FlatR [Proxy a] str where
+  {-# INLINE flatR #-}
+  flatR xs = [mconcat $ concatMap renderList xs]
 
 instance {-# OVERLAPPABLE #-} DoRender a str => FlatR a str where
   {-# INLINE flatR #-}
@@ -128,17 +181,21 @@ instance FlatR () str where
 
 instance (FlatR a str, FlatR b str) => FlatR (a # b) str where
   {-# INLINE flatR #-}
-  flatR (a :#: b) = flatR a ++ flatR b
+  flatR ~(a :#: b) = flatR a ++ flatR b
+
+instance {-# OVERLAPPING #-} FlatR (a > ()) str where
+  {-# INLINE flatR #-}
+  flatR _ = []
 
 instance FlatR b str => FlatR (a > b) str where
   {-# INLINE flatR #-}
-  flatR (Child x) = flatR x
+  flatR ~(Child x) = flatR x
 
-instance (FlatR (a > b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a > b))))) str, FlatR (Init (Fuse (RenderRecursive (PruneTags (Flatten (a > b)))))) str, FlatR (Last' (Fuse (RenderRecursive (PruneTags (Flatten (a > b)))))) str) => FlatR [a > b] str where
+instance (Render (a > b) str) => FlatR [a > b] str where
   {-# INLINE flatR #-}
   flatR xs = [mconcat $ concatMap renderList xs]
 
-instance (FlatR (a # b) str, FlatR (Fuse (RenderRecursive (PruneTags (Flatten (a # b))))) str, FlatR (Init (Fuse (RenderRecursive (PruneTags (Flatten (a # b)))))) str, FlatR (Last' (Fuse (RenderRecursive (PruneTags (Flatten (a # b)))))) str) => FlatR [a # b] str where
+instance (Render (a # b) str) => FlatR [a # b] str where
   {-# INLINE flatR #-}
   flatR xs = [mconcat $ concatMap renderList xs]
 
@@ -187,7 +244,7 @@ instance Render (a > b) String => Show (a > b) where
 
 type Render html string
   = ( IsString string
-    , FlatR
+    , ListProxies
         ( Fuse
           ( RenderRecursive
             ( PruneTags
@@ -196,7 +253,7 @@ type Render html string
             )
           )
       ) string
-    , FlatR
+    , ListProxies
        ( Init
         ( Fuse
           ( RenderRecursive
@@ -207,8 +264,8 @@ type Render html string
           )
         )
       ) string
-    , FlatR
-      ( Last'
+    , ListProxies
+      ( Last
         ( Fuse
           ( RenderRecursive
             ( PruneTags
@@ -221,12 +278,3 @@ type Render html string
     , FlatR html string
     , Monoid string
     )
-
-class Replicate n x  where
-  replicateH :: Proxy n -> x -> Rep n x
-
-instance {-# OVERLAPPING #-} Replicate 1 x where
-  replicateH _ x = x
-
-instance (Replicate (n-1) x, Rep n x ~ (x # Rep (n-1) x)) => Replicate n x where
-  replicateH _ x = x # replicateH (Proxy :: Proxy (n-1)) x

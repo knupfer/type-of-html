@@ -49,8 +49,9 @@ import Data.Type.Bool
   Xmp       ,
   Nextid
 
- "This is an obsolete API and is no longer guaranteed to work." #-}
+ "This is an obsolete html element and should not be used." #-}
 
+-- | The data type of all html elements and the kind of elements.
 data Element
   = A
   | Abbr
@@ -198,398 +199,484 @@ data Element
   | Video
   | Wbr
   | Xmp
-  deriving (Show, Enum, Bounded)
 
-type family OpenTag e where
-  OpenTag A = "<a>"
-  OpenTag Abbr = "<abbr>"
-  OpenTag Acronym = "<acronym>"
-  OpenTag Address = "<address>"
-  OpenTag Applet = "<applet>"
-  OpenTag Area = "<area>"
-  OpenTag Article = "<article>"
-  OpenTag Aside = "<aside>"
-  OpenTag Audio = "<audio>"
-  OpenTag B = "<b>"
-  OpenTag Base = "<base>"
-  OpenTag Basefont = "<basefont>"
-  OpenTag Bdi = "<bdi>"
-  OpenTag Bdo = "<bdo>"
-  OpenTag Bgsound = "<bgsound>"
-  OpenTag Big = "<big>"
-  OpenTag Blink = "<blink>"
-  OpenTag Blockquote = "<blockquote>"
-  OpenTag Body = "<body>"
-  OpenTag Br = "<br>"
-  OpenTag Button = "<button>"
-  OpenTag Canvas = "<canvas>"
-  OpenTag Caption = "<caption>"
-  OpenTag Center = "<center>"
-  OpenTag Cite = "<cite>"
-  OpenTag Code = "<code>"
-  OpenTag Col = "<col>"
-  OpenTag Colgroup = "<colgroup>"
-  OpenTag Command = "<command>"
-  OpenTag Content = "<content>"
-  OpenTag Data = "<data>"
-  OpenTag Datalist = "<datalist>"
-  OpenTag Dd = "<dd>"
-  OpenTag Del = "<del>"
-  OpenTag Details = "<details>"
-  OpenTag Dfn = "<dfn>"
-  OpenTag Dialog = "<dialog>"
-  OpenTag Dir = "<dir>"
-  OpenTag Div = "<div>"
-  OpenTag Dl = "<dl>"
-  OpenTag Dt = "<dt>"
-  OpenTag 'Element = "<element>"
-  OpenTag Em = "<em>"
-  OpenTag Embed = "<embed>"
-  OpenTag Fieldset = "<fieldset>"
-  OpenTag Figcaption = "<figcaption>"
-  OpenTag Figure = "<figure>"
-  OpenTag Font = "<font>"
-  OpenTag Footer = "<footer>"
-  OpenTag Form = "<form>"
-  OpenTag Frame = "<frame>"
-  OpenTag Frameset = "<frameset>"
-  OpenTag H1 = "<h1>"
-  OpenTag H2 = "<h2>"
-  OpenTag H3 = "<h3>"
-  OpenTag H4 = "<h4>"
-  OpenTag H5 = "<h5>"
-  OpenTag H6 = "<h6>"
-  OpenTag Head = "<head>"
-  OpenTag Header = "<header>"
-  OpenTag Hgroup = "<hgroup>"
-  OpenTag Hr = "<hr>"
-  OpenTag Html = "<html>"
-  OpenTag I = "<i>"
-  OpenTag Iframe = "<iframe>"
-  OpenTag Image = "<image>"
-  OpenTag Img = "<img>"
-  OpenTag Input = "<input>"
-  OpenTag Ins = "<ins>"
-  OpenTag Isindex = "<isindex>"
-  OpenTag Kbd = "<kbd>"
-  OpenTag Keygen = "<keygen>"
-  OpenTag Label = "<label>"
-  OpenTag Legend = "<legend>"
-  OpenTag Li = "<li>"
-  OpenTag Link = "<link>"
-  OpenTag Listing = "<listing>"
-  OpenTag Main = "<main>"
-  OpenTag Map = "<map>"
-  OpenTag Mark = "<mark>"
-  OpenTag Marquee = "<marquee>"
-  OpenTag Math = "<math>"
-  OpenTag Menu = "<menu>"
-  OpenTag Menuitem = "<menuitem>"
-  OpenTag Meta = "<meta>"
-  OpenTag Meter = "<meter>"
-  OpenTag Multicol = "<multicol>"
-  OpenTag Nav = "<nav>"
-  OpenTag Nextid = "<nextid>"
-  OpenTag Nobr = "<nobr>"
-  OpenTag Noembed = "<noembed>"
-  OpenTag Noframes = "<noframes>"
-  OpenTag Noscript = "<noscript>"
-  OpenTag Object = "<object>"
-  OpenTag Ol = "<ol>"
-  OpenTag Optgroup = "<optgroup>"
-  OpenTag Option = "<option>"
-  OpenTag Output = "<output>"
-  OpenTag P = "<p>"
-  OpenTag Param = "<param>"
-  OpenTag Picture = "<picture>"
-  OpenTag Plaintext = "<plaintext>"
-  OpenTag Pre = "<pre>"
-  OpenTag Progress = "<progress>"
-  OpenTag Q = "<q>"
-  OpenTag Rp = "<rp>"
-  OpenTag Rt = "<rt>"
-  OpenTag Rtc = "<rtc>"
-  OpenTag Ruby = "<ruby>"
-  OpenTag S = "<s>"
-  OpenTag Samp = "<samp>"
-  OpenTag Script = "<script>"
-  OpenTag Section = "<section>"
-  OpenTag Select = "<select>"
-  OpenTag Shadow = "<shadow>"
-  OpenTag Slot = "<slot>"
-  OpenTag Small = "<small>"
-  OpenTag Source = "<source>"
-  OpenTag Spacer = "<spacer>"
-  OpenTag Span = "<span>"
-  OpenTag Strike = "<strike>"
-  OpenTag Strong = "<strong>"
-  OpenTag Style = "<style>"
-  OpenTag Sub = "<sub>"
-  OpenTag Summary = "<summary>"
-  OpenTag Sup = "<sup>"
-  OpenTag Svg = "<svg>"
-  OpenTag Table = "<table>"
-  OpenTag Tbody = "<tbody>"
-  OpenTag Td = "<td>"
-  OpenTag Template = "<template>"
-  OpenTag Textarea = "<textarea>"
-  OpenTag Tfoot = "<tfoot>"
-  OpenTag Th = "<th>"
-  OpenTag Thead = "<thead>"
-  OpenTag Time = "<time>"
-  OpenTag Title = "<title>"
-  OpenTag Tr = "<tr>"
-  OpenTag Track = "<track>"
-  OpenTag Tt = "<tt>"
-  OpenTag U = "<u>"
-  OpenTag Ul = "<ul>"
-  OpenTag Var = "<var>"
-  OpenTag Video = "<video>"
-  OpenTag Wbr = "<wbr>"
-  OpenTag Xmp = "<xmp>"
+-- | Check whether `b` is a valid child of `a`.  You'll propably never
+-- need to call this directly.  Through a GADT, it is enforced that
+-- every child is lawful.
+--
+-- The only way to circumvent this would be to use 'undefined' or
+-- 'error' in combination with only type level values.
+--
+-- >>> undefined :: 'Div > ('Html > ())
+-- <div><html></html></div>
+--
+-- >>> undefined :: 'Div > ('Html > Proxy "a")
+-- <div><html>a</html></div>
+--
+-- >>> undefined :: 'Div > ('Html > String)
+-- <div><html>*** Exception: Prelude.undefined
+type family (a :: Element) ?> b :: Constraint where
+  a ?> (b # c)    = (a ?> b, a ?> c)
+  a ?> (b > _)    = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
+  a ?> Maybe b    = a ?> b
+  a ?> Either b c = (a ?> b, a ?> c)
+  a ?> f (b > c)  = a ?> (b > c)
+  a ?> f (b # c)  = a ?> (b # c)
+  a ?> ()         = ()
+  a ?> b          = CheckString a
 
-type family CloseTag e where
-  CloseTag A = "</a>"
-  CloseTag Abbr = "</abbr>"
-  CloseTag Acronym = "</acronym>"
-  CloseTag Address = "</address>"
-  CloseTag Applet = "</applet>"
-  CloseTag Area = "</area>"
-  CloseTag Article = "</article>"
-  CloseTag Aside = "</aside>"
-  CloseTag Audio = "</audio>"
-  CloseTag B = "</b>"
-  CloseTag Base = "</base>"
-  CloseTag Basefont = "</basefont>"
-  CloseTag Bdi = "</bdi>"
-  CloseTag Bdo = "</bdo>"
-  CloseTag Bgsound = "</bgsound>"
-  CloseTag Big = "</big>"
-  CloseTag Blink = "</blink>"
-  CloseTag Blockquote = "</blockquote>"
-  CloseTag Body = "</body>"
-  CloseTag Br = "</br>"
-  CloseTag Button = "</button>"
-  CloseTag Canvas = "</canvas>"
-  CloseTag Caption = "</caption>"
-  CloseTag Center = "</center>"
-  CloseTag Cite = "</cite>"
-  CloseTag Code = "</code>"
-  CloseTag Col = "</col>"
-  CloseTag Colgroup = "</colgroup>"
-  CloseTag Command = "</command>"
-  CloseTag Content = "</content>"
-  CloseTag Data = "</data>"
-  CloseTag Datalist = "</datalist>"
-  CloseTag Dd = "</dd>"
-  CloseTag Del = "</del>"
-  CloseTag Details = "</details>"
-  CloseTag Dfn = "</dfn>"
-  CloseTag Dialog = "</dialog>"
-  CloseTag Dir = "</dir>"
-  CloseTag Div = "</div>"
-  CloseTag Dl = "</dl>"
-  CloseTag Dt = "</dt>"
-  CloseTag 'Element = "</element>"
-  CloseTag Em = "</em>"
-  CloseTag Embed = "</embed>"
-  CloseTag Fieldset = "</fieldset>"
-  CloseTag Figcaption = "</figcaption>"
-  CloseTag Figure = "</figure>"
-  CloseTag Font = "</font>"
-  CloseTag Footer = "</footer>"
-  CloseTag Form = "</form>"
-  CloseTag Frame = "</frame>"
-  CloseTag Frameset = "</frameset>"
-  CloseTag H1 = "</h1>"
-  CloseTag H2 = "</h2>"
-  CloseTag H3 = "</h3>"
-  CloseTag H4 = "</h4>"
-  CloseTag H5 = "</h5>"
-  CloseTag H6 = "</h6>"
-  CloseTag Head = "</head>"
-  CloseTag Header = "</header>"
-  CloseTag Hgroup = "</hgroup>"
-  CloseTag Hr = "</hr>"
-  CloseTag Html = "</html>"
-  CloseTag I = "</i>"
-  CloseTag Iframe = "</iframe>"
-  CloseTag Image = "</image>"
-  CloseTag Img = "</img>"
-  CloseTag Input = "</input>"
-  CloseTag Ins = "</ins>"
-  CloseTag Isindex = "</isindex>"
-  CloseTag Kbd = "</kbd>"
-  CloseTag Keygen = "</keygen>"
-  CloseTag Label = "</label>"
-  CloseTag Legend = "</legend>"
-  CloseTag Li = "</li>"
-  CloseTag Link = "</link>"
-  CloseTag Listing = "</listing>"
-  CloseTag Main = "</main>"
-  CloseTag Map = "</map>"
-  CloseTag Mark = "</mark>"
-  CloseTag Marquee = "</marquee>"
-  CloseTag Math = "</math>"
-  CloseTag Menu = "</menu>"
-  CloseTag Menuitem = "</menuitem>"
-  CloseTag Meta = "</meta>"
-  CloseTag Meter = "</meter>"
-  CloseTag Multicol = "</multicol>"
-  CloseTag Nav = "</nav>"
-  CloseTag Nextid = "</nextid>"
-  CloseTag Nobr = "</nobr>"
-  CloseTag Noembed = "</noembed>"
-  CloseTag Noframes = "</noframes>"
-  CloseTag Noscript = "</noscript>"
-  CloseTag Object = "</object>"
-  CloseTag Ol = "</ol>"
-  CloseTag Optgroup = "</optgroup>"
-  CloseTag Option = "</option>"
-  CloseTag Output = "</output>"
-  CloseTag P = "</p>"
-  CloseTag Param = "</param>"
-  CloseTag Picture = "</picture>"
-  CloseTag Plaintext = "</plaintext>"
-  CloseTag Pre = "</pre>"
-  CloseTag Progress = "</progress>"
-  CloseTag Q = "</q>"
-  CloseTag Rp = "</rp>"
-  CloseTag Rt = "</rt>"
-  CloseTag Rtc = "</rtc>"
-  CloseTag Ruby = "</ruby>"
-  CloseTag S = "</s>"
-  CloseTag Samp = "</samp>"
-  CloseTag Script = "</script>"
-  CloseTag Section = "</section>"
-  CloseTag Select = "</select>"
-  CloseTag Shadow = "</shadow>"
-  CloseTag Slot = "</slot>"
-  CloseTag Small = "</small>"
-  CloseTag Source = "</source>"
-  CloseTag Spacer = "</spacer>"
-  CloseTag Span = "</span>"
-  CloseTag Strike = "</strike>"
-  CloseTag Strong = "</strong>"
-  CloseTag Style = "</style>"
-  CloseTag Sub = "</sub>"
-  CloseTag Summary = "</summary>"
-  CloseTag Sup = "</sup>"
-  CloseTag Svg = "</svg>"
-  CloseTag Table = "</table>"
-  CloseTag Tbody = "</tbody>"
-  CloseTag Td = "</td>"
-  CloseTag Template = "</template>"
-  CloseTag Textarea = "</textarea>"
-  CloseTag Tfoot = "</tfoot>"
-  CloseTag Th = "</th>"
-  CloseTag Thead = "</thead>"
-  CloseTag Time = "</time>"
-  CloseTag Title = "</title>"
-  CloseTag Tr = "</tr>"
-  CloseTag Track = "</track>"
-  CloseTag Tt = "</tt>"
-  CloseTag U = "</u>"
-  CloseTag Ul = "</ul>"
-  CloseTag Var = "</var>"
-  CloseTag Video = "</video>"
-  CloseTag Wbr = "</wbr>"
-  CloseTag Xmp = "</xmp>"
-
-type family Flatten a where
-  Flatten (a # b) = Combine (Flatten a) (Flatten b)
-  Flatten (a > ())= If (HasNoContent (GetInfo a)) (Open a) (Open a, Close a)
-  Flatten (a > b) = Combine (Open a, Flatten b) (Close a)
-  Flatten [a # b] = [Flatten (a # b)]
-  Flatten [a > b] = [Flatten (a > b)]
-  Flatten (Helper _ a) = Flatten a
-  Flatten x = x
-
-type family Combine a b where
-  Combine (a, b) c = (a, Combine b c)
-  Combine a b = (a, b)
-
-type family HasNoContent a where
-  HasNoContent (ElementInfo _ NoContent _) = True
-  HasNoContent _ = False
-
-type family PruneTags a where
-  PruneTags ((), a) = PruneTags a
-  PruneTags (a , ()) = PruneTags a
-  PruneTags [a] = [PruneTags a]
-  PruneTags (Close a, b) = IsOmitable' (GetInfo a) (Close a, b)
-  PruneTags (a, b) = (a, PruneTags b)
-  PruneTags (Helper a b) = PruneTags b
-  PruneTags a = a
-
-type family IsOmitable' a b where
-  IsOmitable' (ElementInfo _ _ RightOmission) (_,c) = PruneTags c
-  IsOmitable' (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c)) = PruneTags(Close b, c)
-  IsOmitable' (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c) = (b, PruneTags c)
-  IsOmitable' (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d)) = PruneTags(Open x, d)
-  IsOmitable' (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c =
-      IsOmitable' (ElementInfo a b (LastChildOrFollowedBy xs)) c
-  IsOmitable' _ (c,d) = (c, PruneTags d)
-
-type family IsOmitable a b where
-  IsOmitable (ElementInfo _ _ RightOmission) _ = True
-  IsOmitable (ElementInfo _ _ (LastChildOrFollowedBy _)) (Close _) = True
-  IsOmitable (ElementInfo _ _ (LastChildOrFollowedBy '[])) _ = False
-  IsOmitable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (Open x) = True
-  IsOmitable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) (Open x) =
-      IsOmitable (ElementInfo a b (LastChildOrFollowedBy xs)) (Open x)
-  IsOmitable _ _ = False
-
-type family RenderRecursive a where
-  RenderRecursive [a] = [RenderRecursive a]
-  RenderRecursive (a, b) = (RenderRecursive a, RenderRecursive b)
-  RenderRecursive a = RenderTag a
-
-type family RenderTag a where
-  RenderTag (Open a) = Proxy (OpenTag a)
-  RenderTag (Close a) = Proxy (CloseTag a)
-  RenderTag EndOfOpen = Proxy ">"
-  RenderTag a = a
-
-type family Fuse a where
-  Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy "FUSED", c)
-  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = Proxy "FUSED"
-  Fuse (Proxy (a :: Symbol), (b, c))                   = (Proxy a, Fuse c)
-  Fuse (a, b)                                          = (Proxy "", Fuse b)
-  Fuse (Proxy (a :: Symbol))                           = Proxy a
-  Fuse a                                               = Proxy ""
-
-type family Init xs where
-  Init (a, (b,c)) = (a, Init (b, c))
-  Init (a, b) = a
-  Init a = a
-
-type family Last' a where
-  Last' (a, as) = Last' as
-  Last' a = a
-
-newtype Helper (a :: Bool) b = Helper b
-
-data EndOfOpen = EndOfOpen
-data Open (a :: Element) = Open
-data Close (a :: Element) = Close
-newtype Attribute = Attribute [(String, String)]
-
+-- | Combine two elements sequentially.
+--
+-- >>> render (i_ () # div_ ()) :: String
+-- "<i></i><div></div>"
 data (#) a b = (:#:) a b
 (#) :: a -> b -> a # b
 (#) = (:#:)
 infixr 5 #
 
+-- | Descend to a valid child of an element.
+-- It is recommended to use the predefined elements.
+--
+-- >>> Child "a" :: 'Div > String
+-- <div>a</div>
+--
+-- >>> div_ "a"
+-- <div>a</div>
 data (>) (a :: Element) b where
   Child :: (a ?> b) => b -> a > b
 --  WithAttributes :: (a ?> b) => [(String, String)] -> b -> a > b
 
 infixr 8 >
 
+  -------------------
+  -- internal code --
+  -------------------
+
+type family OpenTag e where
+  OpenTag A          = "<a>"
+  OpenTag Abbr       = "<abbr>"
+  OpenTag Acronym    = "<acronym>"
+  OpenTag Address    = "<address>"
+  OpenTag Applet     = "<applet>"
+  OpenTag Area       = "<area>"
+  OpenTag Article    = "<article>"
+  OpenTag Aside      = "<aside>"
+  OpenTag Audio      = "<audio>"
+  OpenTag B          = "<b>"
+  OpenTag Base       = "<base>"
+  OpenTag Basefont   = "<basefont>"
+  OpenTag Bdi        = "<bdi>"
+  OpenTag Bdo        = "<bdo>"
+  OpenTag Bgsound    = "<bgsound>"
+  OpenTag Big        = "<big>"
+  OpenTag Blink      = "<blink>"
+  OpenTag Blockquote = "<blockquote>"
+  OpenTag Body       = "<body>"
+  OpenTag Br         = "<br>"
+  OpenTag Button     = "<button>"
+  OpenTag Canvas     = "<canvas>"
+  OpenTag Caption    = "<caption>"
+  OpenTag Center     = "<center>"
+  OpenTag Cite       = "<cite>"
+  OpenTag Code       = "<code>"
+  OpenTag Col        = "<col>"
+  OpenTag Colgroup   = "<colgroup>"
+  OpenTag Command    = "<command>"
+  OpenTag Content    = "<content>"
+  OpenTag Data       = "<data>"
+  OpenTag Datalist   = "<datalist>"
+  OpenTag Dd         = "<dd>"
+  OpenTag Del        = "<del>"
+  OpenTag Details    = "<details>"
+  OpenTag Dfn        = "<dfn>"
+  OpenTag Dialog     = "<dialog>"
+  OpenTag Dir        = "<dir>"
+  OpenTag Div        = "<div>"
+  OpenTag Dl         = "<dl>"
+  OpenTag Dt         = "<dt>"
+  OpenTag 'Element   = "<element>"
+  OpenTag Em         = "<em>"
+  OpenTag Embed      = "<embed>"
+  OpenTag Fieldset   = "<fieldset>"
+  OpenTag Figcaption = "<figcaption>"
+  OpenTag Figure     = "<figure>"
+  OpenTag Font       = "<font>"
+  OpenTag Footer     = "<footer>"
+  OpenTag Form       = "<form>"
+  OpenTag Frame      = "<frame>"
+  OpenTag Frameset   = "<frameset>"
+  OpenTag H1         = "<h1>"
+  OpenTag H2         = "<h2>"
+  OpenTag H3         = "<h3>"
+  OpenTag H4         = "<h4>"
+  OpenTag H5         = "<h5>"
+  OpenTag H6         = "<h6>"
+  OpenTag Head       = "<head>"
+  OpenTag Header     = "<header>"
+  OpenTag Hgroup     = "<hgroup>"
+  OpenTag Hr         = "<hr>"
+  OpenTag Html       = "<html>"
+  OpenTag I          = "<i>"
+  OpenTag Iframe     = "<iframe>"
+  OpenTag Image      = "<image>"
+  OpenTag Img        = "<img>"
+  OpenTag Input      = "<input>"
+  OpenTag Ins        = "<ins>"
+  OpenTag Isindex    = "<isindex>"
+  OpenTag Kbd        = "<kbd>"
+  OpenTag Keygen     = "<keygen>"
+  OpenTag Label      = "<label>"
+  OpenTag Legend     = "<legend>"
+  OpenTag Li         = "<li>"
+  OpenTag Link       = "<link>"
+  OpenTag Listing    = "<listing>"
+  OpenTag Main       = "<main>"
+  OpenTag Map        = "<map>"
+  OpenTag Mark       = "<mark>"
+  OpenTag Marquee    = "<marquee>"
+  OpenTag Math       = "<math>"
+  OpenTag Menu       = "<menu>"
+  OpenTag Menuitem   = "<menuitem>"
+  OpenTag Meta       = "<meta>"
+  OpenTag Meter      = "<meter>"
+  OpenTag Multicol   = "<multicol>"
+  OpenTag Nav        = "<nav>"
+  OpenTag Nextid     = "<nextid>"
+  OpenTag Nobr       = "<nobr>"
+  OpenTag Noembed    = "<noembed>"
+  OpenTag Noframes   = "<noframes>"
+  OpenTag Noscript   = "<noscript>"
+  OpenTag Object     = "<object>"
+  OpenTag Ol         = "<ol>"
+  OpenTag Optgroup   = "<optgroup>"
+  OpenTag Option     = "<option>"
+  OpenTag Output     = "<output>"
+  OpenTag P          = "<p>"
+  OpenTag Param      = "<param>"
+  OpenTag Picture    = "<picture>"
+  OpenTag Plaintext  = "<plaintext>"
+  OpenTag Pre        = "<pre>"
+  OpenTag Progress   = "<progress>"
+  OpenTag Q          = "<q>"
+  OpenTag Rp         = "<rp>"
+  OpenTag Rt         = "<rt>"
+  OpenTag Rtc        = "<rtc>"
+  OpenTag Ruby       = "<ruby>"
+  OpenTag S          = "<s>"
+  OpenTag Samp       = "<samp>"
+  OpenTag Script     = "<script>"
+  OpenTag Section    = "<section>"
+  OpenTag Select     = "<select>"
+  OpenTag Shadow     = "<shadow>"
+  OpenTag Slot       = "<slot>"
+  OpenTag Small      = "<small>"
+  OpenTag Source     = "<source>"
+  OpenTag Spacer     = "<spacer>"
+  OpenTag Span       = "<span>"
+  OpenTag Strike     = "<strike>"
+  OpenTag Strong     = "<strong>"
+  OpenTag Style      = "<style>"
+  OpenTag Sub        = "<sub>"
+  OpenTag Summary    = "<summary>"
+  OpenTag Sup        = "<sup>"
+  OpenTag Svg        = "<svg>"
+  OpenTag Table      = "<table>"
+  OpenTag Tbody      = "<tbody>"
+  OpenTag Td         = "<td>"
+  OpenTag Template   = "<template>"
+  OpenTag Textarea   = "<textarea>"
+  OpenTag Tfoot      = "<tfoot>"
+  OpenTag Th         = "<th>"
+  OpenTag Thead      = "<thead>"
+  OpenTag Time       = "<time>"
+  OpenTag Title      = "<title>"
+  OpenTag Tr         = "<tr>"
+  OpenTag Track      = "<track>"
+  OpenTag Tt         = "<tt>"
+  OpenTag U          = "<u>"
+  OpenTag Ul         = "<ul>"
+  OpenTag Var        = "<var>"
+  OpenTag Video      = "<video>"
+  OpenTag Wbr        = "<wbr>"
+  OpenTag Xmp        = "<xmp>"
+
+type family CloseTag e where
+  CloseTag A          = "</a>"
+  CloseTag Abbr       = "</abbr>"
+  CloseTag Acronym    = "</acronym>"
+  CloseTag Address    = "</address>"
+  CloseTag Applet     = "</applet>"
+  CloseTag Area       = "</area>"
+  CloseTag Article    = "</article>"
+  CloseTag Aside      = "</aside>"
+  CloseTag Audio      = "</audio>"
+  CloseTag B          = "</b>"
+  CloseTag Base       = "</base>"
+  CloseTag Basefont   = "</basefont>"
+  CloseTag Bdi        = "</bdi>"
+  CloseTag Bdo        = "</bdo>"
+  CloseTag Bgsound    = "</bgsound>"
+  CloseTag Big        = "</big>"
+  CloseTag Blink      = "</blink>"
+  CloseTag Blockquote = "</blockquote>"
+  CloseTag Body       = "</body>"
+  CloseTag Br         = "</br>"
+  CloseTag Button     = "</button>"
+  CloseTag Canvas     = "</canvas>"
+  CloseTag Caption    = "</caption>"
+  CloseTag Center     = "</center>"
+  CloseTag Cite       = "</cite>"
+  CloseTag Code       = "</code>"
+  CloseTag Col        = "</col>"
+  CloseTag Colgroup   = "</colgroup>"
+  CloseTag Command    = "</command>"
+  CloseTag Content    = "</content>"
+  CloseTag Data       = "</data>"
+  CloseTag Datalist   = "</datalist>"
+  CloseTag Dd         = "</dd>"
+  CloseTag Del        = "</del>"
+  CloseTag Details    = "</details>"
+  CloseTag Dfn        = "</dfn>"
+  CloseTag Dialog     = "</dialog>"
+  CloseTag Dir        = "</dir>"
+  CloseTag Div        = "</div>"
+  CloseTag Dl         = "</dl>"
+  CloseTag Dt         = "</dt>"
+  CloseTag 'Element   = "</element>"
+  CloseTag Em         = "</em>"
+  CloseTag Embed      = "</embed>"
+  CloseTag Fieldset   = "</fieldset>"
+  CloseTag Figcaption = "</figcaption>"
+  CloseTag Figure     = "</figure>"
+  CloseTag Font       = "</font>"
+  CloseTag Footer     = "</footer>"
+  CloseTag Form       = "</form>"
+  CloseTag Frame      = "</frame>"
+  CloseTag Frameset   = "</frameset>"
+  CloseTag H1         = "</h1>"
+  CloseTag H2         = "</h2>"
+  CloseTag H3         = "</h3>"
+  CloseTag H4         = "</h4>"
+  CloseTag H5         = "</h5>"
+  CloseTag H6         = "</h6>"
+  CloseTag Head       = "</head>"
+  CloseTag Header     = "</header>"
+  CloseTag Hgroup     = "</hgroup>"
+  CloseTag Hr         = "</hr>"
+  CloseTag Html       = "</html>"
+  CloseTag I          = "</i>"
+  CloseTag Iframe     = "</iframe>"
+  CloseTag Image      = "</image>"
+  CloseTag Img        = "</img>"
+  CloseTag Input      = "</input>"
+  CloseTag Ins        = "</ins>"
+  CloseTag Isindex    = "</isindex>"
+  CloseTag Kbd        = "</kbd>"
+  CloseTag Keygen     = "</keygen>"
+  CloseTag Label      = "</label>"
+  CloseTag Legend     = "</legend>"
+  CloseTag Li         = "</li>"
+  CloseTag Link       = "</link>"
+  CloseTag Listing    = "</listing>"
+  CloseTag Main       = "</main>"
+  CloseTag Map        = "</map>"
+  CloseTag Mark       = "</mark>"
+  CloseTag Marquee    = "</marquee>"
+  CloseTag Math       = "</math>"
+  CloseTag Menu       = "</menu>"
+  CloseTag Menuitem   = "</menuitem>"
+  CloseTag Meta       = "</meta>"
+  CloseTag Meter      = "</meter>"
+  CloseTag Multicol   = "</multicol>"
+  CloseTag Nav        = "</nav>"
+  CloseTag Nextid     = "</nextid>"
+  CloseTag Nobr       = "</nobr>"
+  CloseTag Noembed    = "</noembed>"
+  CloseTag Noframes   = "</noframes>"
+  CloseTag Noscript   = "</noscript>"
+  CloseTag Object     = "</object>"
+  CloseTag Ol         = "</ol>"
+  CloseTag Optgroup   = "</optgroup>"
+  CloseTag Option     = "</option>"
+  CloseTag Output     = "</output>"
+  CloseTag P          = "</p>"
+  CloseTag Param      = "</param>"
+  CloseTag Picture    = "</picture>"
+  CloseTag Plaintext  = "</plaintext>"
+  CloseTag Pre        = "</pre>"
+  CloseTag Progress   = "</progress>"
+  CloseTag Q          = "</q>"
+  CloseTag Rp         = "</rp>"
+  CloseTag Rt         = "</rt>"
+  CloseTag Rtc        = "</rtc>"
+  CloseTag Ruby       = "</ruby>"
+  CloseTag S          = "</s>"
+  CloseTag Samp       = "</samp>"
+  CloseTag Script     = "</script>"
+  CloseTag Section    = "</section>"
+  CloseTag Select     = "</select>"
+  CloseTag Shadow     = "</shadow>"
+  CloseTag Slot       = "</slot>"
+  CloseTag Small      = "</small>"
+  CloseTag Source     = "</source>"
+  CloseTag Spacer     = "</spacer>"
+  CloseTag Span       = "</span>"
+  CloseTag Strike     = "</strike>"
+  CloseTag Strong     = "</strong>"
+  CloseTag Style      = "</style>"
+  CloseTag Sub        = "</sub>"
+  CloseTag Summary    = "</summary>"
+  CloseTag Sup        = "</sup>"
+  CloseTag Svg        = "</svg>"
+  CloseTag Table      = "</table>"
+  CloseTag Tbody      = "</tbody>"
+  CloseTag Td         = "</td>"
+  CloseTag Template   = "</template>"
+  CloseTag Textarea   = "</textarea>"
+  CloseTag Tfoot      = "</tfoot>"
+  CloseTag Th         = "</th>"
+  CloseTag Thead      = "</thead>"
+  CloseTag Time       = "</time>"
+  CloseTag Title      = "</title>"
+  CloseTag Tr         = "</tr>"
+  CloseTag Track      = "</track>"
+  CloseTag Tt         = "</tt>"
+  CloseTag U          = "</u>"
+  CloseTag Ul         = "</ul>"
+  CloseTag Var        = "</var>"
+  CloseTag Video      = "</video>"
+  CloseTag Wbr        = "</wbr>"
+  CloseTag Xmp        = "</xmp>"
+
+type family Flatten a where
+  Flatten (a # b)      = Combine (Flatten a) (Flatten b)
+  Flatten (a > ())     = If (HasNoContent (GetInfo a)) (Open a) (Open a, Close a)
+  Flatten (a > b)      = Combine (Open a, Flatten b) (Close a)
+  Flatten [a # b]      = [Flatten (a # b)]
+  Flatten [a > b]      = [Flatten (a > b)]
+  Flatten (Helper _ a) = Flatten a
+  Flatten x            = x
+
+type family Combine a b where
+  Combine (a, b) c = (a, Combine b c)
+  Combine a b      = (a, b)
+
+type family HasNoContent a where
+  HasNoContent (ElementInfo _ NoContent _) = True
+  HasNoContent _                           = False
+
+type family PruneTags a where
+  PruneTags ((), a)      = PruneTags a
+  PruneTags (a , ())     = PruneTags a
+  PruneTags [a]          = [PruneTags a]
+  PruneTags (Close a, b) = IsOmittable (GetInfo a) (Close a, b)
+  PruneTags (a, b)       = (a, PruneTags b)
+  PruneTags (Helper a b) = PruneTags b
+  PruneTags a            = a
+
+type family IsOmittable a b where
+  IsOmittable (ElementInfo _ _ RightOmission) (_,c)                               = PruneTags c
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))        = PruneTags(Close b, c)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c)                 = (b, PruneTags c)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d)) = PruneTags(Open x, d)
+  IsOmittable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c               = IsOmittable (ElementInfo a b (LastChildOrFollowedBy xs)) c
+  IsOmittable _ (c,d)                                                             = (c, PruneTags d)
+
+type family RenderRecursive a where
+  RenderRecursive [a]    = [RenderRecursive a]
+  RenderRecursive (a, b) = (RenderRecursive a, RenderRecursive b)
+  RenderRecursive a      = RenderTag a
+
+type family RenderTag a where
+  RenderTag (Open a)  = Proxy (OpenTag a)
+  RenderTag (Close a) = Proxy (CloseTag a)
+  RenderTag EndOfOpen = Proxy ">"
+  RenderTag a         = a
+
+type family Fuse a where
+  Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy "{FUSED-A}", c)
+  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = Proxy "{FUSED-B}"
+  Fuse (Proxy (a :: Symbol), (b,c))                    = (Proxy a, Fuse c)
+  Fuse (Proxy (a :: Symbol), b)                        = (Proxy a, Fuse b)
+  Fuse (Proxy (a :: Symbol))                           = Proxy a
+  Fuse (a, b)                                          = (Proxy "", Fuse b)
+  Fuse a                                               = Proxy ""
+
+type family Init xs where
+  Init (a, (b,c)) = (a, Init (b, c))
+  Init (a, b)     = a
+  Init a          = a
+
+type family Last a where
+  Last (a, as) = Last as
+  Last a       = a
+
+newtype Helper (a :: Bool) b = Helper b
+
+data EndOfOpen            = EndOfOpen
+data Open (a :: Element)  = Open
+data Close (a :: Element) = Close
+newtype Attribute         = Attribute [(String, String)]
+
 data ElementInfo
   (contentCategories :: [ContentCategory])
   (permittedContent  :: ContentCategory)
   (tagOmission       :: TagOmission)
+
+data TagOmission
+  = NoOmission
+  | RightOmission
+  | LastChildOrFollowedBy [Element]
+
+type family TestPaternity a b c :: Bool where
+  TestPaternity a (ElementInfo _ ps _) (ElementInfo cs _ _) = CheckContentCategory ps (a ': cs)
+
+type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory]) :: Bool where
+  CheckContentCategory (a :|: b) c = CheckContentCategory a c || CheckContentCategory b c
+  CheckContentCategory (a :&: b) c = CheckContentCategory a c && CheckContentCategory b c
+  CheckContentCategory (NOT a) c   = Not (CheckContentCategory a c)
+  CheckContentCategory a c         = Elem a c
+
+type family CheckString (a :: Element) where
+  CheckString a = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent NoOmission))
+                     (() :: Constraint)
+                     (TypeError (ShowType a :<>: Text " can't contain a string"))
+
+type family Rep n x where
+  Rep 0 _ = TypeError (Text "Can't replicate 0 times")
+  Rep 1 x = x
+  Rep n x = x # Rep (n-1) x
+
+data ContentCategory
+  = MetadataContent
+  | FlowContent
+  | SectioningContent
+  | HeadingContent
+  | PhrasingContent
+  | EmbeddedContent
+  | InteractiveContent
+  | FormAssociatedContent
+  | TransparentContent
+  | PalpableContent
+  | SectioningRoot
+  | (:|:) ContentCategory ContentCategory
+  | (:&:) ContentCategory ContentCategory
+  | NOT ContentCategory
+  | NoContent
+  | OnlyText
+  | SingleElement Element
+
+infixr 2 :|:
+infixr 3 :&:
+
+type family MaybeTypeError (a :: Element) (b :: Element) c where
+  MaybeTypeError a b c = If c (() :: Constraint)
+   (TypeError (ShowType b :<>: Text " is not a valid child of " :<>: ShowType a))
+
+type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
+  Elem a (a : xs) = True
+  Elem a (_ : xs) = Elem a xs
+  Elem a '[]      = False
 
 type family GetInfo a where
 
@@ -1164,69 +1251,3 @@ type family GetInfo a where
     [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
     (FlowContent :|: PhrasingContent :|: EmbeddedContent :|: InteractiveContent :|: PalpableContent)
     NoOmission
-
-data TagOmission
-  = NoOmission
-  | RightOmission
-  | LastChildOrFollowedBy [Element]
-
-type family TestPaternity a b c :: Bool where
-  TestPaternity a (ElementInfo _ ps _) (ElementInfo cs _ _) = CheckContentCategory ps (a ': cs)
-
-type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory]) :: Bool where
-  CheckContentCategory (a :|: b) c = CheckContentCategory a c || CheckContentCategory b c
-  CheckContentCategory (a :&: b) c = CheckContentCategory a c && CheckContentCategory b c
-  CheckContentCategory (NOT a) c = Not (CheckContentCategory a c)
-  CheckContentCategory a c = Elem a c
-
-type family (a :: Element) ?> b :: Constraint where
-  a ?> (b # c)    = (a ?> b, a ?> c)
-  a ?> (b > _)    = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
-  a ?> Maybe b    = a ?> b
-  a ?> Either b c = (a ?> b, a ?> c)
-  a ?> f (b > c)  = a ?> (b > c)
-  a ?> f (b # c)  = a ?> (b # c)
-  a ?> ()         = ()
-  a ?> b          = CheckString a
---  a ?> b       = TypeError (ShowType b :<>: Text " is not a valid child of " :<>: ShowType a)
-
-type family CheckString (a :: Element) where
-  CheckString a = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent NoOmission))
-                   (() :: Constraint)
-                   (TypeError (ShowType a :<>: Text " can't contain a string"))
-
-type family Rep n x where
-  Rep 0 _ = TypeError (Text "Can't replicate 0 times")
-  Rep 1 x = x
-  Rep n x = x # Rep (n-1) x
-
-data ContentCategory
-  = MetadataContent
-  | FlowContent
-  | SectioningContent
-  | HeadingContent
-  | PhrasingContent
-  | EmbeddedContent
-  | InteractiveContent
-  | FormAssociatedContent
-  | TransparentContent
-  | PalpableContent
-  | SectioningRoot
-  | (:|:) ContentCategory ContentCategory
-  | (:&:) ContentCategory ContentCategory
-  | NOT ContentCategory
-  | NoContent
-  | OnlyText
-  | SingleElement Element
-
-infixr 2 :|:
-infixr 3 :&:
-
-type family MaybeTypeError (a :: Element) (b :: Element) c where
-  MaybeTypeError a b c = If c (() :: Constraint)
-   (TypeError (ShowType b :<>: Text " is not a valid child of " :<>: ShowType a))
-
-type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
-  Elem a (a : xs) = True
-  Elem a (_ : xs) = Elem a xs
-  Elem a '[] = False
