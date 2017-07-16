@@ -204,7 +204,17 @@ class DoRender a b where
 
 instance KnownSymbol a => DoRender (Proxy a) b where
   {-# INLINE doRender #-}
-  doRender = fromString . symbolVal
+  doRender = fromString' . symbolVal
+
+{-# NOINLINE fromString' #-}
+fromString' :: IsString a => String -> a
+fromString' = fromString
+
+{-# RULES
+"fromString'/builder" fromString' = TLB.fromLazyText . LT.pack
+"fromString/fromString" [10] fromString' = fromString
+#-}
+
 
 instance DoRender a b => DoRender (Maybe a) b where
   {-# INLINE doRender #-}
