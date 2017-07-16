@@ -223,7 +223,9 @@ type family (a :: Element) ?> b :: Constraint where
   a ?> f (b > c)  = a ?> (b > c)
   a ?> f (b # c)  = a ?> (b # c)
   a ?> ()         = ()
+  a ?> (b -> c)   = (TypeError (Text "Html elements can't contain functions"))
   a ?> b          = CheckString a
+
 
 -- | Combine two elements sequentially.
 --
@@ -252,6 +254,7 @@ infixr 8 >
   -- internal code --
   -------------------
 
+-- | These tags will get cleaned up with ghc8.2 AppendSymbol
 type family OpenTag e where
   OpenTag A          = "<a>"
   OpenTag Abbr       = "<abbr>"
@@ -548,32 +551,35 @@ type family CloseTag e where
   CloseTag Wbr        = "</wbr>"
   CloseTag Xmp        = "</xmp>"
 
-type family Flatten a where
-  Flatten (a # b)      = Combine (Flatten a) (Flatten b)
-  Flatten (a > ())     = If (HasNoContent (GetInfo a)) (Open a) (Open a, Close a)
-  Flatten (a > b)      = Combine (Open a, Flatten b) (Close a)
-  Flatten [a # b]      = [Flatten (a # b)]
-  Flatten [a > b]      = [Flatten (a > b)]
-  Flatten (Helper _ a) = Flatten a
-  Flatten x            = x
+-- | Flatten a html tree of elements into a type list of tags.
+type family ToTypeList a where
+  ToTypeList (a # b)  = Append (ToTypeList a) (ToTypeList b)
+  ToTypeList (a > ()) = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
+  ToTypeList (a > b)  = Append (Open a, ToTypeList b) (Close a)
+  ToTypeList [a # b]  = [ToTypeList (a # b)]
+  ToTypeList [a > b]  = [ToTypeList (a > b)]
+  ToTypeList x        = x
 
-type family Combine a b where
-  Combine (a, b) c = (a, Combine b c)
-  Combine a b      = (a, b)
+-- | Append two type lists.
+type family Append a b where
+  Append (a, b) c = (a, Append b c)
+  Append a      b = (a, b)
 
-type family HasNoContent a where
-  HasNoContent (ElementInfo _ NoContent _) = True
-  HasNoContent _                           = False
+-- | Check whether an element may have content.
+type family HasContent a where
+  HasContent (ElementInfo _ NoContent _) = False
+  HasContent _                           = True
 
+-- | Remove omittable and empty tags from a type list of tags.
 type family PruneTags a where
   PruneTags ((), a)      = PruneTags a
   PruneTags (a , ())     = PruneTags a
   PruneTags [a]          = [PruneTags a]
   PruneTags (Close a, b) = IsOmittable (GetInfo a) (Close a, b)
   PruneTags (a, b)       = (a, PruneTags b)
-  PruneTags (Helper a b) = PruneTags b
   PruneTags a            = a
 
+-- | Checks whether a tag is omittable.
 type family IsOmittable a b where
   IsOmittable (ElementInfo _ _ RightOmission) (_,c)                               = PruneTags c
   IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))        = PruneTags(Close b, c)
@@ -582,17 +588,16 @@ type family IsOmittable a b where
   IsOmittable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c               = IsOmittable (ElementInfo a b (LastChildOrFollowedBy xs)) c
   IsOmittable _ (c,d)                                                             = (c, PruneTags d)
 
-type family RenderRecursive a where
-  RenderRecursive [a]    = [RenderRecursive a]
-  RenderRecursive (a, b) = (RenderRecursive a, RenderRecursive b)
-  RenderRecursive a      = RenderTag a
+-- | Convert tags to type level strings.
+type family RenderTags a where
+  RenderTags [a]       = [RenderTags a]
+  RenderTags (a, b)    = (RenderTags a, RenderTags b)
+  RenderTags (Open a)  = Proxy (OpenTag a)
+  RenderTags (Close a) = Proxy (CloseTag a)
+  RenderTags EndOfOpen = Proxy ">"
+  RenderTags a         = a
 
-type family RenderTag a where
-  RenderTag (Open a)  = Proxy (OpenTag a)
-  RenderTag (Close a) = Proxy (CloseTag a)
-  RenderTag EndOfOpen = Proxy ">"
-  RenderTag a         = a
-
+-- | Fuse neighbouring type level strings.
 type family Fuse a where
   Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy "{FUSED-A}", c)
   Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = Proxy "{FUSED-B}"
@@ -602,27 +607,30 @@ type family Fuse a where
   Fuse (a, b)                                          = (Proxy "", Fuse b)
   Fuse a                                               = Proxy ""
 
+-- | Init for type level lists.
 type family Init xs where
   Init (a, (b,c)) = (a, Init (b, c))
   Init (a, b)     = a
   Init a          = a
 
+-- | Last for type level lists.
 type family Last a where
   Last (a, as) = Last as
   Last a       = a
 
-newtype Helper (a :: Bool) b = Helper b
+-- | Utility types.
+data EndOfOpen
+data Open (a :: Element)
+data Close (a :: Element)
+newtype Attribute = Attribute [(String, String)]
 
-data EndOfOpen            = EndOfOpen
-data Open (a :: Element)  = Open
-data Close (a :: Element) = Close
-newtype Attribute         = Attribute [(String, String)]
-
+-- | Type of type level information about tags.
 data ElementInfo
   (contentCategories :: [ContentCategory])
   (permittedContent  :: ContentCategory)
   (tagOmission       :: TagOmission)
 
+-- | Kind describing whether it is valid to delete a closing tag.
 data TagOmission
   = NoOmission
   | RightOmission
@@ -637,6 +645,7 @@ type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory])
   CheckContentCategory (NOT a) c   = Not (CheckContentCategory a c)
   CheckContentCategory a c         = Elem a c
 
+-- | Check whether a given element may contain a string.
 type family CheckString (a :: Element) where
   CheckString a = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent NoOmission))
                      (() :: Constraint)
@@ -647,6 +656,7 @@ type family Rep n x where
   Rep 1 x = x
   Rep n x = x # Rep (n-1) x
 
+-- | Content categories according to the html spec.
 data ContentCategory
   = MetadataContent
   | FlowContent
@@ -678,6 +688,7 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
+-- | Retrieve type level meta data about elements.
 type family GetInfo a where
 
   GetInfo A = ElementInfo

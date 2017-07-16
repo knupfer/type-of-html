@@ -1,8 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts #-}
 
 module Main where
 
@@ -10,13 +10,12 @@ import Html
 
 import Data.Proxy
 import Data.String
-import Data.Semigroup (Semigroup(..))
 import Control.Monad
 
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as LT
-import qualified Data.Text.Lazy.Builder as TLB
-import qualified Text.Blaze.Html5 as B
+import Data.Text.Lazy.Builder (Builder, toLazyText)
+import qualified Data.Text                     as S
+import qualified Data.Text.Lazy                as L
+import qualified Text.Blaze.Html5              as B
 import qualified Text.Blaze.Html.Renderer.Text as RT
 
 import Criterion.Main
@@ -24,59 +23,45 @@ import Criterion.Main
 main :: IO ()
 main = defaultMain
   [ bgroup "minimal"
-    [ bench "strict text" $ nf (render . minimal :: T.Text -> T.Text) "TEST"
-    , bench "lazy text"   $ nf (render . minimal :: LT.Text -> LT.Text) "TEST"
-    , bench "builder"     $ nf (TLB.toLazyText . render . minimal :: TLB.Builder -> LT.Text) "TEST"
-    , bench "blaze"       $ nf (RT.renderHtml . blazeMinimal) "TEST"
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestMinimal) "TEST"
+    [ bench "string"      $ nf (render . minimal                   :: String         -> String) "TEST"
+    , bench "blaze"       $ nf (RT.renderHtml . blazeMinimal       :: B.Html         -> L.Text) "TEST"
+    , bench "strict text" $ nf (render . minimal                   :: S.Text         -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . minimal                   :: L.Text         -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . minimal      :: Builder        -> L.Text) "TEST"
     ]
   , bgroup "hello world"
-    [ bench "strict text" $ nf (render . helloWorld :: T.Text -> T.Text) "TEST"
-    , bench "lazy text"   $ nf (render . helloWorld :: LT.Text -> LT.Text) "TEST"
-    , bench "builder"     $ nf (TLB.toLazyText . render . helloWorld :: TLB.Builder -> LT.Text) "TEST"
-    , bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld) "TEST"
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestHelloWorld) "TEST"
+    [ bench "string"      $ nf (render . helloWorld                :: String         -> String) "TEST"
+    , bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld    :: B.Html         -> L.Text) "TEST"
+    , bench "strict text" $ nf (render . helloWorld                :: S.Text         -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . helloWorld                :: L.Text         -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . helloWorld   :: Builder        -> L.Text) "TEST"
     ]
   , bgroup "big page"
-    [ bench "strict text" $ nf (render . bigPage :: T.Text -> T.Text) "TEST"
-    , bench "lazy text"   $ nf (render . bigPage :: LT.Text -> LT.Text) "TEST"
-    , bench "builder"     $ nf (TLB.toLazyText . render . bigPage :: TLB.Builder -> LT.Text) "TEST"
-    , bench "blaze"       $ nf (RT.renderHtml . blazeBigPage) "TEST"
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigPage) "TEST"
+    [ bench "string"      $ nf (render . bigPage                   :: String         -> String) "TEST"
+    , bench "blaze"       $ nf (RT.renderHtml . blazeBigPage       :: B.Html         -> L.Text) "TEST"
+    , bench "strict text" $ nf (render . bigPage                   :: S.Text         -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . bigPage                   :: L.Text         -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . bigPage      :: Builder        -> L.Text) "TEST"
     ]
   , bgroup "big table"
-    [ bench "strict text" $ nf (render . bigTable :: (Int, Int) -> T.Text) (5,5)
-    , bench "lazy text"   $ nf (render . bigTable :: (Int, Int) -> LT.Text) (5,5)
-    , bench "builder"     $ nf (TLB.toLazyText . render . bigTable :: (Int, Int) -> LT.Text) (5,5)
-    , bench "(type) strict text" $ nf (render . bigTypeTable :: (Proxy 5, Int) -> T.Text) (Proxy,5)
-    , bench "(type) lazy text"   $ nf (render . bigTypeTable :: (Proxy 5, Int) -> LT.Text) (Proxy,5)
-    , bench "(type) builder"     $ nf (TLB.toLazyText . render . bigTypeTable :: (Proxy 5, Int) -> LT.Text) (Proxy,5)
-    , bench "blaze"       $ nf (RT.renderHtml . blazeBigTable) (5,5)
-    , bench "optimal (pregenerated lazy builder)" $ nf (TLB.toLazyText . bestBigTable) (5,5)
+    [ bench "string"      $ nf (render . bigTable                  :: (Int, Int)     -> String) (5,5)
+    , bench "blaze"       $ nf (RT.renderHtml . blazeBigTable      :: (Int, Int)     -> L.Text) (5,5)
+    , bench "strict text" $ nf (render . bigTable                  :: (Int, Int)     -> S.Text) (5,5)
+    , bench "lazy text"   $ nf (render . bigTable                  :: (Int, Int)     -> L.Text) (5,5)
+    , bench "builder"     $ nf (toLazyText . render . bigTable     :: (Int, Int)     -> L.Text) (5,5)
+    ]
+  , bgroup "type table"
+    [ bench "string"      $ nf (render . bigTypeTable              :: (Proxy 5, Int) -> String) (Proxy,5)
+    , bench "strict text" $ nf (render . bigTypeTable              :: (Proxy 5, Int) -> S.Text) (Proxy,5)
+    , bench "lazy text"   $ nf (render . bigTypeTable              :: (Proxy 5, Int) -> L.Text) (Proxy,5)
+    , bench "builder"     $ nf (toLazyText . render . bigTypeTable :: (Proxy 5, Int) -> L.Text) (Proxy,5)
     ]
   ]
-
--- Pregenerated contents
-
-bestMinimal :: TLB.Builder -> TLB.Builder
-bestMinimal x = "<div>" <> x <> "</div>"
-
-bestHelloWorld :: TLB.Builder -> TLB.Builder
-bestHelloWorld x = "<html><head><title>" <> x <> "</title></head><body><p>Hello World!</p></body></html>"
-
-bestBigPage :: TLB.Builder -> TLB.Builder
-bestBigPage x = "<html><head><meta><title>" <> x <> "</title><script></script><link><style></style></head><body><h1><img><strong></strong></h1><div><div><img></div><div><img></div></div><div><form><fieldset><div><div><div><label></label><select><option></option><option></option></select><div></div></div><i></i></div></div><button><i></i></button></fieldset></form></div></body></html>"
-
-bestBigTable :: (Int,Int) -> TLB.Builder
-bestBigTable (n, m)
-  = "<table>"
-  <> mconcat (replicate n ("<tr>" <> mconcat (map (\x -> "<td>" <> fromString (show x) <> "</td>") [1..m]) <> "</tr>"))
-  <> "</table>"
 
 -- Blaze based functions
 
 blazeMinimal :: B.Html -> B.Html
-blazeMinimal x = B.div x
+blazeMinimal = B.div
 
 blazeHelloWorld :: B.Html -> B.Html
 blazeHelloWorld x =
@@ -89,110 +74,106 @@ blazeHelloWorld x =
 blazeBigPage :: B.Html -> B.Html
 blazeBigPage x =
   B.html $ do
-    B.head $ do
-      B.meta
-      B.title x
-      B.script ""
-      B.link
-      B.style ""
     B.body $ do
       B.h1 $ do
         B.img
-        B.strong ""
+        B.strong "0"
       B.div $ do
-        B.div B.img
-        B.div B.img
+        B.div "1"
       B.div $ do
         B.form $ do
           B.fieldset $ do
             B.div $ do
               B.div $ do
-                B.div $ do
-                  B.label ""
-                  B.select $ do
-                    B.option ""
-                    B.option ""
-                  B.div ""
-                B.i ""
-            B.button $ B.i ""
+                B.label "a"
+                B.select $ do
+                  B.option "b"
+                  B.option "c"
+                B.div "d"
+              B.i x
+            B.button $ B.i "e"
 
 blazeBigTable :: (Int, Int) -> B.Html
-blazeBigTable (n, m) = B.table $ replicateM_ n (B.tr $ mapM_ (B.td . fromString . show) [1..m])
+blazeBigTable (n, m)
+  = B.table
+  . replicateM_ n
+  . B.tr
+  $ mapM_ (B.td . fromString . show) [1..m]
 
 -- Type of Html based functions
 
 minimal :: ('Div ?> a) => a -> 'Div > a
 minimal = div_
 
-helloWorld :: (IsString a, 'Title ?> a) => a -> 'Html > (('Head > ('Title > a)) # ('Body > ('P > String)))
+helloWorld
+  :: (IsString a, 'Title ?> a)
+  => a
+  ->
+  'Html > ( 'Head > 'Title > a
+          # 'Body > 'P > String
+          )
 helloWorld x =
   html_
     ( head_
       ( title_ x
       )
     # body_
-      ( p_ ("Hello World!" :: IsString a => a)
+      ( p_ ("Hello World!" :: String)
       )
     )
 
-bigPage :: ('Title ?> a) =>
-         a
-         -> 'Html
-            > (('Head
-                > (('Meta > ())
-                   # (('Title > a)
-                      # (('Script > ()) # (('Link > ()) # ('Style > ()))))))
-               # ('Body
-                  > (('H1 > (('Img > ()) # ('Strong > ())))
-                     # (('Div > (('Div > ('Img > ())) # ('Div > ('Img > ()))))
-                        # ('Div
-                           > ('Form
-                              > ('Fieldset
-                                 > (('Div
-                                     > ('Div
-                                        > (('Div
-                                            > (('Label > ())
-                                               # (('Select
-                                                   > (('Option > ())
-                                                      # ('Option > ())))
-                                                  # ('Div > ()))))
-                                           # ('I > ()))))
-                                    # ('Button > ('I > ()))))))))))
+bigPage
+  :: ('I ?> a)
+  => a
+  ->
+  'Html >
+  ( 'Body >
+    ( 'H1 >
+      ( 'Img > ()
+      # 'Strong > String
+      )
+    # 'Div > 'Div > String
+    # 'Div > 'Form > 'Fieldset >
+      ( 'Div >
+        ( 'Div >
+          ( 'Label > String
+          # 'Select >
+            ( 'Option > String
+            # 'Option > String
+            )
+          # 'Div > String
+          )
+        # 'I > a
+        )
+      # 'Button > 'I > String
+      )
+    )
+  )
 bigPage x =
   html_
-    ( head_
-      ( meta_
-      # title_ x
-      # script_ ()
-      # link_
-      # style_ ()
-      )
-    # body_
+    ( body_
       ( h1_
         ( img_
-        # strong_ ()
+        # strong_ ("0" :: String)
         )
       # div_
-        ( div_ img_
-        # div_ img_
+        ( div_ ("1" :: String)
         )
       # div_
         ( form_
           ( fieldset_
             ( div_
               ( div_
-                ( div_
-                  ( label_ ()
-                  # select_
-                    ( option_ ()
-                    # option_ ()
-                    )
-                  # div_ ()
+                ( label_ ("a" :: String)
+                # select_
+                  ( option_ ("b" :: String)
+                  # option_ ("c" :: String)
                   )
-                # i_ ()
+                # div_ ("d" :: String)
                 )
+              # i_ x
               )
-            # button_ (i_ ())
+            # button_ (i_ ("e" :: String))
             )
           )
         )
@@ -206,5 +187,6 @@ bigTypeTable
   :: ( Replicate n ('Tr > ['Td > Int])
      , 'Table ?> Rep n ('Tr > ['Td > Int])
      )
-  => (Proxy n, Int) -> 'Table > Rep n ('Tr > ['Td > Int])
+  => (Proxy n, Int)
+  -> 'Table > Rep n ('Tr > ['Td > Int])
 bigTypeTable (n, m) = table_ . replicateH n . tr_ $ map td_ [1..m]

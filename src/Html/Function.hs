@@ -52,14 +52,14 @@ import qualified Data.ByteString.Lazy.Char8 as LBS8
 render :: Render a b => a -> b
 render = mconcat . renderList
 
+-- | Type level replicate.  This function is quite costly to compile
+-- for large Nats.  It is a bit more efficient than the conventional
+-- replicate which you should use instead in non performance
+-- critical code.
+--
+-- >>> render (replicateH (Proxy :: Proxy 2) (div_ "a")) :: String
+-- "<div>a</div><div>a</div>"
 class Replicate n x where
-  -- | Type level replicate.  This function is quite costly to compile
-  -- for large Nats.  It is a bit more efficient than the conventional
-  -- replicate which you should use instead in non performance
-  -- critical code.
-  --
-  -- >>> render (replicateH (Proxy :: Proxy 2) (div_ "a")) :: String
-  -- "<div>a</div><div>a</div>"
   replicateH :: Proxy n -> x -> Rep n x
 
 instance {-# OVERLAPPING #-} Replicate 1 x where
@@ -72,45 +72,12 @@ instance (Replicate (n-1) x, Rep n x ~ (x # Rep (n-1) x)) => Replicate n x where
   -- internal code --
   -------------------
 
+-- | Render a html document to a stream.
 {-# NOINLINE renderList #-}
 renderList :: Render a b => a -> [b]
 renderList = renderList_
 
-{-# INLINE renderListB #-}
-renderListB :: Render a TLB.Builder => a -> [TLB.Builder]
-renderListB x =
-    augment (\c n -> foldr2_ (zipWithFB_ c (<>)) n elements contents) closing
-  where contents = flatR x
-        elements = listProxies (f x)
-        closing = listProxies (g x)
-        f :: x -> Init (Fuse (RenderRecursive (PruneTags (Flatten x))))
-        f = undefined
-        g :: x -> Last (Fuse (RenderRecursive (PruneTags (Flatten x))))
-        g = undefined
-
-{-# INLINE renderList_ #-}
-renderList_ :: Render a b => a -> [b]
-renderList_ x = g elements contents
-  where contents = flatR x
-        elements = listProxies (f x)
-        f :: x -> Fuse (RenderRecursive (PruneTags (Flatten x)))
-        f = undefined
-        g (a:as) (b:bs) = a:b:g as bs
-        g as [] = as
-        g [] bs = bs
-
-{-# INLINE renderListLT #-}
-renderListLT :: Render a LT.Text => a -> [LT.Text]
-renderListLT = renderList_
-
-{-# INLINE renderListT #-}
-renderListT :: Render a T.Text => a -> [T.Text]
-renderListT = renderList_
-
-{-# INLINE renderListS #-}
-renderListS :: Render a String => a -> [String]
-renderListS = renderList_
-
+-- | Specialization for lazy builders.
 {-# RULES
 "renderList/builder"     renderList = renderListB
 "renderList/lazy text"   renderList = renderListLT
@@ -118,18 +85,59 @@ renderListS = renderList_
 "renderList/string"      renderList = renderListS
   #-}
 
+{-# INLINE renderListB #-}
+renderListB :: Render a TLB.Builder => a -> [TLB.Builder]
+renderListB x =
+    augment (\c n -> foldr2_ (zipWithFB_ c (<>)) n elements contents) closing
+  where contents = toValueList x
+        elements = listProxies (f x)
+        closing = listProxies (g x)
+        f :: x -> Init (Fuse (RenderTags (PruneTags (ToTypeList x))))
+        f = undefined
+        g :: x -> Last (Fuse (RenderTags (PruneTags (ToTypeList x))))
+        g = undefined
+
+-- | Standard implementation for 'renderList'.
+{-# INLINE renderList_ #-}
+renderList_ :: Render a b => a -> [b]
+renderList_ x = g elements contents
+  where contents = toValueList x
+        elements = listProxies (f x)
+        f :: x -> Fuse (RenderTags (PruneTags (ToTypeList x)))
+        f = undefined
+        g (a:as) (b:bs) = a:b:g as bs
+        g as [] = as
+        g [] bs = bs
+
+-- | Specialization for lazy texts.
+{-# INLINE renderListLT #-}
+renderListLT :: Render a LT.Text => a -> [LT.Text]
+renderListLT = renderList_
+
+-- | Specialization for strict texts.
+{-# INLINE renderListT #-}
+renderListT :: Render a T.Text => a -> [T.Text]
+renderListT = renderList_
+
+-- | Specialization for strings.
+{-# INLINE renderListS #-}
+renderListS :: Render a String => a -> [String]
+renderListS = renderList_
+
+-- | Fuseable zip.
 {-# INLINE [0] zipWithFB_ #-}
 zipWithFB_ :: (a -> b -> c) -> (d -> e -> a) -> d -> e -> b -> c
 zipWithFB_ c f = \x y r -> (x `f` y) `c` r
 
+-- | Fuseable fold with two lists.
 {-# INLINE [0] foldr2_ #-}
 foldr2_ :: Monoid a => (a -> a -> c -> c) -> c -> [a] -> [a] -> c
 foldr2_ k z = go
-  where
-        go []     _      = z
+  where go []     _      = z
         go _      []     = z
         go (x:xs) (y:ys) = k x y (go xs ys)
 
+-- | Left fold optimization.
 foldr2_left_ :: (a -> b -> c -> d) -> d -> a -> ([b] -> c) -> [b] -> d
 foldr2_left_ _k  z _x _r []     = z
 foldr2_left_  k _z  x  r (y:ys) = k x y (r ys)
@@ -139,72 +147,74 @@ foldr2_left_  k _z  x  r (y:ys) = k x y (r ys)
                   foldr2_ k z (build g) ys = g (foldr2_left_  k z) (\_ -> z) ys
  #-}
 
---(?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b > c)
---f ? xs = addAttributes xs . f
---infixr 9 ?
-
+-- (?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b > c)
+-- f ? xs = addAttributes xs . f
+-- infixr 9 ?
 
 -- addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a > b)
 -- addAttributes xs (Child b) = WithAttributes xs b
 -- addAttributes xs (WithAttributes xs0 b) = WithAttributes (xs0 ++ xs) b
 
-
+-- | Retrieve a type level list of tags and reify them as a list of strings.
 class ListProxies a b where
   listProxies :: (IsString b, Monoid b) => a -> [b]
 
 instance (KnownSymbol a, ListProxies b str) => ListProxies (Proxy a, b) str where
   {-# INLINE listProxies #-}
-  listProxies _ = doRender (Proxy :: Proxy a):listProxies (undefined :: b)
+  listProxies _ = convert (Proxy :: Proxy a):listProxies (undefined :: b)
 
 instance KnownSymbol a => ListProxies (Proxy a) str where
   {-# INLINE listProxies #-}
-  listProxies _ = [doRender (Proxy :: Proxy a)]
+  listProxies _ = [convert (Proxy :: Proxy a)]
 
-class FlatR a b where
-  flatR :: (IsString b, Monoid b) => a -> [b]
+-- | Convert a html tree into a list of rendered content (without tags).
+class ToValueList a b where
+  toValueList :: (IsString b, Monoid b) => a -> [b]
 
-instance KnownSymbol a => FlatR (Proxy a) str where
-  {-# INLINE flatR #-}
-  flatR _ = []
+instance KnownSymbol a => ToValueList (Proxy a) str where
+  {-# INLINE toValueList #-}
+  toValueList _ = []
 
-instance KnownSymbol a => FlatR [Proxy a] str where
-  {-# INLINE flatR #-}
-  flatR xs = [mconcat $ concatMap renderList xs]
+instance KnownSymbol a => ToValueList [Proxy a] str where
+  {-# INLINE toValueList #-}
+  toValueList xs = [mconcat $ concatMap renderList xs]
 
-instance {-# OVERLAPPABLE #-} DoRender a str => FlatR a str where
-  {-# INLINE flatR #-}
-  flatR x = [doRender x]
+instance {-# OVERLAPPABLE #-} Convert a str => ToValueList a str where
+  {-# INLINE toValueList #-}
+  toValueList x = [convert x]
 
-instance FlatR () str where
-  {-# INLINE flatR #-}
-  flatR _ = []
+instance ToValueList () str where
+  {-# INLINE toValueList #-}
+  toValueList _ = []
 
-instance (FlatR a str, FlatR b str) => FlatR (a # b) str where
-  {-# INLINE flatR #-}
-  flatR ~(a :#: b) = flatR a ++ flatR b
+instance (ToValueList a str, ToValueList b str) => ToValueList (a # b) str where
+  {-# INLINE toValueList #-}
+  toValueList ~(a :#: b) = toValueList a ++ toValueList b
 
-instance {-# OVERLAPPING #-} FlatR (a > ()) str where
-  {-# INLINE flatR #-}
-  flatR _ = []
+instance {-# OVERLAPPING #-} ToValueList (a > ()) str where
+  {-# INLINE toValueList #-}
+  toValueList _ = []
 
-instance FlatR b str => FlatR (a > b) str where
-  {-# INLINE flatR #-}
-  flatR ~(Child x) = flatR x
+instance ToValueList b str => ToValueList (a > b) str where
+  {-# INLINE toValueList #-}
+  toValueList ~(Child x) = toValueList x
 
-instance (Render (a > b) str) => FlatR [a > b] str where
-  {-# INLINE flatR #-}
-  flatR xs = [mconcat $ concatMap renderList xs]
+instance (Render (a > b) str) => ToValueList [a > b] str where
+  {-# INLINE toValueList #-}
+  toValueList xs = [mconcat $ concatMap renderList xs]
 
-instance (Render (a # b) str) => FlatR [a # b] str where
-  {-# INLINE flatR #-}
-  flatR xs = [mconcat $ concatMap renderList xs]
+instance (Render (a # b) str) => ToValueList [a # b] str where
+  {-# INLINE toValueList #-}
+  toValueList xs = [mconcat $ concatMap renderList xs]
 
-class DoRender a b where
-  doRender :: IsString b => a -> b
 
-instance KnownSymbol a => DoRender (Proxy a) b where
-  {-# INLINE doRender #-}
-  doRender = fromString' . symbolVal
+-- | Convert something to a target stringlike thing.
+class Convert a b where
+  convert :: IsString b => a -> b
+
+instance KnownSymbol a => Convert (Proxy a) b where
+  {-# INLINE convert #-}
+  convert = fromString' . symbolVal
 
 {-# NOINLINE fromString' #-}
 fromString' :: IsString a => String -> a
@@ -215,83 +225,67 @@ fromString' = fromString
 "fromString/fromString" [10] fromString' = fromString
 #-}
 
+instance Convert a b => Convert (Maybe a) b where
+  {-# INLINE convert #-}
+  convert Nothing = ""
+  convert (Just x) = convert x
 
-instance DoRender a b => DoRender (Maybe a) b where
-  {-# INLINE doRender #-}
-  doRender Nothing = ""
-  doRender (Just x) = doRender x
+instance Convert Attribute b where
+  {-# INLINE convert #-}
+  convert (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
 
-instance DoRender Attribute b where
-  {-# INLINE doRender #-}
-  doRender (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
+instance {-# OVERLAPPING #-} Convert String String where convert = id
+instance {-# OVERLAPPING #-} Convert String TLB.Builder where
+  {-# INLINE convert #-}
+  convert = TLB.fromLazyText . LT.pack
+instance Convert String a where
+  {-# INLINE convert #-}
+  convert = fromString
 
-instance {-# OVERLAPPING #-} DoRender String String where doRender = id
-instance {-# OVERLAPPING #-} DoRender String TLB.Builder where
-  {-# INLINE doRender #-}
-  doRender = TLB.fromLazyText . LT.pack
-instance DoRender String a where
-  {-# INLINE doRender #-}
-  doRender = fromString
+instance {-# OVERLAPPING #-} Convert T.Text T.Text where convert = id
+instance Convert T.Text a where convert = fromString . T.unpack
 
-instance {-# OVERLAPPING #-} DoRender T.Text T.Text where doRender = id
-instance DoRender T.Text a where doRender = fromString . T.unpack
+instance {-# OVERLAPPING #-} Convert LT.Text LT.Text where convert = id
+instance Convert LT.Text a where convert = fromString . LT.unpack
 
-instance {-# OVERLAPPING #-} DoRender LT.Text LT.Text where doRender = id
-instance DoRender LT.Text a where doRender = fromString . LT.unpack
+instance {-# OVERLAPPING #-} Convert TLB.Builder TLB.Builder where convert = id
+instance Convert TLB.Builder a where convert = fromString . LT.unpack . TLB.toLazyText
 
-instance {-# OVERLAPPING #-} DoRender TLB.Builder TLB.Builder where doRender = id
-instance DoRender TLB.Builder a where doRender = fromString . LT.unpack . TLB.toLazyText
+instance {-# OVERLAPPING #-} Convert BS8.ByteString BS8.ByteString where convert = id
+instance Convert BS8.ByteString a where convert = fromString . BS8.unpack
 
-instance {-# OVERLAPPING #-} DoRender BS8.ByteString BS8.ByteString where doRender = id
-instance DoRender BS8.ByteString a where doRender = fromString . BS8.unpack
+instance {-# OVERLAPPING #-} Convert LBS8.ByteString LBS8.ByteString where convert = id
+instance Convert LBS8.ByteString a where
+  convert = fromString . LBS8.unpack
 
-instance {-# OVERLAPPING #-} DoRender LBS8.ByteString LBS8.ByteString where doRender = id
-instance DoRender LBS8.ByteString a where
-  doRender = fromString . LBS8.unpack
+instance {-# OVERLAPPABLE #-} Show a => Convert a b where
+  {-# INLINE convert #-}
+  convert = fromString . show
 
-instance {-# OVERLAPPABLE #-} Show a => DoRender a b where
-  {-# INLINE doRender #-}
-  doRender = fromString . show
-
+-- | Orphan show instances to faciliate ghci development.
 instance Render (a # b) String => Show (a # b) where
   show = render
 
 instance Render (a > b) String => Show (a > b) where
   show = render
 
+-- | Constraint for renderable html trees.
+--
+-- It must be possible to
+-- * convert the html tree into a list of proxies representing the tags
+-- * inspect the last element of this list
+-- * inspect the init of this list
+-- * flatten the content to a list
+-- * convert strings to the resulting type
+-- * mappend and mempty the resulting type
 type Render html string
-  = ( IsString string
-    , ListProxies
-        ( Fuse
-          ( RenderRecursive
-            ( PruneTags
-              ( Flatten html
-              )
-            )
-          )
-      ) string
-    , ListProxies
-       ( Init
-        ( Fuse
-          ( RenderRecursive
-            ( PruneTags
-              ( Flatten html
-              )
-            )
-          )
-        )
-      ) string
-    , ListProxies
-      ( Last
-        ( Fuse
-          ( RenderRecursive
-            ( PruneTags
-              ( Flatten html
-              )
-            )
-          )
-        )
-      ) string
-    , FlatR html string
+  = ( -- Type level
+      ListProxies       (Fuse (RenderTags (PruneTags (ToTypeList html))))  string
+    , ListProxies (Init (Fuse (RenderTags (PruneTags (ToTypeList html))))) string
+    , ListProxies (Last (Fuse (RenderTags (PruneTags (ToTypeList html))))) string
+
+      -- Value level
+    , ToValueList html string
+    , IsString string
     , Monoid string
     )
