@@ -226,7 +226,12 @@ instance DoRender Attribute b where
   doRender (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
 
 instance {-# OVERLAPPING #-} DoRender String String where doRender = id
-instance DoRender String a where doRender = fromString
+instance {-# OVERLAPPING #-} DoRender String TLB.Builder where
+  {-# INLINE doRender #-}
+  doRender = TLB.fromLazyText . LT.pack
+instance DoRender String a where
+  {-# INLINE doRender #-}
+  doRender = fromString
 
 instance {-# OVERLAPPING #-} DoRender T.Text T.Text where doRender = id
 instance DoRender T.Text a where doRender = fromString . T.unpack
@@ -244,7 +249,9 @@ instance {-# OVERLAPPING #-} DoRender LBS8.ByteString LBS8.ByteString where doRe
 instance DoRender LBS8.ByteString a where
   doRender = fromString . LBS8.unpack
 
-instance {-# OVERLAPPABLE #-} Show a => DoRender a b where doRender = fromString . show
+instance {-# OVERLAPPABLE #-} Show a => DoRender a b where
+  {-# INLINE doRender #-}
+  doRender = fromString . show
 
 instance Render (a # b) String => Show (a # b) where
   show = render
