@@ -79,73 +79,50 @@ renderList = renderList_
 
 -- | Specialization for lazy builders.
 {-# RULES
-"renderList/builder"     renderList = renderListB
-"renderList/lazy text"   renderList = renderListLT
-"renderList/strict text" renderList = renderListT
-"renderList/string"      renderList = renderListS
+"renderList/renderListB"     renderList = renderListB
+"renderList/renderList_" [2] renderList = renderList_
   #-}
 
 {-# INLINE renderListB #-}
-renderListB :: Render a TLB.Builder => a -> [TLB.Builder]
+renderListB :: forall a. Render a TLB.Builder => a -> [TLB.Builder]
 renderListB x =
-    augment (\c n -> foldr2_ (zipWithFB_ c (<>)) n elements contents) closing
+    augment (\c n -> foldr2 (zipWithB c (<>)) n elements contents) closing
   where contents = toValueList x
-        elements = listProxies (f x)
-        closing = listProxies (g x)
-        f :: x -> Init (Fuse (RenderTags (PruneTags (ToTypeList x))))
-        f = undefined
-        g :: x -> Last (Fuse (RenderTags (PruneTags (ToTypeList x))))
-        g = undefined
+        elements = listProxies (undefined :: Init (Fuse (RenderTags (PruneTags (ToTypeList a)))))
+        closing  = listProxies (undefined :: Last (Fuse (RenderTags (PruneTags (ToTypeList a)))))
 
 -- | Standard implementation for 'renderList'.
 {-# INLINE renderList_ #-}
-renderList_ :: Render a b => a -> [b]
+renderList_ :: forall a b. Render a b => a -> [b]
 renderList_ x = g elements contents
   where contents = toValueList x
-        elements = listProxies (f x)
-        f :: x -> Fuse (RenderTags (PruneTags (ToTypeList x)))
-        f = undefined
+        elements = listProxies (undefined :: Fuse (RenderTags (PruneTags (ToTypeList a))))
         g (a:as) (b:bs) = a:b:g as bs
         g as [] = as
         g [] bs = bs
 
--- | Specialization for lazy texts.
-{-# INLINE renderListLT #-}
-renderListLT :: Render a LT.Text => a -> [LT.Text]
-renderListLT = renderList_
-
--- | Specialization for strict texts.
-{-# INLINE renderListT #-}
-renderListT :: Render a T.Text => a -> [T.Text]
-renderListT = renderList_
-
--- | Specialization for strings.
-{-# INLINE renderListS #-}
-renderListS :: Render a String => a -> [String]
-renderListS = renderList_
-
--- | Fuseable zip.
-{-# INLINE [0] zipWithFB_ #-}
-zipWithFB_ :: (a -> b -> c) -> (d -> e -> a) -> d -> e -> b -> c
-zipWithFB_ c f = \x y r -> (x `f` y) `c` r
+-- | Fuseable builder zip.
+{-# INLINE [0] zipWithB #-}
+zipWithB :: (a -> b -> c) -> (d -> e -> a) -> d -> e -> b -> c
+zipWithB c f x y r = (x `f` y) `c` r
 
 -- | Fuseable fold with two lists.
-{-# INLINE [0] foldr2_ #-}
-foldr2_ :: Monoid a => (a -> a -> c -> c) -> c -> [a] -> [a] -> c
-foldr2_ k z = go
+{-# INLINE [0] foldr2 #-}
+foldr2 :: Monoid a => (a -> a -> c -> c) -> c -> [a] -> [a] -> c
+foldr2 k z = go
   where go []     _      = z
         go _      []     = z
         go (x:xs) (y:ys) = k x y (go xs ys)
 
 -- | Left fold optimization.
-foldr2_left_ :: (a -> b -> c -> d) -> d -> a -> ([b] -> c) -> [b] -> d
-foldr2_left_ _k  z _x _r []     = z
-foldr2_left_  k _z  x  r (y:ys) = k x y (r ys)
+foldr2l :: (a -> b -> c -> d) -> d -> a -> ([b] -> c) -> [b] -> d
+foldr2l _ z _ _ []     = z
+foldr2l k _ x r (y:ys) = k x y (r ys)
 
 {-# RULES
-"foldr2/left_"   forall k z ys (g:: forall b.(a->b->b)->b->b) .
-                  foldr2_ k z (build g) ys = g (foldr2_left_  k z) (\_ -> z) ys
- #-}
+"foldr2/foldr2l" forall k z ys (g :: forall b. (a -> b -> b) -> b -> b).
+                 foldr2 k z (build g) ys = g (foldr2l k z) (const z) ys
+  #-}
 
 -- (?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b > c)
 -- f ? xs = addAttributes xs . f
@@ -156,14 +133,14 @@ foldr2_left_  k _z  x  r (y:ys) = k x y (r ys)
 -- addAttributes xs (WithAttributes xs0 b) = WithAttributes (xs0 ++ xs) b
 
 -- | Retrieve a type level list of tags and reify them as a list of strings.
-class ListProxies a b where
+class ListProxies a where
   listProxies :: (IsString b, Monoid b) => a -> [b]
 
-instance (KnownSymbol a, ListProxies b str) => ListProxies (Proxy a, b) str where
+instance (KnownSymbol a, ListProxies b) => ListProxies (Proxy a, b) where
   {-# INLINE listProxies #-}
   listProxies _ = convert (Proxy :: Proxy a):listProxies (undefined :: b)
 
-instance KnownSymbol a => ListProxies (Proxy a) str where
+instance KnownSymbol a => ListProxies (Proxy a) where
   {-# INLINE listProxies #-}
   listProxies _ = [convert (Proxy :: Proxy a)]
 
@@ -221,9 +198,9 @@ fromString' :: IsString a => String -> a
 fromString' = fromString
 
 {-# RULES
-"fromString'/builder" fromString' = TLB.fromLazyText . LT.pack
-"fromString/fromString" [10] fromString' = fromString
-#-}
+"fromString'/builder"        fromString' = TLB.fromLazyText . LT.pack
+"fromString'/fromString" [1] fromString' = fromString
+  #-}
 
 instance Convert a b => Convert (Maybe a) b where
   {-# INLINE convert #-}
@@ -280,9 +257,9 @@ instance Render (a > b) String => Show (a > b) where
 -- * mappend and mempty the resulting type
 type Render html string
   = ( -- Type level
-      ListProxies       (Fuse (RenderTags (PruneTags (ToTypeList html))))  string
-    , ListProxies (Init (Fuse (RenderTags (PruneTags (ToTypeList html))))) string
-    , ListProxies (Last (Fuse (RenderTags (PruneTags (ToTypeList html))))) string
+      ListProxies       (Fuse (RenderTags (PruneTags (ToTypeList html))))
+    , ListProxies (Init (Fuse (RenderTags (PruneTags (ToTypeList html)))))
+    , ListProxies (Last (Fuse (RenderTags (PruneTags (ToTypeList html)))))
 
       -- Value level
     , ToValueList html string
