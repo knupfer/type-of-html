@@ -23,29 +23,29 @@ import Criterion.Main
 main :: IO ()
 main = defaultMain
   [ bgroup "minimal"
-    [ bench "string"      $ nf (render . minimal                   :: String         -> String) "TEST"
-    , bench "blaze"       $ nf (RT.renderHtml . blazeMinimal       :: B.Html         -> L.Text) "TEST"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeMinimal       :: B.Html         -> L.Text) "TEST"
+    , bench "string"      $ nf (render . minimal                   :: String         -> String) "TEST"
     , bench "strict text" $ nf (render . minimal                   :: S.Text         -> S.Text) "TEST"
     , bench "lazy text"   $ nf (render . minimal                   :: L.Text         -> L.Text) "TEST"
     , bench "builder"     $ nf (toLazyText . render . minimal      :: Builder        -> L.Text) "TEST"
     ]
   , bgroup "hello world"
-    [ bench "string"      $ nf (render . helloWorld                :: String         -> String) "TEST"
-    , bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld    :: B.Html         -> L.Text) "TEST"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld    :: B.Html         -> L.Text) "TEST"
+    , bench "string"      $ nf (render . helloWorld                :: String         -> String) "TEST"
     , bench "strict text" $ nf (render . helloWorld                :: S.Text         -> S.Text) "TEST"
     , bench "lazy text"   $ nf (render . helloWorld                :: L.Text         -> L.Text) "TEST"
     , bench "builder"     $ nf (toLazyText . render . helloWorld   :: Builder        -> L.Text) "TEST"
     ]
   , bgroup "big page"
-    [ bench "string"      $ nf (render . bigPage                   :: String         -> String) "TEST"
-    , bench "blaze"       $ nf (RT.renderHtml . blazeBigPage       :: B.Html         -> L.Text) "TEST"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigPage       :: B.Html         -> L.Text) "TEST"
+    , bench "string"      $ nf (render . bigPage                   :: String         -> String) "TEST"
     , bench "strict text" $ nf (render . bigPage                   :: S.Text         -> S.Text) "TEST"
     , bench "lazy text"   $ nf (render . bigPage                   :: L.Text         -> L.Text) "TEST"
     , bench "builder"     $ nf (toLazyText . render . bigPage      :: Builder        -> L.Text) "TEST"
     ]
   , bgroup "big table"
-    [ bench "string"      $ nf (render . bigTable                  :: (Int, Int)     -> String) (5,5)
-    , bench "blaze"       $ nf (RT.renderHtml . blazeBigTable      :: (Int, Int)     -> L.Text) (5,5)
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigTable      :: (Int, Int)     -> L.Text) (5,5)
+    , bench "string"      $ nf (render . bigTable                  :: (Int, Int)     -> String) (5,5)
     , bench "strict text" $ nf (render . bigTable                  :: (Int, Int)     -> S.Text) (5,5)
     , bench "lazy text"   $ nf (render . bigTable                  :: (Int, Int)     -> L.Text) (5,5)
     , bench "builder"     $ nf (toLazyText . render . bigTable     :: (Int, Int)     -> L.Text) (5,5)
