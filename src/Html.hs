@@ -149,24 +149,27 @@ We take an extremely simple library
 
 compile it with
 
-> ghc -O2 Minimal.hs -ddump-to-file -ddump-simpl -dsuppress-all -dsuppress-uniques
+> ghc -O2 Minimal.hs -ddump-to-file -ddump-simpl -dsuppress-idinfo -dsuppress-module-prefixes -dsuppress-type-applications -dsuppress-uniques
 
-and strip a lot of junk from the resulting core, like module prefixes,
-annotations and module names and replace [Char] with String:
+and clean a bit up:
 
-> $srender3 = unpackCString# "<div></div>"#
+> $srender4 :: String
+> $srender4 = unpackCString# "<div></div>"#
 >
 > Rec {
+> minimal_go :: [String] -> String
 > minimal_go =
->   \ ds ->
+>   \ (ds :: [String]) ->
 >     case ds of _ {
 >       [] -> [];
 >       : y ys -> ++ y (minimal_go ys)
 >     }
 > end Rec }
 >
-> minimal1 = : $srender3 []
+> minimal1 :: [String]
+> minimal1 = : $srender4 []
 >
+> minimal :: String
 > minimal = minimal_go minimal1
 
 Well, that's not optimal but quite good! We could optimize even more
