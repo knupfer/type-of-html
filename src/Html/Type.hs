@@ -576,15 +576,56 @@ type family PruneTags a where
   PruneTags (a , ())     = PruneTags a
   PruneTags [a]          = [PruneTags a]
   PruneTags (Close a, b) = IsOmittable (GetInfo a) (Close a, b)
+  PruneTags ([a],b)      = IsOmittableL (Head' (PruneTags a)) [PruneTags a] (Last (PruneTags a)) b
   PruneTags (a, b)       = (a, PruneTags b)
   PruneTags a            = a
 
--- | Checks whether a tag is omittable.
+type family IsOmittableL head list last next where
+  IsOmittableL (Open head) list (Close last) (Close next) = IsOmittable2 (Open head) list (GetInfo last) (Close next)
+
+-- Base case
+  IsOmittableL _head list _last next = (list, PruneTags next)
+
+type family IsOmittable2 head list last next where
+  IsOmittable2
+    (Open head)
+    [list]
+    (ElementInfo _ _ (LastChildOrFollowedBy (head ': _))) -- last
+    (Close next)
+    = ([Init list], PruneTags (Close next))
+
+  IsOmittable2
+    (Open head)
+    [list]
+    (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) -- last
+    (Close next)
+    = IsOmittable2 (Open head) [list] (ElementInfo a b (LastChildOrFollowedBy xs)) (Close next)
+
+  IsOmittable2
+    (Open head)
+    [list]
+    _last
+    (Close next)
+    = ([list], PruneTags (Close next))
+
+-- Base case
+  IsOmittable2
+    _head
+    list
+    _last
+    next
+    = (list, PruneTags next)
+
+
+-- | Checks whether a tag is omittable.  Sadly, returning a kind Bool
+-- would make the compiler loop, so we inline the if into the type
+-- function.
 type family IsOmittable a b where
   IsOmittable (ElementInfo _ _ RightOmission) (_,c)                               = PruneTags c
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))        = PruneTags(Close b, c)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))        = PruneTags (Close b, c)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,Close b)             = Close b
   IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c)                 = (b, PruneTags c)
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d)) = PruneTags(Open x, d)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d)) = PruneTags (Open x, d)
   IsOmittable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c               = IsOmittable (ElementInfo a b (LastChildOrFollowedBy xs)) c
   IsOmittable _ (c,d)                                                             = (c, PruneTags d)
 
@@ -617,6 +658,11 @@ type family Init xs where
 type family Last a where
   Last (a, as) = Last as
   Last a       = a
+
+-- | Last for type level lists.
+type family Head' a where
+  Head' (a, as) = a
+  Head' a       = a
 
 -- | Utility types.
 data EndOfOpen
@@ -687,6 +733,8 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a (a : xs) = True
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
+
+newtype Tagged target (next :: *) = Tagged target
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where

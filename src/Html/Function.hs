@@ -65,7 +65,11 @@ class Replicate n x where
 instance {-# OVERLAPPING #-} Replicate 1 x where
   replicateH _ x = x
 
-instance (Replicate (n-1) x, Rep n x ~ (x # Rep (n-1) x)) => Replicate n x where
+instance
+  ( Replicate (n-1) x
+  , Rep n x ~ (x # Rep (n-1) x)
+  )
+  => Replicate n x where
   replicateH _ x = x # replicateH (Proxy :: Proxy (n-1)) x
 
   -------------------
@@ -81,13 +85,15 @@ renderList = renderList_
 {-# RULES
 "renderList/renderListB"     renderList = renderListB
 "renderList/renderList_" [2] renderList = renderList_
+"taggedRenderList/taggedRenderListB" taggedRenderList = taggedRenderListB
+"taggedRenderList/taggedRenderList_" [2] taggedRenderList = taggedRenderList_
   #-}
 
 {-# INLINE renderListB #-}
 renderListB :: forall a. Render a TLB.Builder => a -> [TLB.Builder]
 renderListB x =
     augment (\c n -> foldr2 (zipWithB c (<>)) n elements contents) closing
-  where contents = toValueList x
+  where contents = toValueList (Tagged x :: Tagged a ())
         elements = listProxies (undefined :: Init (Fuse (RenderTags (PruneTags (ToTypeList a)))))
         closing  = listProxies (undefined :: Last (Fuse (RenderTags (PruneTags (ToTypeList a)))))
 
@@ -95,11 +101,55 @@ renderListB x =
 {-# INLINE renderList_ #-}
 renderList_ :: forall a b. Render a b => a -> [b]
 renderList_ x = g elements contents
-  where contents = toValueList x
+  where contents = toValueList (Tagged x :: Tagged a ())
         elements = listProxies (undefined :: Fuse (RenderTags (PruneTags (ToTypeList a))))
         g (a:as) (b:bs) = a:b:g as bs
         g as [] = as
         g [] bs = bs
+
+{-# NOINLINE taggedRenderList #-}
+taggedRenderList :: forall a b n.
+  ( Render a b
+  , ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
+  , ListProxies (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , ListProxies (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  )
+  => Tagged a n -> [b]
+taggedRenderList = taggedRenderList_
+
+{-# INLINE taggedRenderListB #-}
+taggedRenderListB
+  :: forall a n.
+  ( Render a TLB.Builder
+  , ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
+  , ListProxies (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , ListProxies (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  )
+  => Tagged a n -> [TLB.Builder]
+taggedRenderListB (Tagged x) =
+    augment (\c n -> foldr2 (zipWithB c (<>)) n elements contents) closing
+  where contents = toValueList (Tagged x :: Tagged a ())
+        elements = listProxies (undefined :: Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+        closing  = listProxies (undefined :: Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+
+{-# INLINE taggedRenderList_ #-}
+taggedRenderList_
+  :: forall a b n.
+  ( Render a b
+  , ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
+  , ListProxies (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , ListProxies (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  )
+  => Tagged a n -> [b]
+taggedRenderList_ (Tagged x) = g elements contents
+  where contents = toValueList (Tagged x :: Tagged a ())
+        elements = listProxies (undefined :: Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
+        g (a:as) (b:bs) = a:b:g as bs
+        g as [] = as
+        g [] bs = bs
+
+type family Unlist xs where
+  Unlist [x] = x
 
 -- | Fuseable builder zip.
 {-# INLINE [0] zipWithB #-}
@@ -148,42 +198,55 @@ instance KnownSymbol a => ListProxies (Proxy a) where
 class ToValueList a b where
   toValueList :: (IsString b, Monoid b) => a -> [b]
 
-instance KnownSymbol a => ToValueList (Proxy a) str where
+instance KnownSymbol a => ToValueList (Tagged (Proxy a) n) str where
   {-# INLINE toValueList #-}
   toValueList _ = []
 
-instance KnownSymbol a => ToValueList [Proxy a] str where
+instance KnownSymbol a => ToValueList (Tagged [Proxy a] n) str where
   {-# INLINE toValueList #-}
-  toValueList xs = [mconcat $ concatMap renderList xs]
+  toValueList (Tagged xs) = [mconcat $ concatMap renderList xs]
 
-instance {-# OVERLAPPABLE #-} Convert a str => ToValueList a str where
+instance {-# OVERLAPPABLE #-} Convert a str => ToValueList (Tagged a n) str where
   {-# INLINE toValueList #-}
-  toValueList x = [convert x]
+  toValueList (Tagged x) = [convert x]
 
-instance ToValueList () str where
-  {-# INLINE toValueList #-}
-  toValueList _ = []
-
-instance (ToValueList a str, ToValueList b str) => ToValueList (a # b) str where
-  {-# INLINE toValueList #-}
-  toValueList ~(a :#: b) = toValueList a ++ toValueList b
-
-instance {-# OVERLAPPING #-} ToValueList (a > ()) str where
+instance ToValueList (Tagged () n) str where
   {-# INLINE toValueList #-}
   toValueList _ = []
 
-instance ToValueList b str => ToValueList (a > b) str where
+instance
+  ( ToValueList (Tagged a b) str
+  , ToValueList (Tagged b n) str
+  )
+  => ToValueList (Tagged (a # b) n) str where
   {-# INLINE toValueList #-}
-  toValueList ~(Child x) = toValueList x
+  toValueList (Tagged ~(a :#: b)) = toValueList (Tagged a :: Tagged a b) ++ toValueList (Tagged b :: Tagged b n)
 
-instance (Render (a > b) str) => ToValueList [a > b] str where
+instance {-# OVERLAPPING #-} ToValueList (Tagged (a > ()) n) str where
   {-# INLINE toValueList #-}
-  toValueList xs = [mconcat $ concatMap renderList xs]
+  toValueList _ = []
 
-instance (Render (a # b) str) => ToValueList [a # b] str where
+instance ToValueList (Tagged b (Close a)) str => ToValueList (Tagged (a > b) n) str where
   {-# INLINE toValueList #-}
-  toValueList xs = [mconcat $ concatMap renderList xs]
+  toValueList (Tagged ~(Child b)) = toValueList (Tagged b :: Tagged b (Close a))
 
+instance
+  ( ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))
+  , ListProxies (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
+  , ListProxies (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
+  , Render (a > b) str
+  ) => ToValueList (Tagged [a > b] n) str where
+  {-# INLINE toValueList #-}
+  toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a > b) -> Tagged (a > b) n)) xs]
+
+instance
+  ( ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n)))))))
+  , ListProxies (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
+  , ListProxies (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
+  , Render (a # b) str)
+  => ToValueList (Tagged [a # b] n) str where
+  {-# INLINE toValueList #-}
+  toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a # b) -> Tagged (a # b) n)) xs]
 
 -- | Convert something to a target stringlike thing.
 class Convert a b where
@@ -262,7 +325,7 @@ type Render html string
     , ListProxies (Last (Fuse (RenderTags (PruneTags (ToTypeList html)))))
 
       -- Value level
-    , ToValueList html string
+    , ToValueList (Tagged html ()) string
     , IsString string
     , Monoid string
     )

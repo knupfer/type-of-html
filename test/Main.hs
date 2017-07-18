@@ -200,6 +200,24 @@ spec = parallel $ do
         `shouldBe`
         "<div>a</div><td>b</td><td>c</td>"
 
+    it "handles tags in a list when the list is the last child" $ do
+
+      render (tr_ [td_ "a" # td_ "b"])
+        `shouldBe`
+        "<tr><td>a<td>b</tr>"
+
+    it "handles tags before a list" $ do
+
+      pendingWith "This is a not yet implemented optimization"
+
+      render (td_ "a" # [td_ "b"] # table_ ())
+        `shouldBe`
+        "<td>a</td><td>b</td><table></table>"
+
+      render (td_ "a" # [td_ "b"] # td_ "c")
+        `shouldBe`
+        "<td>a<td>b<td>c</td>"
+
     it "computes its result lazily" $ do
 
       take 5 (render (div_ (errorWithoutStackTrace "not lazy" :: String)))
