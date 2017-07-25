@@ -20,7 +20,7 @@ library
   hs-source-dirs:     src
   default-language:   Haskell2010
   ghc-options:        -Wall -O2
-  build-depends:      base >=4.9 && <4.10
+  build-depends:      base >= 4.10
                     , text
                     , bytestring
 
@@ -30,7 +30,7 @@ test-suite test
   hs-source-dirs:     test
   ghc-options:        -Wall -threaded -O2 -rtsopts -with-rtsopts=-N
   default-language:   Haskell2010
-  build-depends:      base
+  build-depends:      base >= 4.10
                     , type-of-html
                     , hspec
 
@@ -40,7 +40,7 @@ benchmark bench
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
-  build-depends:      base
+  build-depends:      base >= 4.10
                     , type-of-html
                     , text
                     , bytestring

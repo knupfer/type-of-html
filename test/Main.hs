@@ -31,15 +31,11 @@ spec = parallel $ do
 
     it "handles nested elements" $ do
 
-      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
-
       render (div_ (div_ "a"))
         `shouldBe`
         "<div><div>a</div></div>"
 
     it "handles parallel elements" $ do
-
-      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
 
       render (div_ "a" # div_ "b")
         `shouldBe`
@@ -109,8 +105,6 @@ spec = parallel $ do
 
     it "avoids optional closing tags" $ do
 
-      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
-
       -- The closing tag at the end is because we can't know what
       -- element will follow.
 
@@ -140,15 +134,11 @@ spec = parallel $ do
 
     it "handles trailing compile time text" $ do
 
-      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
-
       render (div_ "a" # (Proxy :: Proxy "b"))
         `shouldBe`
         "<div>a</div>b"
 
     it "handles nested compile time text" $ do
-
-      pendingWith "This needs ghc 8.2 AppendSymbol, which is not yet published"
 
       render (div_ (Proxy :: Proxy "a"))
         `shouldBe`
