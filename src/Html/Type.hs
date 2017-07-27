@@ -218,14 +218,15 @@ data Element
 type family (a :: Element) ?> b :: Constraint where
   a ?> (b # c)    = (a ?> b, a ?> c)
   a ?> (b > _)    = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
+  a ?> (b :> _)   = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
   a ?> Maybe b    = a ?> b
   a ?> Either b c = (a ?> b, a ?> c)
   a ?> f (b > c)  = a ?> (b > c)
+  a ?> f (b :> c) = a ?> (b > c)
   a ?> f (b # c)  = a ?> (b # c)
   a ?> ()         = ()
   a ?> (b -> c)   = (TypeError (Text "Html elements can't contain functions"))
   a ?> b          = CheckString a
-
 
 -- | Combine two elements sequentially.
 --
@@ -246,9 +247,15 @@ infixr 5 #
 -- <div>a</div>
 data (>) (a :: Element) b where
   Child :: (a ?> b) => b -> a > b
---  WithAttributes :: (a ?> b) => [(String, String)] -> b -> a > b
-
 infixr 8 >
+
+-- | Decorate an element with attributes and descend to a valid child.
+--
+-- >>> WithAttributes [("foo","bar")] "a" :: 'Div :> String
+-- <div foo=bar>a</div>
+data (:>) (a :: Element) b where
+  WithAttributes :: (a ?> b) => Attributes -> b -> a :> b
+infixr 8 :>
 
   -------------------
   -- internal code --
@@ -410,12 +417,15 @@ type family CloseTag e where
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
-  ToTypeList (a # b)  = Append (ToTypeList a) (ToTypeList b)
-  ToTypeList (a > ()) = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
-  ToTypeList (a > b)  = Append (Open a, ToTypeList b) (Close a)
-  ToTypeList [a # b]  = [ToTypeList (a # b)]
-  ToTypeList [a > b]  = [ToTypeList (a > b)]
-  ToTypeList x        = x
+  ToTypeList (a # b)   = Append (ToTypeList a) (ToTypeList b)
+  ToTypeList (a > ())  = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
+  ToTypeList (a :> ()) = If (HasContent (GetInfo a)) (OpenAttr a, (Attributes, (EndOfOpen, Close a))) (OpenAttr a, (Attributes, EndOfOpen))
+  ToTypeList (a > b)   = Append (Open a, ToTypeList b) (Close a)
+  ToTypeList (a :> b)  = Append (OpenAttr a, (Attributes, (EndOfOpen, ToTypeList b))) (Close a)
+  ToTypeList [a # b]   = [ToTypeList (a # b)]
+  ToTypeList [a > b]   = [ToTypeList (a > b)]
+  ToTypeList [a :> b]  = [ToTypeList (a :> b)]
+  ToTypeList x         = x
 
 -- | Append two type lists.
 type family Append a b where
@@ -438,7 +448,8 @@ type family PruneTags a where
   PruneTags a            = a
 
 type family IsOmittableL head list last next where
-  IsOmittableL (Open head) list (Close last) (Close next) = IsOmittable2 (Open head) list (GetInfo last) (Close next)
+  IsOmittableL (OpenAttr head) list (Close last) (Close next) = IsOmittable2 (Open head) list (GetInfo last) (Close next)
+  IsOmittableL (Open head)     list (Close last) (Close next) = IsOmittable2 (Open head) list (GetInfo last) (Close next)
 
 -- Base case
   IsOmittableL _head list _last next = (list, PruneTags next)
@@ -478,22 +489,24 @@ type family IsOmittable2 head list last next where
 -- would make the compiler loop, so we inline the if into the type
 -- function.
 type family IsOmittable a b where
-  IsOmittable (ElementInfo _ _ RightOmission) (_,c)                               = PruneTags c
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))        = PruneTags (Close b, c)
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,Close b)             = Close b
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c)                 = (b, PruneTags c)
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d)) = PruneTags (Open x, d)
-  IsOmittable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c               = IsOmittable (ElementInfo a b (LastChildOrFollowedBy xs)) c
-  IsOmittable _ (c,d)                                                             = (c, PruneTags d)
+  IsOmittable (ElementInfo _ _ RightOmission) (_,c)                                   = PruneTags c
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))            = PruneTags (Close b, c)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,Close b)                 = Close b
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c)                     = (b, PruneTags c)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d))     = PruneTags (Open x, d)
+  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (OpenAttr x, d)) = PruneTags (OpenAttr x, d)
+  IsOmittable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c                   = IsOmittable (ElementInfo a b (LastChildOrFollowedBy xs)) c
+  IsOmittable _ (c,d)                                                                 = (c, PruneTags d)
 
 -- | Convert tags to type level strings.
 type family RenderTags a where
-  RenderTags [a]       = [RenderTags a]
-  RenderTags (a, b)    = (RenderTags a, RenderTags b)
-  RenderTags (Open a)  = Proxy (OpenTag a)
-  RenderTags (Close a) = Proxy (CloseTag a)
-  RenderTags EndOfOpen = Proxy ">"
-  RenderTags a         = a
+  RenderTags [a]          = [RenderTags a]
+  RenderTags (a, b)       = (RenderTags a, RenderTags b)
+  RenderTags (Open a)     = Proxy (OpenTag a)
+  RenderTags (OpenAttr a) = Proxy (AppendSymbol "<" (ShowElement a))
+  RenderTags (Close a)    = Proxy (CloseTag a)
+  RenderTags EndOfOpen    = Proxy ">"
+  RenderTags a            = a
 
 -- | Fuse neighbouring type level strings.
 type family Fuse a where
@@ -524,8 +537,9 @@ type family Head' a where
 -- | Utility types.
 data EndOfOpen
 data Open (a :: Element)
+data OpenAttr (a :: Element)
 data Close (a :: Element)
-newtype Attribute = Attribute [(String, String)]
+newtype Attributes = Attributes [(String, String)]
 
 -- | Type of type level information about tags.
 data ElementInfo

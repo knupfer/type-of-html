@@ -174,13 +174,12 @@ foldr2l k _ x r (y:ys) = k x y (r ys)
                  foldr2 k z (build g) ys = g (foldr2l k z) (const z) ys
   #-}
 
--- (?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b > c)
--- f ? xs = addAttributes xs . f
--- infixr 9 ?
+(?) :: (b ?> c) => (a -> b > c) -> [(String, String)] -> (a -> b :> c)
+f ? xs = addAttributes xs . f
+infixr 9 ?
 
--- addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a > b)
--- addAttributes xs (Child b) = WithAttributes xs b
--- addAttributes xs (WithAttributes xs0 b) = WithAttributes (xs0 ++ xs) b
+addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a :> b)
+addAttributes xs (Child b) = WithAttributes (Attributes xs) b
 
 -- | Retrieve a type level list of tags and reify them as a list of strings.
 class ListProxies a where
@@ -226,9 +225,22 @@ instance {-# OVERLAPPING #-} ToValueList (Tagged (a > ()) n) str where
   {-# INLINE toValueList #-}
   toValueList _ = []
 
+instance {-# OVERLAPPING #-} (ToValueList (Tagged (a > b) n) str) => ToValueList (Tagged (a :> b) n) str where
+  {-# INLINE toValueList #-}
+  toValueList (Tagged (WithAttributes a b)) = convert a : toValueList (Tagged (Child b) :: Tagged (a > b) n)
+
 instance ToValueList (Tagged b (Close a)) str => ToValueList (Tagged (a > b) n) str where
   {-# INLINE toValueList #-}
   toValueList (Tagged ~(Child b)) = toValueList (Tagged b :: Tagged b (Close a))
+
+instance
+  ( ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n)))))))
+  , ListProxies (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
+  , ListProxies (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
+  , Render (a :> b) str
+  ) => ToValueList (Tagged [a :> b] n) str where
+  {-# INLINE toValueList #-}
+  toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a :> b) -> Tagged (a :> b) n)) xs]
 
 instance
   ( ListProxies       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))
@@ -270,9 +282,9 @@ instance Convert a b => Convert (Maybe a) b where
   convert Nothing = ""
   convert (Just x) = convert x
 
-instance Convert Attribute b where
+instance Convert Attributes b where
   {-# INLINE convert #-}
-  convert (Attribute xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
+  convert (Attributes xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
 
 instance {-# OVERLAPPING #-} Convert String String where convert = id
 instance {-# OVERLAPPING #-} Convert String TLB.Builder where
@@ -307,6 +319,9 @@ instance Render (a # b) String => Show (a # b) where
   show = render
 
 instance Render (a > b) String => Show (a > b) where
+  show = render
+
+instance Render (a :> b) String => Show (a :> b) where
   show = render
 
 -- | Constraint for renderable html trees.

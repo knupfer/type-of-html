@@ -184,6 +184,9 @@ module Html
   , type Rep
   , replicateH
   , type (>)(..)
+  , type (:>)(..)
+  , (?)
+  , addAttributes
   , type (#)(..)
   , (#)
   , type (?>)
@@ -195,6 +198,7 @@ import Html.Element
 
 import Html.Type
   ( type (>)(..)
+  , type (:>)(..)
   , type (?>)
   , type (#)(..)
   , (#)
@@ -204,6 +208,8 @@ import Html.Type
 
 import Html.Function
   ( render
+  , (?)
+  , addAttributes
   , replicateH
   , Replicate
   )
