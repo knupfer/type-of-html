@@ -153,24 +153,24 @@ compile it with
 
 and clean a bit up:
 
-> $srender4 :: String
-> $srender4 = unpackCString# "<div></div>"#
+> $s$fReifyProxy_$creify2 :: Addr#
+> $s$fReifyProxy_$creify2 = "<div></div>"#
+>
+> $s$fReifyProxy_$creify1 :: String
+> $s$fReifyProxy_$creify1 = unpackCString# $s$fReifyProxy_$creify2
 >
 > Rec {
 > minimal_go :: [String] -> String
-> minimal_go =
->   \ (ds :: [String]) ->
->     case ds of _ {
->       [] -> [];
->       : y ys -> ++ y (minimal_go ys)
->     }
+> minimal_go
+>   = \ (ds :: [String]) ->
+>       case ds of {
+>         [] -> [];
+>         : y ys -> ++ y (minimal_go ys)
+>       }
 > end Rec }
 >
-> minimal1 :: [String]
-> minimal1 = : $srender4 []
->
 > minimal :: String
-> minimal = minimal_go minimal1
+> minimal = minimal_go (: $s$fReifyProxy_$creify1 [])
 
 Well, that's not optimal but quite good! We could optimize even more
 if we would handle specially stuff which is entirely known at compile
