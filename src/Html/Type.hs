@@ -53,7 +53,9 @@ import Data.Type.Bool
 
 -- | The data type of all html elements and the kind of elements.
 data Element
-  = A
+  = DOCTYPE
+
+  | A
   | Abbr
   | Acronym
   | Address
@@ -262,6 +264,7 @@ infixr 8 :>
   -------------------
 
 type family ShowElement e where
+  ShowElement DOCTYPE    = "!DOCTYPE html"
   ShowElement A          = "a"
   ShowElement Abbr       = "abbr"
   ShowElement Acronym    = "acronym"
@@ -609,6 +612,11 @@ newtype Tagged target (next :: *) = Tagged target
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where
+
+  GetInfo DOCTYPE = ElementInfo
+    '[]
+    NoContent
+    RightOmission
 
   GetInfo A = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, PalpableContent ]
