@@ -1,6 +1,4 @@
 {-# LANGUAGE ExplicitNamespaces #-}
-{-# LANGUAGE ConstraintKinds    #-}
-{-# LANGUAGE TypeOperators #-}
 
 {-| With type-of-html are three main goals:
 
