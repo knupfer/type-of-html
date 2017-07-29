@@ -180,12 +180,8 @@ time to avoid the mconcat.
 
 module Html
   ( render
-  , type Replicate
-  , type Rep
-  , replicateH
   , type (>)(..)
   , type (:>)(..)
-  , (?)
   , addAttributes
   , type (#)(..)
   , (#)
@@ -203,13 +199,9 @@ import Html.Type
   , type (#)(..)
   , (#)
   , Element(..)
-  , Rep
   )
 
 import Html.Function
   ( render
-  , (?)
   , addAttributes
-  , replicateH
-  , Replicate
   )

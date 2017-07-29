@@ -8,7 +8,6 @@ module Main where
 
 import Html
 
-import Data.Proxy
 import Data.String
 import Control.Monad
 
@@ -49,12 +48,6 @@ main = defaultMain
     , bench "strict text" $ nf (render . bigTable                  :: (Int, Int)     -> S.Text) (5,5)
     , bench "lazy text"   $ nf (render . bigTable                  :: (Int, Int)     -> L.Text) (5,5)
     , bench "builder"     $ nf (toLazyText . render . bigTable     :: (Int, Int)     -> L.Text) (5,5)
-    ]
-  , bgroup "type table"
-    [ bench "string"      $ nf (render . bigTypeTable              :: (Proxy 5, Int) -> String) (Proxy,5)
-    , bench "strict text" $ nf (render . bigTypeTable              :: (Proxy 5, Int) -> S.Text) (Proxy,5)
-    , bench "lazy text"   $ nf (render . bigTypeTable              :: (Proxy 5, Int) -> L.Text) (Proxy,5)
-    , bench "builder"     $ nf (toLazyText . render . bigTypeTable :: (Proxy 5, Int) -> L.Text) (Proxy,5)
     ]
   ]
 
@@ -182,11 +175,3 @@ bigPage x =
 
 bigTable :: (Int, Int) -> 'Table > ['Tr > ['Td > Int]]
 bigTable (n, m) = table_ . replicate n . tr_ $ map td_ [1..m]
-
-bigTypeTable
-  :: ( Replicate n ('Tr > ['Td > Int])
-     , 'Table ?> Rep n ('Tr > ['Td > Int])
-     )
-  => (Proxy n, Int)
-  -> 'Table > Rep n ('Tr > ['Td > Int])
-bigTypeTable (n, m) = table_ . replicateH n . tr_ $ map td_ [1..m]

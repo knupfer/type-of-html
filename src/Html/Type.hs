@@ -1,18 +1,10 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE MultiParamTypeClasses     #-}
-{-# LANGUAGE UndecidableInstances      #-}
-{-# LANGUAGE AllowAmbiguousTypes       #-}
-{-# LANGUAGE ScopedTypeVariables       #-}
-{-# LANGUAGE OverloadedStrings         #-}
-{-# LANGUAGE FlexibleInstances         #-}
-{-# LANGUAGE FlexibleContexts          #-}
-{-# LANGUAGE ConstraintKinds           #-}
-{-# LANGUAGE TypeOperators             #-}
-{-# LANGUAGE TypeFamilies              #-}
-{-# LANGUAGE DataKinds                 #-}
-{-# LANGUAGE GADTs                     #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE GADTs                #-}
 
 module Html.Type where
 
@@ -571,11 +563,6 @@ type family CheckString (a :: Element) where
                      (() :: Constraint)
                      (TypeError (ShowType a :<>: Text " can't contain a string"))
 
-type family Rep n x where
-  Rep 0 _ = TypeError (Text "Can't replicate 0 times")
-  Rep 1 x = x
-  Rep n x = x # Rep (n-1) x
-
 -- | Content categories according to the html spec.
 data ContentCategory
   = MetadataContent
@@ -609,6 +596,8 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a '[]      = False
 
 newtype Tagged target (next :: *) = Tagged target
+
+type Symbols a = Fuse (RenderTags (PruneTags (ToTypeList a)))
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where
