@@ -119,7 +119,7 @@ taggedRenderList :: forall a b n.
   ( IsString b
   , Monoid b
   , ToValueList (Tagged a ())
-  , Reify       (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , Reify (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
   , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
   , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
   )
@@ -238,7 +238,7 @@ instance ToValueList (Tagged b (Close a)) => ToValueList (Tagged (a > b) n) wher
   toValueList (Tagged ~(Child b)) = toValueList (Tagged b :: Tagged b (Close a))
 
 instance
-  ( Reify      (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
+  ( Reify (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
   , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n)))))))))
   , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n)))))))))
   , ToValueList (Tagged (a :> b) ())
@@ -247,7 +247,7 @@ instance
   toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a :> b) -> Tagged (a :> b) n)) xs]
 
 instance
-  ( Reify      (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
+  ( Reify (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
   , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))))
   , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))))
   , ToValueList (Tagged (a > b) ())
@@ -256,7 +256,7 @@ instance
   toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a > b) -> Tagged (a > b) n)) xs]
 
 instance
-  ( Reify      (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
+  ( Reify (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
   , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n)))))))))
   , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n)))))))))
   , ToValueList (Tagged (a # b) ())
