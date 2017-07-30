@@ -410,6 +410,13 @@ type family OpenTag e where
 type family CloseTag e where
   CloseTag e = AppendSymbol (AppendSymbol "</" (ShowElement e)) ">"
 
+type family CountContent c where
+  CountContent (a # b) = CountContent a + CountContent b
+  CountContent (a > b) = CountContent b
+  CountContent (a :> b) = 1 + CountContent b
+  CountContent () = 0
+  CountContent _ = 1
+
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
   ToTypeList (a # b)   = Append (ToTypeList a) (ToTypeList b)
@@ -479,7 +486,6 @@ type family IsOmittable2 head list last next where
     next
     = (list, PruneTags next)
 
-
 -- | Checks whether a tag is omittable.  Sadly, returning a kind Bool
 -- would make the compiler loop, so we inline the if into the type
 -- function.
@@ -525,6 +531,20 @@ type family Last a where
   Last a       = a
 
 -- | Last for type level lists.
+type family Last' (xs :: [Symbol]) where
+  Last' '[x] = x
+  Last' (_ ': xs) = Last' xs
+  Last' _   = ""
+
+type family Index n xs :: Symbol where
+  Index 0 (x ': xs) = x
+  Index n (_ ': xs) = Index (n-1) xs
+  Index _ _ = ""
+
+type family Unlist xs where
+  Unlist [x] = x
+
+-- | Head for type level lists.
 type family Head' a where
   Head' (a, as) = a
   Head' a       = a
@@ -595,9 +615,13 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
-newtype Tagged target (next :: *) = Tagged target
+newtype Tagged (pos :: Nat) (proxies :: [Symbol]) target (next :: *) = Tagged target
 
 type Symbols a = Fuse (RenderTags (PruneTags (ToTypeList a)))
+
+type family SymbolsToList a :: [Symbol] where
+  SymbolsToList (Proxy a, b) = a ': SymbolsToList b
+  SymbolsToList (Proxy b) = '[b]
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where

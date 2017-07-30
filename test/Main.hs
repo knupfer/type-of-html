@@ -144,12 +144,6 @@ spec = parallel $ do
         `shouldBe`
         "<div>a</div>"
 
-    it "handles a list of compile time text" $ do
-
-      render (replicate 5 (Proxy :: Proxy "a"))
-        `shouldBe`
-        "aaaaa"
-
     it "handles an empty list of compile time text" $ do
 
       render (replicate 0 (Proxy :: Proxy "a"))

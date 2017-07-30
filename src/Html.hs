@@ -89,20 +89,20 @@ types, you don't need the language extensions.
 
 Last and fast: /performance/!
 
-Don't look any further, the only option for faster html generation is
-handrolled untyped text munging (~5% faster). type-of-html is 2-10
-times faster than blaze-html, which is until now the fastest
-generation library and the foundation block of lucid or shakespeare.
+Don't look any further, there is no option for faster html
+generation. type-of-html is 3-20 times faster than blaze-html, which
+is until now the fastest generation library and the foundation block
+of lucid and shakespeare.
 
-Wait! 2-10 times faster? How is this possible? We supercompile lots of
-parts of the generation process. This is possible thanks the new
+Wait! 3-20 times faster? How is this possible? We supercompile lots of
+parts of the generation process. This is possible thanks to the new
 features of GHC 8.2: AppendSymbol. We represent tags as kinds and
 remove according to the html specification omittable closing tags with
-type families. Afterwards we map these tags to (KnownSymbol a => Proxy
-:: Proxy a) and then fold all neighbouring Proxies with
-AppendSymbol. Afterwards we retrieve the Proxies with symbolVal which
-will be embedded in the executable as CString. All this happens at
-compile time. At runtime we do only generate the content and mconcat.
+type families. Afterwards we map these tags to (a :: [Symbol]) and
+then fold all neighbouring Proxies with AppendSymbol. Afterwards we
+retrieve the Proxies with symbolVal which will be embedded in the
+executable as CString. All this happens at compile time. At runtime we
+do only generate the content and mconcat.
 
 For example, if you write:
 
@@ -143,36 +143,30 @@ We take an extremely simple library
 > import Html
 >
 > minimal :: String
-> minimal = render (div_ ())
+> minimal = render
+>   ( div_ "a"
+>   # div_ "b"
+>   # table_ (tr_ (td_ "c"))
+>   )
 
 compile it with
 
 > ghc -O2 Minimal.hs -ddump-to-file -ddump-simpl -dsuppress-idinfo -dsuppress-module-prefixes -dsuppress-type-applications -dsuppress-uniques
 
-and clean a bit up:
+and clean up a bit:
 
-> $s$fReifyProxy_$creify2 :: Addr#
-> $s$fReifyProxy_$creify2 = "<div></div>"#
->
-> $s$fReifyProxy_$creify1 :: String
-> $s$fReifyProxy_$creify1 = unpackCString# $s$fReifyProxy_$creify2
->
-> Rec {
-> minimal_go :: [String] -> String
-> minimal_go
->   = \ (ds :: [String]) ->
->       case ds of {
->         [] -> [];
->         : y ys -> ++ y (minimal_go ys)
->       }
-> end Rec }
+> minimal1 :: Addr#
+> minimal1 = "<div>a</div><div>b</div><table><tr><td>c</table>"#
 >
 > minimal :: String
-> minimal = minimal_go (: $s$fReifyProxy_$creify1 [])
+> minimal = unpackCString# minimal1
 
-Well, that's not optimal but quite good! We could optimize even more
-if we would handle specially stuff which is entirely known at compile
-time to avoid the mconcat.
+Well, that's a perfect optimization! Not only was *all* overhead
+removed, optional ending tags were chopped off (tr, td).  This sort of
+compiletime optimization isn't for free.  Running ghc with -v says
+that desugaring resulted in 675 types and 5507 coercions: Compile
+times will increase, some medium size html documents will take 10 secs
+to compile.
 
 -}
 
