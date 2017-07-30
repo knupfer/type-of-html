@@ -22,12 +22,10 @@ import Data.Monoid hiding (Last)
 import qualified Data.Text                  as T
 import qualified Data.Text.Lazy             as LT
 import qualified Data.Text.Lazy.Builder     as TLB
-import qualified Data.ByteString.Char8      as BS8
-import qualified Data.ByteString.Lazy.Char8 as LBS8
 
 -- | Render a html document.  The resulting type can be a String,
--- strict Text, lazy Text, Builder, ByteString or lazy ByteString.
--- For performance it is recommended to use a lazy Text or a Builder.
+-- strict Text, lazy Text, or Builder.  For performance it is
+-- recommended to use a lazy Text or a Builder.
 --
 -- >>> render "a" :: String
 -- "a"
@@ -261,14 +259,6 @@ instance Convert LT.Text where
 instance Convert TLB.Builder where
   {-# INLINE convert #-}
   convert = convert' (fromString . LT.unpack . TLB.toLazyText)
-
-instance Convert BS8.ByteString where
-  {-# INLINE convert #-}
-  convert = convert' (fromString . BS8.unpack)
-
-instance Convert LBS8.ByteString where
-  {-# INLINE convert #-}
-  convert = convert' (fromString . LBS8.unpack)
 
 instance Convert Int where
   {-# INLINE convert #-}

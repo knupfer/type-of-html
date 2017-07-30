@@ -22,7 +22,6 @@ library
   ghc-options:        -Wall -O2
   build-depends:      base >= 4.10
                     , text
-                    , bytestring
 
 test-suite test
   type:               exitcode-stdio-1.0
@@ -33,6 +32,7 @@ test-suite test
   build-depends:      base >= 4.10
                     , type-of-html
                     , hspec
+                    , text
 
 benchmark bench
   type:               exitcode-stdio-1.0
@@ -43,6 +43,5 @@ benchmark bench
   build-depends:      base >= 4.10
                     , type-of-html
                     , text
-                    , bytestring
                     , blaze-html
                     , criterion
