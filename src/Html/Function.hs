@@ -61,9 +61,9 @@ render = mconcat . renderList
 
 -- | Hide internal type for haddock.
 type Document a =
-  ( Reify (Symbols a)
-  , Reify (Last (Symbols a))
-  , Reify (Init (Symbols a))
+  ( Reify (Proxy (Symbols a))
+  , Reify (Proxy (Last (Symbols a)))
+  , Reify (Proxy (Init (Symbols a)))
   , ToValueList (Tagged a ())
   )
 
@@ -73,9 +73,9 @@ renderList ::
   ( Monoid b
   , IsString b
   , ToValueList (Tagged a ())
-  , Reify (Symbols a)
-  , Reify (Last (Symbols a))
-  , Reify (Init (Symbols a))
+  , Reify (Proxy (Symbols a))
+  , Reify (Proxy (Last (Symbols a)))
+  , Reify (Proxy (Init (Symbols a)))
   ) => a -> [b]
 renderList = renderList_
 
@@ -89,27 +89,27 @@ renderList = renderList_
 
 {-# INLINE renderListB #-}
 renderListB :: forall a.
-  ( Reify (Last (Symbols a))
-  , Reify (Init (Symbols a))
+  ( Reify (Proxy (Last (Symbols a)))
+  , Reify (Proxy (Init (Symbols a)))
   , ToValueList (Tagged a ())
   ) => a -> [TLB.Builder]
 renderListB x =
     augment (\c n -> foldr2 (zipWithB c (<>)) n elements contents) closing
   where contents = toValueList (Tagged x :: Tagged a ())
-        elements = reify (undefined :: Init (Symbols a))
-        closing  = reify (undefined :: Last (Symbols a))
+        elements = reify (undefined :: Proxy (Init (Symbols a)))
+        closing  = reify (undefined :: Proxy (Last (Symbols a)))
 
 -- | Standard implementation for 'renderList'.
 {-# INLINE renderList_ #-}
 renderList_ :: forall a b.
-  ( Reify (Symbols a)
+  ( Reify (Proxy (Symbols a))
   , ToValueList (Tagged a ())
   , Monoid b
   , IsString b
   ) => a -> [b]
 renderList_ x = g elements contents
   where contents = toValueList (Tagged x :: Tagged a ())
-        elements = reify (undefined :: Symbols a)
+        elements = reify (undefined :: Proxy (Symbols a))
         g (a:as) (b:bs) = a:b:g as bs
         g as [] = as
         g [] bs = bs
@@ -119,9 +119,9 @@ taggedRenderList :: forall a b n.
   ( IsString b
   , Monoid b
   , ToValueList (Tagged a ())
-  , Reify       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
-  , Reify (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
-  , Reify (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , Reify       (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
+  , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
   )
   => Tagged a n -> [b]
 taggedRenderList = taggedRenderList_
@@ -130,15 +130,15 @@ taggedRenderList = taggedRenderList_
 taggedRenderListB
   :: forall a n.
   ( ToValueList (Tagged a ())
-  , Reify (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
-  , Reify (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+  , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
+  , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
   )
   => Tagged a n -> [TLB.Builder]
 taggedRenderListB (Tagged x) =
     augment (\c n -> foldr2 (zipWithB c (<>)) n elements contents) closing
   where contents = toValueList (Tagged x :: Tagged a ())
-        elements = reify (undefined :: Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
-        closing  = reify (undefined :: Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
+        elements = reify (undefined :: Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
+        closing  = reify (undefined :: Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))))
 
 {-# INLINE taggedRenderList_ #-}
 taggedRenderList_
@@ -146,12 +146,12 @@ taggedRenderList_
   ( IsString b
   , Monoid b
   , ToValueList (Tagged a ())
-  , Reify (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
+  , Reify (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
   )
   => Tagged a n -> [b]
 taggedRenderList_ (Tagged x) = g elements contents
   where contents = toValueList (Tagged x :: Tagged a ())
-        elements = reify (undefined :: Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n)))))))
+        elements = reify (undefined :: Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a] # n))))))))
         g (a:as) (b:bs) = a:b:g as bs
         g as [] = as
         g [] bs = bs
@@ -189,11 +189,11 @@ addAttributes xs (Child b) = WithAttributes (Attributes xs) b
 class Reify a where
   reify :: (IsString b, Monoid b) => a -> [b]
 
-instance (KnownSymbol a, Reify b) => Reify (Proxy a, b) where
+instance (KnownSymbol a, Reify (Proxy b)) => Reify (Proxy (Proxy a, b)) where
   {-# INLINE reify #-}
-  reify _ = convert (Proxy :: Proxy a):reify (undefined :: b)
+  reify _ = convert (Proxy :: Proxy a):reify (undefined :: Proxy b)
 
-instance KnownSymbol a => Reify (Proxy a) where
+instance KnownSymbol a => Reify (Proxy (Proxy a)) where
   {-# INLINE reify #-}
   reify _ = [convert (Proxy :: Proxy a)]
 
@@ -238,27 +238,27 @@ instance ToValueList (Tagged b (Close a)) => ToValueList (Tagged (a > b) n) wher
   toValueList (Tagged ~(Child b)) = toValueList (Tagged b :: Tagged b (Close a))
 
 instance
-  ( Reify       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n)))))))
-  , Reify (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
-  , Reify (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
+  ( Reify      (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n))))))))
+  , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n)))))))))
+  , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # n)))))))))
   , ToValueList (Tagged (a :> b) ())
   ) => ToValueList (Tagged [a :> b] n) where
   {-# INLINE toValueList #-}
   toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a :> b) -> Tagged (a :> b) n)) xs]
 
 instance
-  ( Reify       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))
-  , Reify (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
-  , Reify (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
+  ( Reify      (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n))))))))
+  , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))))
+  , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # n)))))))))
   , ToValueList (Tagged (a > b) ())
   ) => ToValueList (Tagged [a > b] n) where
   {-# INLINE toValueList #-}
   toValueList (Tagged xs) = [mconcat $ concatMap (taggedRenderList . (Tagged :: (a > b) -> Tagged (a > b) n)) xs]
 
 instance
-  ( Reify       (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n)))))))
-  , Reify (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
-  , Reify (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
+  ( Reify      (Proxy (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n))))))))
+  , Reify (Proxy (Init (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n)))))))))
+  , Reify (Proxy (Last (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # n)))))))))
   , ToValueList (Tagged (a # b) ())
   ) => ToValueList (Tagged [a # b] n) where
   {-# INLINE toValueList #-}
@@ -336,25 +336,25 @@ instance {-# OVERLAPPABLE #-} Show a => Convert a where
 
 -- | Orphan show instances to faciliate ghci development.
 instance
-  ( Reify (Symbols (a # b))
-  , Reify (Last (Symbols (a # b)))
-  , Reify (Init (Symbols (a # b)))
+  ( Reify (Proxy (Symbols (a # b)))
+  , Reify (Proxy (Last (Symbols (a # b))))
+  , Reify (Proxy (Init (Symbols (a # b))))
   , ToValueList (Tagged (a # b) ())
   ) => Show (a # b) where
   show = render
 
 instance
-  ( Reify (Symbols (a > b))
-  , Reify (Last (Symbols (a > b)))
-  , Reify (Init (Symbols (a > b)))
+  ( Reify (Proxy (Symbols (a > b)))
+  , Reify (Proxy (Last (Symbols (a > b))))
+  , Reify (Proxy (Init (Symbols (a > b))))
   , ToValueList (Tagged (a > b) ())
   ) => Show (a > b) where
   show = render
 
 instance
-  ( Reify (Symbols (a :> b))
-  , Reify (Last (Symbols (a :> b)))
-  , Reify (Init (Symbols (a :> b)))
+  ( Reify (Proxy (Symbols (a :> b)))
+  , Reify (Proxy (Last (Symbols (a :> b))))
+  , Reify (Proxy (Init (Symbols (a :> b))))
   , ToValueList (Tagged (a :> b) ())
   ) => Show (a :> b) where
   show = render
