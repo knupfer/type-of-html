@@ -196,6 +196,12 @@ spec = parallel $ do
         `shouldBe`
         "<tr><td>a<td>b</tr>"
 
+    it "handles nested lists" $ do
+
+      render (table_ [tr_ [td_ (4 :: Int)]])
+        `shouldBe`
+        "<table><tr><td>4</table>"
+
     it "handles tags before a list" $ do
 
       pendingWith "This is a not yet implemented optimization"
