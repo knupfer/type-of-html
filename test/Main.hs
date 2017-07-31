@@ -152,12 +152,6 @@ spec = let {-# INLINE allT #-}
         shouldBe
         "<div>a</div>"
 
-    it "handles an empty list of compile time text" $ do
-
-      allT (replicate 0 (Proxy :: Proxy "a"))
-        shouldBe
-        ""
-
     it "handles an empty list" $ do
 
       allT (tail [td_ "a"])

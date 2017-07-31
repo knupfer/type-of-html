@@ -12,9 +12,12 @@ import Data.String
 import Control.Monad
 
 import Data.Text.Lazy.Builder (Builder, toLazyText)
+import Text.Blaze.Html5 ((!))
+
 import qualified Data.Text                     as S
 import qualified Data.Text.Lazy                as L
 import qualified Text.Blaze.Html5              as B
+import qualified Text.Blaze.Html5.Attributes   as B (class_, id)
 import qualified Text.Blaze.Html.Renderer.Text as RT
 
 import Criterion.Main
@@ -22,32 +25,39 @@ import Criterion.Main
 main :: IO ()
 main = defaultMain
   [ bgroup "minimal"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeMinimal       :: B.Html         -> L.Text) "TEST"
-    , bench "string"      $ nf (render . minimal                   :: String         -> String) "TEST"
-    , bench "strict text" $ nf (render . minimal                   :: S.Text         -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . minimal                   :: L.Text         -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . minimal      :: Builder        -> L.Text) "TEST"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeMinimal       :: B.Html     -> L.Text) "TEST"
+    , bench "string"      $ nf (render . minimal                   :: String     -> String) "TEST"
+    , bench "strict text" $ nf (render . minimal                   :: S.Text     -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . minimal                   :: L.Text     -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . minimal      :: Builder    -> L.Text) "TEST"
     ]
   , bgroup "hello world"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld    :: B.Html         -> L.Text) "TEST"
-    , bench "string"      $ nf (render . helloWorld                :: String         -> String) "TEST"
-    , bench "strict text" $ nf (render . helloWorld                :: S.Text         -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . helloWorld                :: L.Text         -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . helloWorld   :: Builder        -> L.Text) "TEST"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld    :: B.Html     -> L.Text) "TEST"
+    , bench "string"      $ nf (render . helloWorld                :: String     -> String) "TEST"
+    , bench "strict text" $ nf (render . helloWorld                :: S.Text     -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . helloWorld                :: L.Text     -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . helloWorld   :: Builder    -> L.Text) "TEST"
     ]
   , bgroup "big page"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigPage       :: B.Html         -> L.Text) "TEST"
-    , bench "string"      $ nf (render . bigPage                   :: String         -> String) "TEST"
-    , bench "strict text" $ nf (render . bigPage                   :: S.Text         -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . bigPage                   :: L.Text         -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . bigPage      :: Builder        -> L.Text) "TEST"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigPage       :: B.Html     -> L.Text) "TEST"
+    , bench "string"      $ nf (render . bigPage                   :: String     -> String) "TEST"
+    , bench "strict text" $ nf (render . bigPage                   :: S.Text     -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . bigPage                   :: L.Text     -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . bigPage      :: Builder    -> L.Text) "TEST"
+    ]
+  , bgroup "big page with attributes"
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigPageA      :: B.Html     -> L.Text) "TEST"
+    , bench "string"      $ nf (render . bigPageA                  :: String     -> String) "TEST"
+    , bench "strict text" $ nf (render . bigPageA                  :: S.Text     -> S.Text) "TEST"
+    , bench "lazy text"   $ nf (render . bigPageA                  :: L.Text     -> L.Text) "TEST"
+    , bench "builder"     $ nf (toLazyText . render . bigPageA     :: Builder    -> L.Text) "TEST"
     ]
   , bgroup "big table"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigTable      :: (Int, Int)     -> L.Text) (5,5)
-    , bench "string"      $ nf (render . bigTable                  :: (Int, Int)     -> String) (5,5)
-    , bench "strict text" $ nf (render . bigTable                  :: (Int, Int)     -> S.Text) (5,5)
-    , bench "lazy text"   $ nf (render . bigTable                  :: (Int, Int)     -> L.Text) (5,5)
-    , bench "builder"     $ nf (toLazyText . render . bigTable     :: (Int, Int)     -> L.Text) (5,5)
+    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigTable      :: (Int, Int) -> L.Text) (4,4)
+    , bench "string"      $ nf (render . bigTable                  :: (Int, Int) -> String) (4,4)
+    , bench "strict text" $ nf (render . bigTable                  :: (Int, Int) -> S.Text) (4,4)
+    , bench "lazy text"   $ nf (render . bigTable                  :: (Int, Int) -> L.Text) (4,4)
+    , bench "builder"     $ nf (toLazyText . render . bigTable     :: (Int, Int) -> L.Text) (4,4)
     ]
   ]
 
@@ -85,6 +95,28 @@ blazeBigPage x =
                 B.div "d"
               B.i x
             B.button $ B.i "e"
+
+blazeBigPageA :: B.Html -> B.Html
+blazeBigPageA x =
+  B.html $ do
+    B.body $ do
+      B.h1 ! B.id "a" $ do
+        B.img
+        B.strong ! B.class_ "b" $ "0"
+      B.div $ do
+        B.div ! B.id "c" $ "1"
+      B.div $ do
+        B.form ! B.class_ "d" $ do
+          B.fieldset $ do
+            B.div ! B.id "e" $ do
+              B.div $ do
+                B.label ! B.class_ "f" $ "a"
+                B.select $ do
+                  B.option ! B.id "g" $ "b"
+                  B.option "c"
+                B.div ! B.class_ "h" $ "d"
+              B.i x
+            B.button ! B.id "i" $ B.i "e"
 
 blazeBigTable :: (Int, Int) -> B.Html
 blazeBigTable (n, m)
@@ -167,6 +199,64 @@ bigPage x =
               # i_ x
               )
             # button_ (i_ ("e" :: String))
+            )
+          )
+        )
+      )
+    )
+
+bigPageA
+  :: ('I ?> a)
+  => a
+  ->
+  'Html >
+  ( 'Body >
+    ( 'H1 :>
+      ( 'Img > ()
+      # 'Strong :> String
+      )
+    # 'Div > 'Div :> String
+    # 'Div > 'Form :> 'Fieldset >
+      ( 'Div :>
+        ( 'Div >
+          ( 'Label :> String
+          # 'Select >
+            ( 'Option :> String
+            # 'Option > String
+            )
+          # 'Div :> String
+          )
+        # 'I > a
+        )
+      # 'Button :> 'I > String
+      )
+    )
+  )
+bigPageA x =
+  html_
+    ( body_
+      ( h1_A [("id","a")]
+        ( img_
+        # strong_A [("class","b")] ("0" :: String)
+        )
+      # div_
+        ( div_A [("id","c")] ("1" :: String)
+        )
+      # div_
+        ( form_A [("class","d")]
+          ( fieldset_
+            ( div_A [("id","e")]
+              ( div_
+                ( label_A [("class","f")] ("a" :: String)
+                # select_
+                  ( option_A [("id","g")] ("b" :: String)
+                  # option_ ("c" :: String)
+                  )
+                # div_A [("class","h")] ("d" :: String)
+                )
+              # i_ x
+              )
+            # button_A [("id","i")] (i_ ("e" :: String))
             )
           )
         )
