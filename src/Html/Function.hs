@@ -374,5 +374,8 @@ instance Convert Word where
 
 -- | Orphan show instances to faciliate ghci development.
 instance Document (a # b)  => Show (a # b)  where show = render
+instance {-# OVERLAPPING #-} Document [a # b]  => Show [a # b]  where show = render
 instance Document (a > b)  => Show (a > b)  where show = render
+instance {-# OVERLAPPING #-} Document [a > b]  => Show [a > b]  where show = render
 instance Document (a :> b) => Show (a :> b) where show = render
+instance {-# OVERLAPPING #-} Document [a :> b] => Show [a :> b] where show = render
