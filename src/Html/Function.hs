@@ -1,14 +1,14 @@
-{-# OPTIONS_GHC -fno-warn-orphans  #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
-{-# LANGUAGE UndecidableInstances  #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE ConstraintKinds       #-}
-{-# LANGUAGE TypeOperators         #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE ConstraintKinds      #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE DataKinds            #-}
 
 module Html.Function where
 
@@ -52,7 +52,7 @@ render :: forall a b.
   , Monoid b
   , IsString b
   ) => a -> b
-render x = render' (Tagged x :: Tagged 0 (SymbolsToList (Symbols a)) a ())
+render x = render_ (Tagged x :: Tagged 0 (SymbolsToList (Symbols a)) a ())
 
   -------------------
   -- internal code --
@@ -65,24 +65,13 @@ type Document a =
   )
 
 {-# RULES
-"render'/renderB"     render' = renderB
-"render'/render_" [2] render' = render_
+"render_/renderB" render_ = renderB
   #-}
 
-{-# NOINLINE render' #-}
-render' :: forall b pos prox val nex.
-  ( KnownSymbol (Last' prox)
-  , Renderstring (Tagged pos prox val nex)
-  , Renderchunks (Tagged pos prox val nex)
-  , Monoid b
-  , IsString b
-  ) => Tagged pos prox val nex -> b
-render' x = mconcat $ renderchunks x ++ [closing]
-  where closing = convert (Proxy :: Proxy (Last' prox))
-
-{-# INLINE render_ #-}
+{-# INLINE [2] render_ #-}
 render_ :: forall b pos prox val nex.
   ( KnownSymbol (Last' prox)
+  , Renderstring (Tagged pos prox val nex)
   , Renderchunks (Tagged pos prox val nex)
   , Monoid b
   , IsString b
@@ -181,7 +170,6 @@ instance
        ) xs
     where closing = convert (Proxy :: Proxy (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex))))))))))
 
-
 instance
   ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
   , Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
@@ -197,9 +185,6 @@ instance
           ++ [closing]
        ) xs
     where closing = convert (Proxy :: Proxy (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex))))))))))
-
-
-
 
 class Renderstring a where
   renderstring :: (IsString b, Monoid b) => a -> b
@@ -259,10 +244,9 @@ instance
     = convert (undefined :: Proxy (Index pos prox))
     <> foldMap
        (\x ->
-          render'
+          render_
           (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
        ) xs
-
 
 instance
   ( Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
@@ -275,7 +259,7 @@ instance
     = convert (undefined :: Proxy (Index pos prox))
     <> foldMap
        (\x ->
-          render'
+          render_
           (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
        ) xs
 
@@ -290,34 +274,31 @@ instance
     = convert (undefined :: Proxy (Index pos prox))
     <> foldMap
        (\x ->
-          render'
+          render_
           (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
        ) xs
 
 {-# RULES
-"fromString'/builder"        fromString' = TLB.fromLazyText . LT.pack
-"fromString'/id"             fromString' = id
-"fromString'/fromString" [1] fromString' = fromString
+"fromString_/builder" fromString_ = TLB.fromLazyText . LT.pack
   #-}
 
-{-# NOINLINE fromString' #-}
-fromString' :: IsString a => String -> a
-fromString' = fromString
+{-# INLINE [2] fromString_ #-}
+fromString_ :: IsString a => String -> a
+fromString_ = fromString
 
 {-# RULES
-"convert/a/a"                   forall f. convert' f = id
-"convert/string/builder"        forall f. convert' f = TLB.fromLazyText . LT.pack
-"convert/lazy text/builder"     forall f. convert' f = TLB.fromLazyText
-"convert/strict text/builder"   forall f. convert' f = TLB.fromText
-"convert/builder/lazy text"     forall f. convert' f = TLB.toLazyText
-"convert/lazy text/strict text" forall f. convert' f = LT.toStrict
-"convert/strict text/lazy text" forall f. convert' f = LT.fromStrict
-"convert/inline" [1]            forall f. convert' f = f
+"convert/a/a"                   forall f. convert_ f = id
+"convert/string/builder"        forall f. convert_ f = TLB.fromLazyText . LT.pack
+"convert/lazy text/builder"     forall f. convert_ f = TLB.fromLazyText
+"convert/strict text/builder"   forall f. convert_ f = TLB.fromText
+"convert/builder/lazy text"     forall f. convert_ f = TLB.toLazyText
+"convert/lazy text/strict text" forall f. convert_ f = LT.toStrict
+"convert/strict text/lazy text" forall f. convert_ f = LT.fromStrict
   #-}
 
-{-# NOINLINE convert' #-}
-convert' :: a -> a
-convert' = id
+{-# INLINE [1] convert_ #-}
+convert_ :: a -> a
+convert_ = id
 
 -- | Convert something to a target stringlike thing.
 class Convert a where
@@ -325,7 +306,7 @@ class Convert a where
 
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convert #-}
-  convert = fromString' . symbolVal
+  convert = fromString_ . symbolVal
 
 instance Convert a => Convert (Maybe a) where
   {-# INLINE convert #-}
@@ -338,19 +319,19 @@ instance Convert Attributes where
 
 instance Convert String where
   {-# INLINE convert #-}
-  convert = convert' fromString
+  convert = convert_ fromString
 
 instance Convert T.Text where
   {-# INLINE convert #-}
-  convert = convert' (fromString . T.unpack)
+  convert = convert_ (fromString . T.unpack)
 
 instance Convert LT.Text where
   {-# INLINE convert #-}
-  convert = convert' (fromString . LT.unpack)
+  convert = convert_ (fromString . LT.unpack)
 
 instance Convert TLB.Builder where
   {-# INLINE convert #-}
-  convert = convert' (fromString . LT.unpack . TLB.toLazyText)
+  convert = convert_ (fromString . LT.unpack . TLB.toLazyText)
 
 instance Convert Int where
   {-# INLINE convert #-}
@@ -373,9 +354,9 @@ instance Convert Word where
   convert = fromString . show
 
 -- | Orphan show instances to faciliate ghci development.
-instance Document (a # b)  => Show (a # b)  where show = render
+instance                     Document (a # b)  => Show (a # b)  where show = render
 instance {-# OVERLAPPING #-} Document [a # b]  => Show [a # b]  where show = render
-instance Document (a > b)  => Show (a > b)  where show = render
+instance                     Document (a > b)  => Show (a > b)  where show = render
 instance {-# OVERLAPPING #-} Document [a > b]  => Show [a > b]  where show = render
-instance Document (a :> b) => Show (a :> b) where show = render
+instance                     Document (a :> b) => Show (a :> b) where show = render
 instance {-# OVERLAPPING #-} Document [a :> b] => Show [a :> b] where show = render
