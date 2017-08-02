@@ -510,35 +510,52 @@ type family Fuse a where
   Fuse (a, b)                                          = "" ': Fuse b
   Fuse a                                               = '[""]
 
+type family Drop n xs :: [Symbol] where
+  Drop 0 xs = xs
+  Drop 1 (_ ': xs) = xs
+  Drop 2 (_ ': _ ': xs) = xs
+  Drop 3 (_ ': _ ': _ ': xs) = xs
+  Drop 4 (_ ': _ ': _ ': _ ': xs) = xs
+  Drop n (_ ': _ ': _ ': _ ': _ ': xs) = Drop (n-5) xs
+
+type family Take n xs :: [Symbol] where
+  Take 0 _ = '[]
+  Take 1 (x1 ': _) = '[x1]
+  Take 2 (x1 ': x2 ': _) = [x1,x2]
+  Take 3 (x1 ': x2 ': x3 ': _) = [x1,x2,x3]
+  Take 4 (x1 ': x2 ': x3 ': x4 ': _) = [x1,x2,x3,x4]
+  Take n (x1 ': x2 ': x3 ': x4 ': x5 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': Take (n-5) xs
+
 -- | Init for type level lists.
 type family Init xs where
-  Init (a, (b,c)) = (a, Init (b, c))
+  Init (a, (b, (c, d))) = (a, (b, Init (c, d)))
+  Init (a, (b,c)) = (a, b)
   Init (a, b)     = a
   Init a          = a
 
 -- | Last for type level lists.
 type family Last a where
-  Last (a, as) = Last as
-  Last a       = a
+  Last (a, (b, (c, d))) = Last d
+  Last (a, (b, c)) = c
+  Last (a, b) = b
+  Last a = a
 
 -- | Last for type level lists.
 type family Last' (xs :: [Symbol]) where
-  Last' '[x]      = x
-  Last' (_ ': xs) = Last' xs
+  Last' (_ ': _ ': _ ': _ ': x ': xs) = Last' (x ': xs)
+  Last' (_ ': _ ': _ ': x ': xs) = x
+  Last' (_ ': _ ': x ': xs) = x
+  Last' (_ ': x ': xs) = x
+  Last' (x ': xs) = x
   Last' _         = ""
-
-type family Index n xs :: Symbol where
-  Index 0 (x ': xs) = x
-  Index n (_ ': xs) = Index (n-1) xs
-  Index _ _         = ""
-
-type family Unlist xs where
-  Unlist [x] = x
 
 -- | Head for type level lists.
 type family Head' a where
   Head' (a, as) = a
   Head' a       = a
+
+type family HeadL a :: Symbol where
+  HeadL (a ': _) = a
 
 -- | Utility types.
 data EndOfOpen
@@ -606,7 +623,7 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
-newtype Tagged (pos :: Nat) (proxies :: [Symbol]) target (next :: *) = Tagged target
+newtype Tagged (proxies :: [Symbol]) target (next :: *) = Tagged target
 
 type Symbols a = Fuse (RenderTags (PruneTags (ToTypeList a)))
 

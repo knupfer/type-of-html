@@ -52,15 +52,15 @@ render :: forall a b.
   , Monoid b
   , IsString b
   ) => a -> b
-render x = render_ (Tagged x :: Tagged 0 (Symbols a) a ())
+render x = render_ (Tagged x :: Tagged (Symbols a) a ())
 
   -------------------
   -- internal code --
   -------------------
 
 type Document a =
-  ( Renderchunks (Tagged 0 (Symbols a) a ())
-  , Renderstring (Tagged 0 (Symbols a) a ())
+  ( Renderchunks (Tagged (Symbols a) a ())
+  , Renderstring (Tagged (Symbols a) a ())
   , KnownSymbol (Last' (Symbols a))
   )
 
@@ -71,37 +71,37 @@ type Document a =
 #-}
 
 {-# INLINE [2] render_ #-}
-render_ :: forall b pos prox val nex.
+render_ :: forall b prox val nex.
   ( KnownSymbol (Last' prox)
-  , Renderstring (Tagged pos prox val nex)
-  , Renderchunks (Tagged pos prox val nex)
+  , Renderstring (Tagged prox val nex)
+  , Renderchunks (Tagged prox val nex)
   , Monoid b
   , IsString b
-  ) => Tagged pos prox val nex -> b
+  ) => Tagged prox val nex -> b
 render_ x = mconcat $ renderchunks x ++ [closing]
   where closing = convert (Proxy :: Proxy (Last' prox))
 
 {-# INLINE renderLT #-}
-renderLT :: forall pos prox val nex.
+renderLT :: forall prox val nex.
   ( KnownSymbol (Last' prox)
-  , Renderchunks (Tagged pos prox val nex)
-  ) => Tagged pos prox val nex -> LT.Text
+  , Renderchunks (Tagged prox val nex)
+  ) => Tagged prox val nex -> LT.Text
 renderLT x = mconcat $ renderchunks x ++ [closing]
   where closing = convert (Proxy :: Proxy (Last' prox))
 
 {-# INLINE renderS #-}
-renderS :: forall pos prox val nex.
+renderS :: forall prox val nex.
   ( KnownSymbol (Last' prox)
-  , Renderchunks (Tagged pos prox val nex)
-  ) => Tagged pos prox val nex -> String
+  , Renderchunks (Tagged prox val nex)
+  ) => Tagged prox val nex -> String
 renderS x = foldr (<>) closing $ renderchunks x
   where closing = convert (Proxy :: Proxy (Last' prox))
 
 {-# INLINE renderB #-}
-renderB :: forall pos prox val nex.
+renderB :: forall prox val nex.
   ( KnownSymbol (Last' prox)
-  , Renderstring (Tagged pos prox val nex)
-  ) => Tagged pos prox val nex -> TLB.Builder
+  , Renderstring (Tagged prox val nex)
+  ) => Tagged prox val nex -> TLB.Builder
 renderB x = renderstring x <> closing
   where closing = convert (Proxy :: Proxy (Last' prox))
 
@@ -112,91 +112,91 @@ addAttributes xs (Child b) = WithAttributes (Attributes xs) b
 class Renderchunks a where
   renderchunks :: (IsString b, Monoid b) => a -> [b]
 
-instance KnownSymbol a => Renderchunks (Tagged pos prox (Proxy a) nex) where
+instance KnownSymbol a => Renderchunks (Tagged prox (Proxy a) nex) where
   {-# INLINE renderchunks #-}
   renderchunks _ = []
 
 instance {-# OVERLAPPABLE #-}
   ( Convert val
-  , KnownSymbol (Index pos prox)
-  ) => Renderchunks (Tagged pos prox val nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderchunks (Tagged prox val nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (Proxy :: Proxy (HeadL prox))
     : [convert x]
 
-instance Renderchunks (Tagged pos prox () nex) where
+instance Renderchunks (Tagged prox () nex) where
   {-# INLINE renderchunks #-}
   renderchunks _ = []
 
 instance
-  ( Renderchunks (Tagged pos prox a b)
-  , Renderchunks (Tagged (CountContent a + pos) prox b nex)
-  ) => Renderchunks (Tagged pos prox (a # b) nex) where
+  ( Renderchunks (Tagged (Take (CountContent a) prox) a b)
+  , Renderchunks (Tagged (Drop (CountContent a) prox) b nex)
+  ) => Renderchunks (Tagged prox (a # b) nex) where
   {-# INLINE renderchunks #-}
   renderchunks ~(Tagged (a :#: b))
-    = renderchunks (Tagged a :: Tagged pos prox a b)
-    <> renderchunks (Tagged b :: Tagged (CountContent a + pos) prox b nex)
+    = renderchunks (Tagged a :: Tagged (Take (CountContent a) prox) a b)
+    <> renderchunks (Tagged b :: Tagged (Drop (CountContent a) prox) b nex)
 
 instance {-# OVERLAPPING #-}
-  ( Renderchunks (Tagged (pos+1) prox (a > b) nex)
-  , KnownSymbol (Index pos prox)
+  ( Renderchunks (Tagged (Drop 1 prox) (a > b) nex)
+  , KnownSymbol (HeadL prox)
   , a ?> b
-  ) => Renderchunks (Tagged pos prox (a :> b) nex) where
+  ) => Renderchunks (Tagged prox (a :> b) nex) where
   {-# INLINE renderchunks #-}
   renderchunks ~(Tagged (WithAttributes a b))
-    = convert (Proxy :: Proxy (Index pos prox))
+    = convert (Proxy :: Proxy (HeadL prox))
     : convert a
-    : renderchunks (Tagged (Child b) :: Tagged (pos+1) prox (a > b) nex)
+    : renderchunks (Tagged (Child b) :: Tagged (Drop 1 prox) (a > b) nex)
 
 instance
-  ( Renderchunks (Tagged pos prox b (Close a))
-  ) => Renderchunks (Tagged pos prox (a > b) nex) where
+  ( Renderchunks (Tagged prox b (Close a))
+  ) => Renderchunks (Tagged prox (a > b) nex) where
   {-# INLINE renderchunks #-}
   renderchunks ~(Tagged (Child b))
-    = renderchunks (Tagged b :: Tagged pos prox b (Close a))
+    = renderchunks (Tagged b :: Tagged prox b (Close a))
 
 instance
-  ( Renderchunks (Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+  ( Renderchunks (Tagged (Symbols (Next (a :> b) nex)) (a :> b) ())
   , KnownSymbol (Last' (Symbols (Next (a :> b) nex)))
-  , KnownSymbol (Index pos prox)
-  ) => Renderchunks (Tagged pos prox [a :> b] nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderchunks (Tagged prox [a :> b] nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     : concatMap
        (\x -> renderchunks
-          (Tagged x :: Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+          (Tagged x :: Tagged (Symbols (Next (a :> b) nex)) (a :> b) ())
           ++ [closing]
        ) xs
     where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a :> b) nex))))
 
 instance
-  ( Renderchunks (Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+  ( Renderchunks (Tagged (Symbols (Next (a > b) nex)) (a > b) ())
   , KnownSymbol (Last' (Symbols (Next (a > b) nex)))
-  , KnownSymbol (Index pos prox)
-  ) => Renderchunks (Tagged pos prox [a > b] nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderchunks (Tagged prox [a > b] nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     : concatMap
        (\x -> renderchunks
-          (Tagged x :: Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+          (Tagged x :: Tagged (Symbols (Next (a > b) nex)) (a > b) ())
           ++ [closing]
        ) xs
     where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a > b) nex))))
 
 instance
-  ( Renderchunks (Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+  ( Renderchunks (Tagged (Symbols (Next (a # b) nex)) (a # b) ())
   , KnownSymbol (Last' (Symbols (Next (a # b) nex)))
-  , KnownSymbol (Index pos prox)
-  ) => Renderchunks (Tagged pos prox [a # b] nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderchunks (Tagged prox [a # b] nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     : concatMap
        (\x -> renderchunks
-          (Tagged x :: Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+          (Tagged x :: Tagged (Symbols (Next (a # b) nex)) (a # b) ())
           ++ [closing]
        ) xs
     where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a # b) nex))))
@@ -204,93 +204,93 @@ instance
 class Renderstring a where
   renderstring :: (IsString b, Monoid b) => a -> b
 
-instance KnownSymbol a => Renderstring (Tagged pos prox (Proxy a) nex) where
+instance KnownSymbol a => Renderstring (Tagged prox (Proxy a) nex) where
   {-# INLINE renderstring #-}
   renderstring _ = mempty
 
 instance {-# OVERLAPPABLE #-}
   ( Convert val
-  , KnownSymbol (Index pos prox)
-  ) => Renderstring (Tagged pos prox val nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderstring (Tagged prox val nex) where
   {-# INLINE renderstring #-}
   renderstring (Tagged x)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     <> convert x
 
-instance Renderstring (Tagged pos prox () nex) where
+instance Renderstring (Tagged prox () nex) where
   {-# INLINE renderstring #-}
   renderstring _ = mempty
 
 instance
-  ( Renderstring (Tagged pos prox a b)
-  , Renderstring (Tagged (CountContent a + pos) prox b nex)
-  ) => Renderstring (Tagged pos prox (a # b) nex) where
+  ( Renderstring (Tagged (Take (CountContent a) prox) a b)
+  , Renderstring (Tagged (Drop (CountContent a) prox) b nex)
+  ) => Renderstring (Tagged prox (a # b) nex) where
   {-# INLINE renderstring #-}
   renderstring ~(Tagged (a :#: b))
-    = renderstring (Tagged a :: Tagged pos prox a b)
-    <> renderstring (Tagged b :: Tagged (CountContent a + pos) prox b nex)
+    = renderstring (Tagged a :: Tagged (Take (CountContent a) prox) a b)
+    <> renderstring (Tagged b :: Tagged (Drop (CountContent a) prox) b nex)
 
 instance {-# OVERLAPPING #-}
-  ( Renderstring (Tagged (pos+1) prox (a > b) nex)
-  , KnownSymbol (Index pos prox)
+  ( Renderstring (Tagged (Drop 1 prox) (a > b) nex)
+  , KnownSymbol (HeadL prox)
   , a ?> b
-  ) => Renderstring (Tagged pos prox (a :> b) nex) where
+  ) => Renderstring (Tagged prox (a :> b) nex) where
   {-# INLINE renderstring #-}
   renderstring ~(Tagged (WithAttributes a b))
-    = convert (Proxy :: Proxy (Index pos prox))
+    = convert (Proxy :: Proxy (HeadL prox))
     <> convert a
-    <> renderstring (Tagged (Child b) :: Tagged (pos+1) prox (a > b) nex)
+    <> renderstring (Tagged (Child b) :: Tagged (Drop 1 prox) (a > b) nex)
 
 instance
-  ( Renderstring (Tagged pos prox b (Close a))
-  ) => Renderstring (Tagged pos prox (a > b) nex) where
+  ( Renderstring (Tagged prox b (Close a))
+  ) => Renderstring (Tagged prox (a > b) nex) where
   {-# INLINE renderstring #-}
   renderstring ~(Tagged (Child b))
-    = renderstring (Tagged b :: Tagged pos prox b (Close a))
+    = renderstring (Tagged b :: Tagged prox b (Close a))
 
 instance
-  ( Renderstring (Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
-  , Renderchunks (Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+  ( Renderstring (Tagged (Symbols (Next (a :> b) nex)) (a :> b) ())
+  , Renderchunks (Tagged (Symbols (Next (a :> b) nex)) (a :> b) ())
   , KnownSymbol (Last' (Symbols (Next (a :> b) nex)))
-  , KnownSymbol (Index pos prox)
-  ) => Renderstring (Tagged pos prox [a :> b] nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderstring (Tagged prox [a :> b] nex) where
   {-# INLINE renderstring #-}
   renderstring (Tagged xs)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     <> foldMap
        (\x ->
           render_
-          (Tagged x :: Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+          (Tagged x :: Tagged (Symbols (Next (a :> b) nex)) (a :> b) ())
        ) xs
 
 instance
-  ( Renderstring (Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
-  , Renderchunks (Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+  ( Renderstring (Tagged (Symbols (Next (a > b) nex)) (a > b) ())
+  , Renderchunks (Tagged (Symbols (Next (a > b) nex)) (a > b) ())
   , KnownSymbol (Last' (Symbols (Next (a > b) nex)))
-  , KnownSymbol (Index pos prox)
-  ) => Renderstring (Tagged pos prox [a > b] nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderstring (Tagged prox [a > b] nex) where
   {-# INLINE renderstring #-}
   renderstring (Tagged xs)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     <> foldMap
        (\x ->
           render_
-          (Tagged x :: Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+          (Tagged x :: Tagged (Symbols (Next (a > b) nex)) (a > b) ())
        ) xs
 
 instance
-  ( Renderstring (Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
-  , Renderchunks (Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+  ( Renderstring (Tagged (Symbols (Next (a # b) nex)) (a # b) ())
+  , Renderchunks (Tagged (Symbols (Next (a # b) nex)) (a # b) ())
   , KnownSymbol (Last' (Symbols (Next (a # b) nex)))
-  , KnownSymbol (Index pos prox)
-  ) => Renderstring (Tagged pos prox [a # b] nex) where
+  , KnownSymbol (HeadL prox)
+  ) => Renderstring (Tagged prox [a # b] nex) where
   {-# INLINE renderstring #-}
   renderstring (Tagged xs)
-    = convert (undefined :: Proxy (Index pos prox))
+    = convert (undefined :: Proxy (HeadL prox))
     <> foldMap
        (\x ->
           render_
-          (Tagged x :: Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+          (Tagged x :: Tagged (Symbols (Next (a # b) nex)) (a # b) ())
        ) xs
 
 {-# RULES
