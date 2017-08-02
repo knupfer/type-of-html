@@ -66,7 +66,8 @@ type Document a =
 
 {-# RULES
 "render_/renderB" render_ = renderB
-  #-}
+"render_/renderS" render_ = renderS
+#-}
 
 {-# INLINE [2] render_ #-}
 render_ :: forall b pos prox val nex.
@@ -77,6 +78,14 @@ render_ :: forall b pos prox val nex.
   , IsString b
   ) => Tagged pos prox val nex -> b
 render_ x = mconcat $ renderchunks x ++ [closing]
+  where closing = convert (Proxy :: Proxy (Last' prox))
+
+{-# INLINE renderS #-}
+renderS :: forall pos prox val nex.
+  ( KnownSymbol (Last' prox)
+  , Renderchunks (Tagged pos prox val nex)
+  ) => Tagged pos prox val nex -> String
+renderS x = foldr (<>) closing $ renderchunks x
   where closing = convert (Proxy :: Proxy (Last' prox))
 
 {-# INLINE renderB #-}
