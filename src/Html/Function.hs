@@ -52,16 +52,16 @@ render :: forall a b.
   , Monoid b
   , IsString b
   ) => a -> b
-render x = render_ (Tagged x :: Tagged 0 (SymbolsToList (Symbols a)) a ())
+render x = render_ (Tagged x :: Tagged 0 (Symbols a) a ())
 
   -------------------
   -- internal code --
   -------------------
 
 type Document a =
-  ( Renderchunks (Tagged 0 (SymbolsToList (Symbols a)) a ())
-  , Renderstring (Tagged 0 (SymbolsToList (Symbols a)) a ())
-  , KnownSymbol (Last' (SymbolsToList (Symbols a)))
+  ( Renderchunks (Tagged 0 (Symbols a) a ())
+  , Renderstring (Tagged 0 (Symbols a) a ())
+  , KnownSymbol (Last' (Symbols a))
   )
 
 {-# RULES
@@ -157,8 +157,8 @@ instance
     = renderchunks (Tagged b :: Tagged pos prox b (Close a))
 
 instance
-  ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
-  , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))))
+  ( Renderchunks (Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+  , KnownSymbol (Last' (Symbols (Next (a :> b) nex)))
   , KnownSymbol (Index pos prox)
   ) => Renderchunks (Tagged pos prox [a :> b] nex) where
   {-# INLINE renderchunks #-}
@@ -166,14 +166,14 @@ instance
     = convert (undefined :: Proxy (Index pos prox))
     : concatMap
        (\x -> renderchunks
-          (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
+          (Tagged x :: Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
           ++ [closing]
        ) xs
-    where closing = convert (Proxy :: Proxy (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex))))))))))
+    where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a :> b) nex))))
 
 instance
-  ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
-  , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))))
+  ( Renderchunks (Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+  , KnownSymbol (Last' (Symbols (Next (a > b) nex)))
   , KnownSymbol (Index pos prox)
   ) => Renderchunks (Tagged pos prox [a > b] nex) where
   {-# INLINE renderchunks #-}
@@ -181,14 +181,14 @@ instance
     = convert (undefined :: Proxy (Index pos prox))
     : concatMap
        (\x -> renderchunks
-          (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
+          (Tagged x :: Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
           ++ [closing]
        ) xs
-    where closing = convert (Proxy :: Proxy (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex))))))))))
+    where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a > b) nex))))
 
 instance
-  ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
-  , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))))
+  ( Renderchunks (Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+  , KnownSymbol (Last' (Symbols (Next (a # b) nex)))
   , KnownSymbol (Index pos prox)
   ) => Renderchunks (Tagged pos prox [a # b] nex) where
   {-# INLINE renderchunks #-}
@@ -196,10 +196,10 @@ instance
     = convert (undefined :: Proxy (Index pos prox))
     : concatMap
        (\x -> renderchunks
-          (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
+          (Tagged x :: Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
           ++ [closing]
        ) xs
-    where closing = convert (Proxy :: Proxy (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex))))))))))
+    where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a # b) nex))))
 
 class Renderstring a where
   renderstring :: (IsString b, Monoid b) => a -> b
@@ -249,9 +249,9 @@ instance
     = renderstring (Tagged b :: Tagged pos prox b (Close a))
 
 instance
-  ( Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
-  , Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
-  , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))))
+  ( Renderstring (Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+  , Renderchunks (Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
+  , KnownSymbol (Last' (Symbols (Next (a :> b) nex)))
   , KnownSymbol (Index pos prox)
   ) => Renderstring (Tagged pos prox [a :> b] nex) where
   {-# INLINE renderstring #-}
@@ -260,13 +260,13 @@ instance
     <> foldMap
        (\x ->
           render_
-          (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
+          (Tagged x :: Tagged 0 (Symbols (Next (a :> b) nex)) (a :> b) ())
        ) xs
 
 instance
-  ( Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
-  , Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
-  , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))))
+  ( Renderstring (Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+  , Renderchunks (Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
+  , KnownSymbol (Last' (Symbols (Next (a > b) nex)))
   , KnownSymbol (Index pos prox)
   ) => Renderstring (Tagged pos prox [a > b] nex) where
   {-# INLINE renderstring #-}
@@ -275,13 +275,13 @@ instance
     <> foldMap
        (\x ->
           render_
-          (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
+          (Tagged x :: Tagged 0 (Symbols (Next (a > b) nex)) (a > b) ())
        ) xs
 
 instance
-  ( Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
-  , Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
-  , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))))
+  ( Renderstring (Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+  , Renderchunks (Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
+  , KnownSymbol (Last' (Symbols (Next (a # b) nex)))
   , KnownSymbol (Index pos prox)
   ) => Renderstring (Tagged pos prox [a # b] nex) where
   {-# INLINE renderstring #-}
@@ -290,7 +290,7 @@ instance
     <> foldMap
        (\x ->
           render_
-          (Tagged x :: Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
+          (Tagged x :: Tagged 0 (Symbols (Next (a # b) nex)) (a # b) ())
        ) xs
 
 {-# RULES

@@ -419,6 +419,7 @@ type family CountContent c where
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
+  ToTypeList (Next val nex) = Next (ToTypeList val) (ToTypeList nex)
   ToTypeList (a # b)   = Append (ToTypeList a) (ToTypeList b)
   ToTypeList (a > ())  = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
   ToTypeList (a :> ()) = If (HasContent (GetInfo a)) (OpenAttr a, (Attributes, (EndOfOpen, Close a))) (OpenAttr a, (Attributes, EndOfOpen))
@@ -445,46 +446,41 @@ type family PruneTags a where
   PruneTags (a , ())     = PruneTags a
   PruneTags [a]          = [PruneTags a]
   PruneTags (Close a, b) = IsOmittable (GetInfo a) (Close a, b)
-  PruneTags ([a],b)      = IsOmittableL (Head' (PruneTags a)) [PruneTags a] (Last (PruneTags a)) b
+  PruneTags (Next a b)   = IsOmittableL (Head' (PruneTags a)) (PruneTags a) (Last (PruneTags a)) b
   PruneTags (a, b)       = (a, PruneTags b)
   PruneTags a            = a
 
-type family IsOmittableL head list last next where
-  IsOmittableL (OpenAttr head) list (Close last) (Close next) = IsOmittable2 (Open head) list (GetInfo last) (Close next)
-  IsOmittableL (Open head)     list (Close last) (Close next) = IsOmittable2 (Open head) list (GetInfo last) (Close next)
+data Next v nex
+
+type family IsOmittableL head val last next where
+  IsOmittableL (OpenAttr head) val (Close last) (Close next) = IsOmittable2 (Open head) val (GetInfo last) (Close next)
+  IsOmittableL (Open head)     val (Close last) (Close next) = IsOmittable2 (Open head) val (GetInfo last) (Close next)
 
 -- Base case
-  IsOmittableL _head list _last next = (list, PruneTags next)
+  IsOmittableL _head val _last next = val
 
 type family IsOmittable2 head list last next where
   IsOmittable2
     (Open head)
-    [list]
+    val
     (ElementInfo _ _ (LastChildOrFollowedBy (head ': _))) -- last
     (Close next)
-    = ([Init list], PruneTags (Close next))
+    = Init val
 
   IsOmittable2
     (Open head)
-    [list]
+    val
     (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) -- last
     (Close next)
-    = IsOmittable2 (Open head) [list] (ElementInfo a b (LastChildOrFollowedBy xs)) (Close next)
-
-  IsOmittable2
-    (Open head)
-    [list]
-    _last
-    (Close next)
-    = ([list], PruneTags (Close next))
+    = IsOmittable2 (Open head) val (ElementInfo a b (LastChildOrFollowedBy xs)) (Close next)
 
 -- Base case
   IsOmittable2
     _head
-    list
+    val
     _last
     next
-    = (list, PruneTags next)
+    = val
 
 -- | Checks whether a tag is omittable.  Sadly, returning a kind Bool
 -- would make the compiler loop, so we inline the if into the type
@@ -617,11 +613,11 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
 
 newtype Tagged (pos :: Nat) (proxies :: [Symbol]) target (next :: *) = Tagged target
 
-type Symbols a = Fuse (RenderTags (PruneTags (ToTypeList a)))
+type Symbols a = TupleToList (Fuse (RenderTags (PruneTags (ToTypeList a))))
 
-type family SymbolsToList a :: [Symbol] where
-  SymbolsToList (Proxy a, b) = a ': SymbolsToList b
-  SymbolsToList (Proxy b) = '[b]
+type family TupleToList a :: [Symbol] where
+  TupleToList (Proxy a, b) = a ': TupleToList b
+  TupleToList (Proxy b) = '[b]
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where
