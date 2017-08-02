@@ -65,8 +65,9 @@ type Document a =
   )
 
 {-# RULES
-"render_/renderB" render_ = renderB
-"render_/renderS" render_ = renderS
+"render_/renderB"  render_ = renderB
+"render_/renderS"  render_ = renderS
+"render_/renderLT" render_ = renderLT
 #-}
 
 {-# INLINE [2] render_ #-}
@@ -78,6 +79,14 @@ render_ :: forall b pos prox val nex.
   , IsString b
   ) => Tagged pos prox val nex -> b
 render_ x = mconcat $ renderchunks x ++ [closing]
+  where closing = convert (Proxy :: Proxy (Last' prox))
+
+{-# INLINE renderLT #-}
+renderLT :: forall pos prox val nex.
+  ( KnownSymbol (Last' prox)
+  , Renderchunks (Tagged pos prox val nex)
+  ) => Tagged pos prox val nex -> LT.Text
+renderLT x = mconcat $ renderchunks x ++ [closing]
   where closing = convert (Proxy :: Proxy (Last' prox))
 
 {-# INLINE renderS #-}
@@ -149,7 +158,6 @@ instance
 
 instance
   ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
-  , Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))) (a :> b) nex)
   , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a :> b] # nex)))))))))
   , KnownSymbol (Index pos prox)
   ) => Renderchunks (Tagged pos prox [a :> b] nex) where
@@ -165,7 +173,6 @@ instance
 
 instance
   ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
-  , Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))) (a > b) nex)
   , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a > b] # nex)))))))))
   , KnownSymbol (Index pos prox)
   ) => Renderchunks (Tagged pos prox [a > b] nex) where
@@ -181,7 +188,6 @@ instance
 
 instance
   ( Renderchunks (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
-  , Renderstring (Tagged 0 (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))) (a # b) nex)
   , KnownSymbol (Last' (SymbolsToList (Fuse (RenderTags (Unlist (Head' (PruneTags (ToTypeList ([a # b] # nex)))))))))
   , KnownSymbol (Index pos prox)
   ) => Renderchunks (Tagged pos prox [a # b] nex) where
