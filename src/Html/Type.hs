@@ -411,24 +411,21 @@ type family CloseTag e where
   CloseTag e = AppendSymbol (AppendSymbol "</" (ShowElement e)) ">"
 
 type family CountContent c where
-  CountContent (a # b) = CountContent a + CountContent b
-  CountContent (a > b) = CountContent b
+  CountContent (a # b)  = CountContent a + CountContent b
+  CountContent (a > b)  = CountContent b
   CountContent (a :> b) = 1 + CountContent b
-  CountContent () = 0
-  CountContent _ = 1
+  CountContent ()       = 0
+  CountContent _        = 1
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
   ToTypeList (Next val nex) = Next (ToTypeList val) (ToTypeList nex)
-  ToTypeList (a # b)   = Append (ToTypeList a) (ToTypeList b)
-  ToTypeList (a > ())  = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
-  ToTypeList (a :> ()) = If (HasContent (GetInfo a)) (OpenAttr a, (Attributes, (EndOfOpen, Close a))) (OpenAttr a, (Attributes, EndOfOpen))
-  ToTypeList (a > b)   = Append (Open a, ToTypeList b) (Close a)
-  ToTypeList (a :> b)  = Append (OpenAttr a, (Attributes, (EndOfOpen, ToTypeList b))) (Close a)
-  ToTypeList [a # b]   = [ToTypeList (a # b)]
-  ToTypeList [a > b]   = [ToTypeList (a > b)]
-  ToTypeList [a :> b]  = [ToTypeList (a :> b)]
-  ToTypeList x         = x
+  ToTypeList (a # b)        = Append (ToTypeList a) (ToTypeList b)
+  ToTypeList (a > ())       = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
+  ToTypeList (a :> ())      = If (HasContent (GetInfo a)) (OpenAttr a, (Attributes, (EndOfOpen, Close a))) (OpenAttr a, (Attributes, EndOfOpen))
+  ToTypeList (a > b)        = Append (Open a, ToTypeList b) (Close a)
+  ToTypeList (a :> b)       = Append (OpenAttr a, (Attributes, (EndOfOpen, ToTypeList b))) (Close a)
+  ToTypeList x              = x
 
 -- | Append two type lists.
 type family Append a b where
@@ -444,7 +441,6 @@ type family HasContent a where
 type family PruneTags a where
   PruneTags ((), a)      = PruneTags a
   PruneTags (a , ())     = PruneTags a
-  PruneTags [a]          = [PruneTags a]
   PruneTags (Close a, b) = IsOmittable (GetInfo a) (Close a, b)
   PruneTags (Next a b)   = IsOmittableL (Head' (PruneTags a)) (PruneTags a) (Last (PruneTags a)) b
   PruneTags (a, b)       = (a, PruneTags b)
@@ -497,7 +493,6 @@ type family IsOmittable a b where
 
 -- | Convert tags to type level strings.
 type family RenderTags a where
-  RenderTags [a]          = [RenderTags a]
   RenderTags (a, b)       = (RenderTags a, RenderTags b)
   RenderTags (Open a)     = Proxy (OpenTag a)
   RenderTags (OpenAttr a) = Proxy (AppendSymbol "<" (ShowElement a))
@@ -508,12 +503,12 @@ type family RenderTags a where
 -- | Fuse neighbouring type level strings.
 type family Fuse a where
   Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy (AppendSymbol a b), c)
-  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = Proxy (AppendSymbol a b)
-  Fuse (Proxy (a :: Symbol), (b,c))                    = (Proxy a, Fuse c)
-  Fuse (Proxy (a :: Symbol), b)                        = (Proxy a, Fuse b)
-  Fuse (Proxy (a :: Symbol))                           = Proxy a
-  Fuse (a, b)                                          = (Proxy "", Fuse b)
-  Fuse a                                               = Proxy ""
+  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = '[AppendSymbol a b]
+  Fuse (Proxy (a :: Symbol), (b,c))                    =  a ': Fuse c
+  Fuse (Proxy (a :: Symbol), b)                        = a ': Fuse b
+  Fuse (Proxy (a :: Symbol))                           = '[a]
+  Fuse (a, b)                                          = "" ': Fuse b
+  Fuse a                                               = '[""]
 
 -- | Init for type level lists.
 type family Init xs where
@@ -528,14 +523,14 @@ type family Last a where
 
 -- | Last for type level lists.
 type family Last' (xs :: [Symbol]) where
-  Last' '[x] = x
+  Last' '[x]      = x
   Last' (_ ': xs) = Last' xs
-  Last' _   = ""
+  Last' _         = ""
 
 type family Index n xs :: Symbol where
   Index 0 (x ': xs) = x
   Index n (_ ': xs) = Index (n-1) xs
-  Index _ _ = ""
+  Index _ _         = ""
 
 type family Unlist xs where
   Unlist [x] = x
@@ -613,11 +608,7 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
 
 newtype Tagged (pos :: Nat) (proxies :: [Symbol]) target (next :: *) = Tagged target
 
-type Symbols a = TupleToList (Fuse (RenderTags (PruneTags (ToTypeList a))))
-
-type family TupleToList a :: [Symbol] where
-  TupleToList (Proxy a, b) = a ': TupleToList b
-  TupleToList (Proxy b) = '[b]
+type Symbols a = Fuse (RenderTags (PruneTags (ToTypeList a)))
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where
