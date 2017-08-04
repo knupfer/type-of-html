@@ -340,7 +340,7 @@ instance Escape T.Text where
 
 instance Escape LT.Text where
 
-  escape = foldr1 (<>) . LT.foldr f []
+  escape = foldr (<>) "" . LT.foldr f []
     where
       f '<'  b = "&lt;"         : b
       f '>'  b = "&gt;"         : b
