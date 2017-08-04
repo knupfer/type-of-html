@@ -49,6 +49,7 @@ import qualified Data.Text.Lazy.Builder     as TLB
 {-# INLINE render #-}
 render :: forall a b.
   ( Document a
+  , Escape b
   , Monoid b
   , IsString b
   ) => a -> b
@@ -75,6 +76,7 @@ render_ :: forall b prox val nex.
   ( KnownSymbol (Last' prox)
   , Renderstring (Tagged prox val nex)
   , Renderchunks (Tagged prox val nex)
+  , Escape b
   , Monoid b
   , IsString b
   ) => Tagged prox val nex -> b
@@ -110,7 +112,7 @@ addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a :> b)
 addAttributes xs (Child b) = WithAttributes (Attributes xs) b
 
 class Renderchunks a where
-  renderchunks :: (IsString b, Monoid b) => a -> [b]
+  renderchunks :: (Escape b, IsString b, Monoid b) => a -> [b]
 
 instance KnownSymbol a => Renderchunks (Tagged prox (Proxy a) nex) where
   {-# INLINE renderchunks #-}
@@ -202,7 +204,7 @@ instance
     where closing = convert (Proxy :: Proxy (Last' (Symbols (Next (a # b) nex))))
 
 class Renderstring a where
-  renderstring :: (IsString b, Monoid b) => a -> b
+  renderstring :: (Escape b, IsString b, Monoid b) => a -> b
 
 instance KnownSymbol a => Renderstring (Tagged prox (Proxy a) nex) where
   {-# INLINE renderstring #-}
@@ -302,22 +304,65 @@ fromString_ :: IsString a => String -> a
 fromString_ = fromString
 
 {-# RULES
-"convert/a/a"                   forall f. convert_ f = id
-"convert/string/builder"        forall f. convert_ f = TLB.fromLazyText . LT.pack
-"convert/lazy text/builder"     forall f. convert_ f = TLB.fromLazyText
-"convert/strict text/builder"   forall f. convert_ f = TLB.fromText
-"convert/builder/lazy text"     forall f. convert_ f = TLB.toLazyText
-"convert/lazy text/strict text" forall f. convert_ f = LT.toStrict
-"convert/strict text/lazy text" forall f. convert_ f = LT.fromStrict
+"convert/a/a"                   forall f. convert_ f = escape
+"convert/string/builder"        forall f. convert_ f = TLB.fromLazyText . escape . LT.pack
+"convert/lazy text/builder"     forall f. convert_ f = TLB.fromLazyText . escape
+"convert/strict text/builder"   forall f. convert_ f = TLB.fromText . escape
+"convert/builder/lazy text"     forall f. convert_ f = escape . TLB.toLazyText
+"convert/lazy text/strict text" forall f. convert_ f = LT.toStrict . escape
+"convert/strict text/lazy text" forall f. convert_ f = escape . LT.fromStrict
   #-}
 
 {-# INLINE [1] convert_ #-}
-convert_ :: a -> a
-convert_ = id
+convert_ :: (Escape b, IsString a, IsString b) => (a -> b) -> (a -> b)
+convert_ f = escape . f
+
+class (IsString a, Monoid a) => Escape a where
+  escape :: a -> a
+
+instance Escape TLB.Builder where
+
+  escape
+    = TLB.fromLazyText
+    . escape
+    . TLB.toLazyText
+
+instance Escape T.Text where
+
+  escape = T.foldr f mempty
+    where
+      f '<'  b = "&lt;"        <> b
+      f '>'  b = "&gt;"        <> b
+      f '&'  b = "&amp;"       <> b
+      f '"'  b = "&quot;"      <> b
+      f '\'' b = "&#39;"       <> b
+      f x    b = T.singleton x <> b
+
+instance Escape LT.Text where
+
+  escape = foldr1 (<>) . LT.foldr f []
+    where
+      f '<'  b = "&lt;"         : b
+      f '>'  b = "&gt;"         : b
+      f '&'  b = "&amp;"        : b
+      f '"'  b = "&quot;"       : b
+      f '\'' b = "&#39;"        : b
+      f x    b = LT.singleton x : b
+
+instance Escape String where
+
+  escape = concatMap f
+    where
+      f '<'  = "&lt;"
+      f '>'  = "&gt;"
+      f '&'  = "&amp;"
+      f '"'  = "&quot;"
+      f '\'' = "&#39;"
+      f x    = [x]
 
 -- | Convert something to a target stringlike thing.
 class Convert a where
-  convert :: (IsString b, Monoid b) => a -> b
+  convert :: (Escape b, IsString b, Monoid b) => a -> b
 
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convert #-}
@@ -330,7 +375,7 @@ instance Convert a => Convert (Maybe a) where
 
 instance Convert Attributes where
   {-# INLINE convert #-}
-  convert ~(Attributes xs) = fromString $ concat [ ' ' : a ++ "=" ++ b | (a,b) <- xs]
+  convert ~(Attributes xs) = fromString $ concat [ ' ' : a ++ "=\"" ++ escape b ++ "\"" | (a,b) <- xs]
 
 instance Convert String where
   {-# INLINE convert #-}
