@@ -14,50 +14,58 @@ import Control.Monad
 import Data.Text.Lazy.Builder (Builder, toLazyText)
 import Text.Blaze.Html5 ((!))
 
+import Data.ByteString.Lazy (ByteString)
+
 import qualified Data.Text                     as S
 import qualified Data.Text.Lazy                as L
 import qualified Text.Blaze.Html5              as B
 import qualified Text.Blaze.Html5.Attributes   as B (class_, id)
 import qualified Text.Blaze.Html.Renderer.Text as RT
+import qualified Text.Blaze.Html.Renderer.Utf8 as RB
 
 import Criterion.Main
 
 main :: IO ()
 main = defaultMain
   [ bgroup "minimal"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeMinimal       :: B.Html     -> L.Text) "TEST"
-    , bench "string"      $ nf (render . minimal                   :: String     -> String) "TEST"
-    , bench "strict text" $ nf (render . minimal                   :: S.Text     -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . minimal                   :: L.Text     -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . minimal      :: Builder    -> L.Text) "TEST"
+    [ bench "blaze.text"  $ nf (RT.renderHtml . blazeMinimal     :: B.Html     -> L.Text)     "TEST"
+    , bench "blaze.utf8"  $ nf (RB.renderHtml . blazeMinimal     :: B.Html     -> ByteString) "TEST"
+    , bench "string"      $ nf (render . minimal                 :: String     -> String)     "TEST"
+    , bench "strict text" $ nf (render . minimal                 :: S.Text     -> S.Text)     "TEST"
+    , bench "lazy text"   $ nf (render . minimal                 :: L.Text     -> L.Text)     "TEST"
+    , bench "builder"     $ nf (toLazyText . render . minimal    :: Builder    -> L.Text)     "TEST"
     ]
   , bgroup "hello world"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeHelloWorld    :: B.Html     -> L.Text) "TEST"
-    , bench "string"      $ nf (render . helloWorld                :: String     -> String) "TEST"
-    , bench "strict text" $ nf (render . helloWorld                :: S.Text     -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . helloWorld                :: L.Text     -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . helloWorld   :: Builder    -> L.Text) "TEST"
+    [ bench "blaze.text"  $ nf (RT.renderHtml . blazeHelloWorld  :: B.Html     -> L.Text)     "TEST"
+    , bench "blaze.utf8"  $ nf (RB.renderHtml . blazeHelloWorld  :: B.Html     -> ByteString) "TEST"
+    , bench "string"      $ nf (render . helloWorld              :: String     -> String)     "TEST"
+    , bench "strict text" $ nf (render . helloWorld              :: S.Text     -> S.Text)     "TEST"
+    , bench "lazy text"   $ nf (render . helloWorld              :: L.Text     -> L.Text)     "TEST"
+    , bench "builder"     $ nf (toLazyText . render . helloWorld :: Builder    -> L.Text)     "TEST"
     ]
   , bgroup "big page"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigPage       :: B.Html     -> L.Text) "TEST"
-    , bench "string"      $ nf (render . bigPage                   :: String     -> String) "TEST"
-    , bench "strict text" $ nf (render . bigPage                   :: S.Text     -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . bigPage                   :: L.Text     -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . bigPage      :: Builder    -> L.Text) "TEST"
+    [ bench "blaze.text"  $ nf (RT.renderHtml . blazeBigPage     :: B.Html     -> L.Text)     "TEST"
+    , bench "blaze.utf8"  $ nf (RB.renderHtml . blazeBigPage     :: B.Html     -> ByteString) "TEST"
+    , bench "string"      $ nf (render . bigPage                 :: String     -> String)     "TEST"
+    , bench "strict text" $ nf (render . bigPage                 :: S.Text     -> S.Text)     "TEST"
+    , bench "lazy text"   $ nf (render . bigPage                 :: L.Text     -> L.Text)     "TEST"
+    , bench "builder"     $ nf (toLazyText . render . bigPage    :: Builder    -> L.Text)     "TEST"
     ]
   , bgroup "big page with attributes"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigPageA      :: B.Html     -> L.Text) "TEST"
-    , bench "string"      $ nf (render . bigPageA                  :: String     -> String) "TEST"
-    , bench "strict text" $ nf (render . bigPageA                  :: S.Text     -> S.Text) "TEST"
-    , bench "lazy text"   $ nf (render . bigPageA                  :: L.Text     -> L.Text) "TEST"
-    , bench "builder"     $ nf (toLazyText . render . bigPageA     :: Builder    -> L.Text) "TEST"
+    [ bench "blaze.text"  $ nf (RT.renderHtml . blazeBigPageA    :: B.Html     -> L.Text)     "TEST"
+    , bench "blaze.utf8"  $ nf (RB.renderHtml . blazeBigPageA    :: B.Html     -> ByteString) "TEST"
+    , bench "string"      $ nf (render . bigPageA                :: String     -> String)     "TEST"
+    , bench "strict text" $ nf (render . bigPageA                :: S.Text     -> S.Text)     "TEST"
+    , bench "lazy text"   $ nf (render . bigPageA                :: L.Text     -> L.Text)     "TEST"
+    , bench "builder"     $ nf (toLazyText . render . bigPageA   :: Builder    -> L.Text)     "TEST"
     ]
   , bgroup "big table"
-    [ bench "blaze"       $ nf (RT.renderHtml . blazeBigTable      :: (Int, Int) -> L.Text) (4,4)
-    , bench "string"      $ nf (render . bigTable                  :: (Int, Int) -> String) (4,4)
-    , bench "strict text" $ nf (render . bigTable                  :: (Int, Int) -> S.Text) (4,4)
-    , bench "lazy text"   $ nf (render . bigTable                  :: (Int, Int) -> L.Text) (4,4)
-    , bench "builder"     $ nf (toLazyText . render . bigTable     :: (Int, Int) -> L.Text) (4,4)
+    [ bench "blaze.text"  $ nf (RT.renderHtml . blazeBigTable    :: (Int, Int) -> L.Text)     (4,4)
+    , bench "blaze.utf8"  $ nf (RB.renderHtml . blazeBigTable    :: (Int, Int) -> ByteString) (4,4)
+    , bench "string"      $ nf (render . bigTable                :: (Int, Int) -> String)     (4,4)
+    , bench "strict text" $ nf (render . bigTable                :: (Int, Int) -> S.Text)     (4,4)
+    , bench "lazy text"   $ nf (render . bigTable                :: (Int, Int) -> L.Text)     (4,4)
+    , bench "builder"     $ nf (toLazyText . render . bigTable   :: (Int, Int) -> L.Text)     (4,4)
     ]
   ]
 

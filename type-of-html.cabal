@@ -43,5 +43,6 @@ benchmark bench
   build-depends:      base >= 4.10
                     , type-of-html
                     , text
+                    , bytestring
                     , blaze-html
                     , criterion
