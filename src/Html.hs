@@ -41,10 +41,10 @@ Rosetrees of html are just ordinary haskell values which can be composed or abst
 > Html> :t table
 > table :: ('Td ?> a) => [[a]] -> 'Table > ['Tr > ['Td > a]]
 > Html> table [["A","B"],["C"]]
-> <table><tr><td>A</td><td>B</td></tr><tr><td>C</td></tr></table>
+> <table><tr><td>A<td>B<tr><td>C</table>
 > Html> import Data.Char
 > Html Data.Char> html_ . body_ . table $ map (\c -> [[c], show $ ord c]) ['a'..'d']
-> <html><body><tr><td>a</td><td>97</td></tr><tr><td>b</td><td>98</td></tr><tr><td>c</td><td>99</td></tr><tr><td>d</td><td>100</td></tr></body></html>
+> <html><body><table><tr><td>a<td>97<tr><td>b<td>98<tr><td>c<td>99<tr><td>d<td>100</table></body></html>
 
 And here's an example module
 
@@ -90,11 +90,11 @@ types, you don't need the language extensions.
 Last and fast: /performance/!
 
 Don't look any further, there is no option for faster html
-generation. type-of-html is 3-20 times faster than blaze-html, which
+generation. type-of-html up to 10 times faster than blaze-html, which
 is until now the fastest generation library and the foundation block
 of lucid and shakespeare.
 
-Wait! 3-20 times faster? How is this possible? We supercompile lots of
+Wait! 10 times faster? How is this possible? We supercompile lots of
 parts of the generation process. This is possible thanks to the new
 features of GHC 8.2: AppendSymbol. We represent tags as kinds and
 remove according to the html specification omittable closing tags with
