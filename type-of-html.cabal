@@ -1,16 +1,17 @@
-name:                type-of-html
-version:             0.2.1.0
-synopsis:            High performance type driven html generation.
-description:         This library makes most invalid html documents compile time errors and uses advanced type level features to realise compile time computations.
-license:             BSD3
-license-file:        LICENSE
-author:              Florian Knupfer
-maintainer:          fknupfer@gmail.com
-copyright:           2017, Florian Knupfer
-category:            Language
-build-type:          Simple
-extra-source-files:  ChangeLog.md
-cabal-version:       >=1.10
+name:                 type-of-html
+version:              0.2.1.0
+synopsis:             High performance type driven html generation.
+description:          This library makes most invalid html documents compile time errors and uses advanced type level features to realise compile time computations.
+license:              BSD3
+license-file:         LICENSE
+author:               Florian Knupfer
+maintainer:           fknupfer@gmail.com
+copyright:            2017, Florian Knupfer
+category:             Language
+build-type:           Simple
+extra-source-files:   ChangeLog.md
+                    , Readme.md
+cabal-version:        >=1.10
 
 library
   exposed-modules:    Html
