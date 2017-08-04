@@ -178,7 +178,8 @@ module Html
   , type (#)(..)
   , (#)
   , type (?>)
-  , Convert
+  , Convert(..)
+  , Escape(..)
   , Element(..)
   , module Html.Element
   ) where
@@ -197,5 +198,6 @@ import Html.Type
 import Html.Function
   ( render
   , addAttributes
-  , Convert
+  , Convert(..)
+  , Escape(..)
   )
