@@ -1,4 +1,11 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ExplicitNamespaces #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MonoLocalBinds #-}
+{-# LANGUAGE TypeOperators #-}
 
 {-| With type-of-html are three main goals:
 
@@ -56,14 +63,9 @@ module Main where
 
 import Html
 
-import Data.Text.Lazy.IO      as T
-import Data.Text.Lazy.Builder as T
-
 main :: IO ()
 main
-  = T.putStrLn
-  . T.toLazyText
-  . render
+  = print
   . page
   $ map td_ [1..(10::Int)]
 
@@ -106,7 +108,7 @@ do only generate the content and mconcat.
 
 For example, if you write:
 
-> render $ div_ "a"
+> renderText $ div_ "a"
 
 The compiler does actually optimize it to the following:
 
@@ -117,7 +119,7 @@ The compiler does actually optimize it to the following:
 
 If you write
 
-> render $ div_ (div_ ())
+> renderText $ div_ (div_ ())
 
 The compiler does actually optimize it to the following:
 
@@ -125,7 +127,7 @@ The compiler does actually optimize it to the following:
 
 If you write
 
-> render $ tr_ (td_ "test")
+> renderText $ tr_ (td_ "test")
 
 The compiler does actually optimize it to the following:
 
@@ -143,7 +145,7 @@ We take an extremely simple library
 > import Html
 >
 > minimal :: String
-> minimal = render
+> minimal = renderString
 >   ( div_ "a"
 >   # div_ "b"
 >   # table_ (tr_ (td_ "c"))
@@ -171,15 +173,15 @@ to compile.
 -}
 
 module Html
-  ( render
+  ( renderString
+  , renderText
+  , renderByteString
   , type (>)(..)
   , type (:>)(..)
   , addAttributes
   , type (#)(..)
   , (#)
   , type (?>)
-  , Convert(..)
-  , Escape(..)
   , Element(..)
   , module Html.Element
   ) where
@@ -189,15 +191,51 @@ import Html.Element
 import Html.Type
   ( type (>)(..)
   , type (:>)(..)
+  , addAttributes
   , type (?>)
   , type (#)(..)
   , (#)
   , Element(..)
   )
 
-import Html.Function
-  ( render
-  , addAttributes
-  , Convert(..)
-  , Escape(..)
-  )
+import qualified Html.String as S
+import qualified Html.Text as T
+import qualified Html.ByteString as B
+
+import Data.Text.Lazy
+import Data.ByteString.Lazy
+
+-- | Render a html document to a String.  This is a non-optimized reference implementation in less than 100 LOC.
+-- For performance it is recommended to use a lazy Text or a lazy ByteString.
+--
+-- >>> renderString "a"
+-- "a"
+--
+-- >>> renderString (div_ "a")
+-- "<div>a</div>"
+--
+-- For prototyping, there's as well a Show instance:
+--
+-- >>> i_ "a"
+-- <i>a</i>
+renderString :: S.Document a => a -> String
+renderString = S.render
+{-# INLINE renderString #-}
+
+-- | Render a html document to a lazy Text.
+renderText :: T.Document a => a -> Text
+renderText = T.render
+{-# INLINE renderText #-}
+
+-- | Render a html document to a lazy ByteString.
+renderByteString :: B.Document a => a -> ByteString
+renderByteString = B.render
+{-# INLINE renderByteString #-}
+
+-- | Orphan show instances to faciliate ghci development.
+instance                     S.Document (a > b) => Show (a > b) where show = S.render
+instance {-# OVERLAPPING #-} S.Document (a > b) => Show [a > b] where show = S.render
+instance                     S.Document (a:> b) => Show (a:> b) where show = S.render
+instance {-# OVERLAPPING #-} S.Document (a:> b) => Show [a:> b] where show = S.render
+instance                     S.Document (a # b) => Show (a # b) where show = S.render
+instance {-# OVERLAPPING #-} S.Document (a # b) => Show [a # b] where show = S.render

@@ -1,25 +1,22 @@
-{-# LANGUAGE TypeOperators    #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeOperators    #-}
 {-# LANGUAGE DataKinds        #-}
 
 module Main where
 
 import Html
-import Test.Hspec
 
+import Data.String
 import Data.Proxy
-
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as LT
-import qualified Data.Text.Lazy.Builder as LT
+import Test.Hspec
 
 main :: IO ()
 main = hspec spec
 
 spec :: Spec
-spec = let {-# INLINE allT #-}
-           allT a b c = b (render a, render a, render a , render a       )
-                          (c       , T.pack c, LT.pack c, LT.fromString c)
+spec = let
+           allT a b c = b (renderString a, renderText a, renderByteString a)
+                          (c, fromString c, fromString c)
 
        in parallel $ do
 
@@ -212,22 +209,22 @@ spec = let {-# INLINE allT #-}
 
     it "computes its result lazily" $ do
 
-      take 5 (render (div_ (errorWithoutStackTrace "not lazy" :: String)))
+      take 5 (renderString (div_ (errorWithoutStackTrace "not lazy" :: String)))
         `shouldBe`
         "<div>"
 
-      take 5 (render (errorWithoutStackTrace "not lazy" :: 'Img > ()))
+      take 5 (renderString (errorWithoutStackTrace "not lazy" :: 'Img > ()))
         `shouldBe`
         "<img>"
 
-      take 5 (render (errorWithoutStackTrace "not lazy" :: 'Div > String))
+      take 5 (renderString (errorWithoutStackTrace "not lazy" :: 'Div > String))
         `shouldBe`
         "<div>"
 
-      take 12 (render (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))
+      take 12 (renderString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))
         `shouldBe`
         "<div>a</div>"
 
-      take 17 (render (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))
+      take 17 (renderString (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))
         `shouldBe`
         "<div>a</div><img>"

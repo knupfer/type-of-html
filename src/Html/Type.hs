@@ -250,6 +250,9 @@ infixr 8 >
 data (:>) (a :: Element) b where
   WithAttributes :: (a ?> b) => Attributes -> b -> a :> b
 infixr 8 :>
+addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a :> b)
+addAttributes xs (Child b) = WithAttributes (Attributes xs) b
+{-# INLINE addAttributes #-}
 
   -------------------
   -- internal code --

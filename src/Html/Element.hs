@@ -6,7 +6,6 @@
 module Html.Element where
 
 import Html.Type
-import Html.Function (addAttributes)
 
 doctype_ :: 'DOCTYPE > ()
 doctype_ = Child ()
