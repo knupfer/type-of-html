@@ -14,6 +14,8 @@
 module Html.Text where
 
 import Html.Type
+import Html.Convert
+
 import GHC.TypeLits
 import Data.Proxy
 import Data.Semigroup
@@ -23,36 +25,12 @@ import Data.Text.Lazy as T
 {-# INLINE render #-}
 render :: forall a. Document a => a -> Text
 render x = T.concat $ renderchunks (Tagged x :: Tagged (Symbols a) a ())
-                   <> [convert (Proxy @ (Last' (Symbols a)))]
-
-escape :: Text -> Text
-escape = T.concatMap $ \case
-  '<'  -> "&lt;"
-  '>'  -> "&gt;"
-  '&'  -> "&amp;"
-  '"'  -> "&quot;"
-  '\'' -> "&#39;"
-  x    -> singleton x
+                   <> [convertText (Proxy @ (Last' (Symbols a)))]
 
 type Document a =
   ( Renderchunks (Tagged (Symbols a) a ())
   , KnownSymbol (Last' (Symbols a))
   )
-
-class Convert a where convert :: a -> Text
-
-instance Convert String  where convert = escape . pack
-instance Convert Text    where convert = escape
-instance Convert Int     where convert = pack . show
-instance Convert Integer where convert = pack . show
-instance Convert Float   where convert = pack . show
-instance Convert Double  where convert = pack . show
-instance Convert Word    where convert = pack . show
-
-instance KnownSymbol a => Convert (Proxy a) where convert = pack . symbolVal
-instance Convert Attributes where
-  {-# INLINE convert #-}
-  convert ~(Attributes xs) = mconcat [pack (" " ++ a ++ "=\"") <> escape (pack b) <> "\"" | (a,b) <- xs]
 
 class Renderchunks a where
   renderchunks :: a -> [Text]
@@ -66,8 +44,8 @@ instance {-# OVERLAPPABLE #-}
   ) => Renderchunks (Tagged prox val nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
-    = convert (Proxy @ (HeadL prox))
-    : [convert x]
+    = convertText (Proxy @ (HeadL prox))
+    : [convertText x]
 
 instance
   ( t ~ Tagged prox b (Close a)
@@ -83,8 +61,8 @@ instance
   ) => Renderchunks (Tagged prox (a :> b) nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged ~(WithAttributes a b))
-    = convert (Proxy @ (HeadL prox))
-    : convert a
+    = convertText (Proxy @ (HeadL prox))
+    : convertText a
     : renderchunks (Tagged b :: t)
 
 instance
@@ -106,6 +84,6 @@ instance
   ) => Renderchunks (Tagged prox [a `f` b] nex) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
-    = convert (Proxy @ (HeadL prox))
+    = convertText (Proxy @ (HeadL prox))
     : Prelude.concatMap (\x -> renderchunks (Tagged x :: t1) <> [closing]) xs
-    where closing = convert (Proxy @ (Last' t2))
+    where closing = convertText (Proxy @ (Last' t2))
