@@ -10,6 +10,10 @@ import Data.String
 import Data.Proxy
 import Test.Hspec
 
+import Data.Text.Lazy.Encoding
+
+import qualified Data.Text.Lazy as T
+
 main :: IO ()
 main = hspec spec
 
@@ -207,24 +211,106 @@ spec = let
         shouldBe
         "<td>a<td>b<td>c</td>"
 
-    it "computes its result lazily" $ do
+    it "handles utf8 correctly" $ do
+
+      renderString (div_ "äöüß")
+        `shouldBe`
+        "<div>äöüß</div>"
+
+      T.unpack (renderText (div_ "äöüß"))
+        `shouldBe`
+        "<div>äöüß</div>"
+
+      T.unpack (decodeUtf8 (renderByteString (div_ "äöüß")))
+        `shouldBe`
+        "<div>äöüß</div>"
+
+      renderString (img_A [("id","äöüß")])
+        `shouldBe`
+        "<img id=\"äöüß\">"
+
+      T.unpack (renderText (img_A [("id","äöüß")]))
+        `shouldBe`
+        "<img id=\"äöüß\">"
+
+      T.unpack (decodeUtf8 (renderByteString (img_A [("id","äöüß")])))
+        `shouldBe`
+        "<img id=\"äöüß\">"
+
+    it "computes its result lazily (String)" $ do
+
+      renderString (errorWithoutStackTrace "not lazy" :: 'Img > ())
+        `shouldBe`
+        "<img>"
 
       take 5 (renderString (div_ (errorWithoutStackTrace "not lazy" :: String)))
         `shouldBe`
         "<div>"
 
-      take 5 (renderString (errorWithoutStackTrace "not lazy" :: 'Img > ()))
-        `shouldBe`
-        "<img>"
-
       take 5 (renderString (errorWithoutStackTrace "not lazy" :: 'Div > String))
         `shouldBe`
         "<div>"
+
+      take 9 (renderString (img_A [("id", errorWithoutStackTrace "not lazy")]))
+        `shouldBe`
+        "<img id=\""
 
       take 12 (renderString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))
         `shouldBe`
         "<div>a</div>"
 
       take 17 (renderString (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))
+        `shouldBe`
+        "<div>a</div><img>"
+
+    it "computes its result lazily (Text)" $ do
+
+      T.unpack (renderText (errorWithoutStackTrace "not lazy" :: 'Img > ()))
+        `shouldBe`
+        "<img>"
+
+      take 5 (T.unpack (renderText (div_ (errorWithoutStackTrace "not lazy" :: String))))
+        `shouldBe`
+        "<div>"
+
+      take 5 (T.unpack (renderText (errorWithoutStackTrace "not lazy" :: 'Div > String)))
+        `shouldBe`
+        "<div>"
+
+      -- take 9 (T.unpack (renderText (img_A [("id", errorWithoutStackTrace "not lazy")])))
+      --   `shouldBe`
+      --   "<img id=\""
+
+      take 12 (T.unpack (renderText (div_ "a" # (errorWithoutStackTrace "not lazy" :: String))))
+        `shouldBe`
+        "<div>a</div>"
+
+      take 17 (T.unpack (renderText (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)])))
+        `shouldBe`
+        "<div>a</div><img>"
+
+    it "computes its result lazily (ByteString)" $ do
+
+      T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "not lazy" :: 'Img > ())))
+        `shouldBe`
+        "<img>"
+
+      take 5 (T.unpack (decodeUtf8 (renderByteString (div_ (errorWithoutStackTrace "not lazy" :: String)))))
+        `shouldBe`
+        "<div>"
+
+      take 5 (T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "not lazy" :: 'Div > String))))
+        `shouldBe`
+        "<div>"
+
+      -- take 9 (T.unpack (renderText (img_A [("id", errorWithoutStackTrace "not lazy")])))
+      --   `shouldBe`
+      --   "<img id=\""
+
+      take 12 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))))
+        `shouldBe`
+        "<div>a</div>"
+
+      take 17 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))))
         `shouldBe`
         "<div>a</div><img>"
