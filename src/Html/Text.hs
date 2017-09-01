@@ -52,7 +52,7 @@ instance Convert Word    where convert = pack . show
 instance KnownSymbol a => Convert (Proxy a) where convert = pack . symbolVal
 instance Convert Attributes where
   {-# INLINE convert #-}
-  convert ~(Attributes xs) = T.concat [pack (" " ++ a ++ "=\"") <> escape (pack b) <> "\"" | (a,b) <- xs]
+  convert ~(Attributes xs) = mconcat [pack (" " ++ a ++ "=\"") <> escape (pack b) <> "\"" | (a,b) <- xs]
 
 class Renderchunks a where
   renderchunks :: a -> [Text]
