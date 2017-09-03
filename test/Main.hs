@@ -6,49 +6,48 @@ module Main where
 
 import Html
 
-import Data.String
 import Data.Proxy
 import Test.Hspec
+import Test.QuickCheck
 
 import Data.Text.Lazy.Encoding
 
 import qualified Data.Text.Lazy as T
 
+newtype Escaped = Escaped String deriving Show
+
+instance Arbitrary Escaped where
+  arbitrary = Escaped <$> arbitrary `suchThat` (\x -> all (`notElem` x) "<>&\"'")
+
 main :: IO ()
 main = hspec spec
 
 spec :: Spec
-spec = let
-           allT a b c = b (renderString a, renderText a, renderByteString a)
-                          (c, fromString c, fromString c)
+spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . decodeUtf8 $ renderByteString a)
+                          (c, c, c)
 
        in parallel $ do
 
   describe "render" $ do
 
-    it "is id on empty string" $ do
+    it "is id on strings without escaping chars" $ do
 
-      allT ""
-        shouldBe
-        ""
+      property $ \(Escaped x) -> allT x (==) x
 
     it "handles single elements" $ do
 
-      allT (div_ "a")
-        shouldBe
-        "<div>a</div>"
+      property $ \(Escaped x) -> allT (div_ x) (==) ("<div>" ++ x ++ "</div>")
 
     it "handles nested elements" $ do
 
-      allT (div_ (div_ "a"))
-        shouldBe
-        "<div><div>a</div></div>"
+      property $ \(Escaped x) -> allT (div_ (div_ x)) (==)
+        ("<div><div>" ++ x ++ "</div></div>")
 
     it "handles parallel elements" $ do
 
-      allT (div_ "a" # div_ "b")
-        shouldBe
-        "<div>a</div><div>b</div>"
+      property $ \(Escaped x) (Escaped y) -> allT (div_ x # div_ y)
+        (==)
+        ("<div>" ++ x ++ "</div><div>" ++ y ++ "</div>")
 
     it "doesn't use closing tags for empty elements" $ do
 
@@ -131,9 +130,9 @@ spec = let
 
     it "handles trailing text" $ do
 
-      allT (td_ "a" # "b")
-        shouldBe
-        "<td>a</td>b"
+      property $ \(Escaped x) (Escaped y) -> allT (td_ x # y)
+        (==)
+        ("<td>" ++ x ++ "</td>" ++ y)
 
     it "handles a single compile time text" $ do
 
@@ -213,29 +212,13 @@ spec = let
 
     it "handles utf8 correctly" $ do
 
-      renderString (div_ "äöüß")
-        `shouldBe`
-        "<div>äöüß</div>"
+      allT (div_ "a ä € 𝄞")
+        shouldBe
+        "<div>a ä € 𝄞</div>"
 
-      T.unpack (renderText (div_ "äöüß"))
-        `shouldBe`
-        "<div>äöüß</div>"
-
-      T.unpack (decodeUtf8 (renderByteString (div_ "äöüß")))
-        `shouldBe`
-        "<div>äöüß</div>"
-
-      renderString (img_A [("id","äöüß")])
-        `shouldBe`
-        "<img id=\"äöüß\">"
-
-      T.unpack (renderText (img_A [("id","äöüß")]))
-        `shouldBe`
-        "<img id=\"äöüß\">"
-
-      T.unpack (decodeUtf8 (renderByteString (img_A [("id","äöüß")])))
-        `shouldBe`
-        "<img id=\"äöüß\">"
+      allT (img_A [("id","a ä € 𝄞")])
+        shouldBe
+        "<img id=\"a ä € 𝄞\">"
 
     it "computes its result lazily (String)" $ do
 

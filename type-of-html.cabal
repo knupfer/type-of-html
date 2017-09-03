@@ -22,9 +22,7 @@ library
   exposed-modules:    Html
   other-modules:      Html.Type
                     , Html.Element
-                    , Html.String
-                    , Html.Text
-                    , Html.ByteString
+                    , Html.Reify
                     , Html.Convert
   hs-source-dirs:     src
   default-language:   Haskell2010
@@ -41,6 +39,7 @@ test-suite test
   default-language:   Haskell2010
   build-depends:      base >= 4.10 && < 4.11
                     , type-of-html
+                    , QuickCheck
                     , hspec
                     , text
 

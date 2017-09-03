@@ -227,6 +227,7 @@ type family (a :: Element) ?> b :: Constraint where
 -- >>> render (i_ () # div_ ()) :: String
 -- "<i></i><div></div>"
 data (#) a b = (:#:) a b
+{-# INLINE (#) #-}
 (#) :: a -> b -> a # b
 (#) = (:#:)
 infixr 5 #
@@ -250,9 +251,10 @@ infixr 8 >
 data (:>) (a :: Element) b where
   WithAttributes :: (a ?> b) => Attributes -> b -> a :> b
 infixr 8 :>
+
+{-# INLINE addAttributes #-}
 addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a :> b)
 addAttributes xs (Child b) = WithAttributes (Attributes xs) b
-{-# INLINE addAttributes #-}
 
   -------------------
   -- internal code --
@@ -566,6 +568,9 @@ data Open (a :: Element)
 data OpenAttr (a :: Element)
 data Close (a :: Element)
 newtype Attributes = Attributes [(String, String)]
+
+-- | Wrapper for types which won't be escaped.
+newtype Raw a = Raw a
 
 -- | Type of type level information about tags.
 data ElementInfo
