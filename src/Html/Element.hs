@@ -13,875 +13,875 @@ doctype_ = Child ()
 a_ :: ('A ?> a) => a -> 'A > a
 a_ = Child
 
-a_A :: ('A ?> a) => [(String, String)] -> a -> 'A :> a
-a_A xs = addAttributes xs . Child
+a_A :: ('A ?> a) => [Attribute] -> a -> 'A :> a
+a_A = WithAttributes
 
 abbr_ :: ('Abbr ?> a) => a -> 'Abbr > a
 abbr_ = Child
 
-abbr_A :: ('Abbr ?> a) => [(String, String)] -> a -> 'Abbr :> a
-abbr_A xs = addAttributes xs . Child
+abbr_A :: ('Abbr ?> a) => [Attribute] -> a -> 'Abbr :> a
+abbr_A = WithAttributes
 
 acronym_ :: ('Acronym ?> a) => a -> 'Acronym > a
 acronym_ = Child
 
-acronym_A :: ('Acronym ?> a) => [(String, String)] -> a -> 'Acronym :> a
-acronym_A xs = addAttributes xs . Child
+acronym_A :: ('Acronym ?> a) => [Attribute] -> a -> 'Acronym :> a
+acronym_A = WithAttributes
 
 address_ :: ('Address ?> a) => a -> 'Address > a
 address_ = Child
 
-address_A :: ('Address ?> a) => [(String, String)] -> a -> 'Address :> a
-address_A xs = addAttributes xs . Child
+address_A :: ('Address ?> a) => [Attribute] -> a -> 'Address :> a
+address_A = WithAttributes
 
 applet_ :: ('Applet ?> a) => a -> 'Applet > a
 applet_ = Child
 
-applet_A :: ('Applet ?> a) => [(String, String)] -> a -> 'Applet :> a
-applet_A xs = addAttributes xs . Child
+applet_A :: ('Applet ?> a) => [Attribute] -> a -> 'Applet :> a
+applet_A = WithAttributes
 
 area_ :: 'Area > ()
 area_ = Child ()
 
-area_A :: [(String, String)] -> 'Area :> ()
-area_A xs = addAttributes xs $ Child ()
+area_A :: [Attribute] -> 'Area :> ()
+area_A = flip WithAttributes ()
 
 article_ :: ('Article ?> a) => a -> 'Article > a
 article_ = Child
 
-article_A :: ('Article ?> a) => [(String, String)] -> a -> 'Article :> a
-article_A xs = addAttributes xs . Child
+article_A :: ('Article ?> a) => [Attribute] -> a -> 'Article :> a
+article_A = WithAttributes
 
 aside_ :: ('Aside ?> a) => a -> 'Aside > a
 aside_ = Child
 
-aside_A :: ('Aside ?> a) => [(String, String)] -> a -> 'Aside :> a
-aside_A xs = addAttributes xs . Child
+aside_A :: ('Aside ?> a) => [Attribute] -> a -> 'Aside :> a
+aside_A = WithAttributes
 
 audio_ :: ('Audio ?> a) => a -> 'Audio > a
 audio_ = Child
 
-audio_A :: ('Audio ?> a) => [(String, String)] -> a -> 'Audio :> a
-audio_A xs = addAttributes xs . Child
+audio_A :: ('Audio ?> a) => [Attribute] -> a -> 'Audio :> a
+audio_A = WithAttributes
 
 b_ :: ('B ?> a) => a -> 'B > a
 b_ = Child
 
-b_A :: ('B ?> a) => [(String, String)] -> a -> 'B :> a
-b_A xs = addAttributes xs . Child
+b_A :: ('B ?> a) => [Attribute] -> a -> 'B :> a
+b_A = WithAttributes
 
 base_ :: 'Base > ()
 base_ = Child ()
 
-base_A :: [(String, String)] -> 'Base :> ()
-base_A xs = addAttributes xs $ Child ()
+base_A :: [Attribute] -> 'Base :> ()
+base_A = flip WithAttributes ()
 
 basefont_ :: ('Basefont ?> a) => a -> 'Basefont > a
 basefont_ = Child
 
-basefont_A :: ('Basefont ?> a) => [(String, String)] -> a -> 'Basefont :> a
-basefont_A xs = addAttributes xs . Child
+basefont_A :: ('Basefont ?> a) => [Attribute] -> a -> 'Basefont :> a
+basefont_A = WithAttributes
 
 bdi_ :: ('Bdi ?> a) => a -> 'Bdi > a
 bdi_ = Child
 
-bdi_A :: ('Bdi ?> a) => [(String, String)] -> a -> 'Bdi :> a
-bdi_A xs = addAttributes xs . Child
+bdi_A :: ('Bdi ?> a) => [Attribute] -> a -> 'Bdi :> a
+bdi_A = WithAttributes
 
 bdo_ :: ('Bdo ?> a) => a -> 'Bdo > a
 bdo_ = Child
 
-bdo_A :: ('Bdo ?> a) => [(String, String)] -> a -> 'Bdo :> a
-bdo_A xs = addAttributes xs . Child
+bdo_A :: ('Bdo ?> a) => [Attribute] -> a -> 'Bdo :> a
+bdo_A = WithAttributes
 
 bgsound_ :: ('Bgsound ?> a) => a -> 'Bgsound > a
 bgsound_ = Child
 
-bgsound_A :: ('Bgsound ?> a) => [(String, String)] -> a -> 'Bgsound :> a
-bgsound_A xs = addAttributes xs . Child
+bgsound_A :: ('Bgsound ?> a) => [Attribute] -> a -> 'Bgsound :> a
+bgsound_A = WithAttributes
 
 big_ :: ('Big ?> a) => a -> 'Big > a
 big_ = Child
 
-big_A :: ('Big ?> a) => [(String, String)] -> a -> 'Big :> a
-big_A xs = addAttributes xs . Child
+big_A :: ('Big ?> a) => [Attribute] -> a -> 'Big :> a
+big_A = WithAttributes
 
 blink_ :: ('Blink ?> a) => a -> 'Blink > a
 blink_ = Child
 
-blink_A :: ('Blink ?> a) => [(String, String)] -> a -> 'Blink :> a
-blink_A xs = addAttributes xs . Child
+blink_A :: ('Blink ?> a) => [Attribute] -> a -> 'Blink :> a
+blink_A = WithAttributes
 
 blockquote_ :: ('Blockquote ?> a) => a -> 'Blockquote > a
 blockquote_ = Child
 
-blockquote_A :: ('Blockquote ?> a) => [(String, String)] -> a -> 'Blockquote :> a
-blockquote_A xs = addAttributes xs . Child
+blockquote_A :: ('Blockquote ?> a) => [Attribute] -> a -> 'Blockquote :> a
+blockquote_A = WithAttributes
 
 body_ :: ('Body ?> a) => a -> 'Body > a
 body_ = Child
 
-body_A :: ('Body ?> a) => [(String, String)] -> a -> 'Body :> a
-body_A xs = addAttributes xs . Child
+body_A :: ('Body ?> a) => [Attribute] -> a -> 'Body :> a
+body_A = WithAttributes
 
 br_ :: 'Br > ()
 br_ = Child ()
 
-br_A :: [(String, String)] -> 'Br :> ()
-br_A xs = addAttributes xs $ Child ()
+br_A :: [Attribute] -> 'Br :> ()
+br_A = flip WithAttributes ()
 
 button_ :: ('Button ?> a) => a -> 'Button > a
 button_ = Child
 
-button_A :: ('Button ?> a) => [(String, String)] -> a -> 'Button :> a
-button_A xs = addAttributes xs . Child
+button_A :: ('Button ?> a) => [Attribute] -> a -> 'Button :> a
+button_A = WithAttributes
 
 canvas_ :: ('Canvas ?> a) => a -> 'Canvas > a
 canvas_ = Child
 
-canvas_A :: ('Canvas ?> a) => [(String, String)] -> a -> 'Canvas :> a
-canvas_A xs = addAttributes xs . Child
+canvas_A :: ('Canvas ?> a) => [Attribute] -> a -> 'Canvas :> a
+canvas_A = WithAttributes
 
 caption_ :: ('Caption ?> a) => a -> 'Caption > a
 caption_ = Child
 
-caption_A :: ('Caption ?> a) => [(String, String)] -> a -> 'Caption :> a
-caption_A xs = addAttributes xs . Child
+caption_A :: ('Caption ?> a) => [Attribute] -> a -> 'Caption :> a
+caption_A = WithAttributes
 
 center_ :: ('Center ?> a) => a -> 'Center > a
 center_ = Child
 
-center_A :: ('Center ?> a) => [(String, String)] -> a -> 'Center :> a
-center_A xs = addAttributes xs . Child
+center_A :: ('Center ?> a) => [Attribute] -> a -> 'Center :> a
+center_A = WithAttributes
 
 cite_ :: ('Cite ?> a) => a -> 'Cite > a
 cite_ = Child
 
-cite_A :: ('Cite ?> a) => [(String, String)] -> a -> 'Cite :> a
-cite_A xs = addAttributes xs . Child
+cite_A :: ('Cite ?> a) => [Attribute] -> a -> 'Cite :> a
+cite_A = WithAttributes
 
 code_ :: ('Code ?> a) => a -> 'Code > a
 code_ = Child
 
-code_A :: ('Code ?> a) => [(String, String)] -> a -> 'Code :> a
-code_A xs = addAttributes xs . Child
+code_A :: ('Code ?> a) => [Attribute] -> a -> 'Code :> a
+code_A = WithAttributes
 
 col_ :: 'Col > ()
 col_ = Child ()
 
-col_A :: [(String, String)] -> 'Col :> ()
-col_A xs = addAttributes xs $ Child ()
+col_A :: [Attribute] -> 'Col :> ()
+col_A = flip WithAttributes ()
 
 colgroup_ :: ('Colgroup ?> a) => a -> 'Colgroup > a
 colgroup_ = Child
 
-colgroup_A :: ('Colgroup ?> a) => [(String, String)] -> a -> 'Colgroup :> a
-colgroup_A xs = addAttributes xs . Child
+colgroup_A :: ('Colgroup ?> a) => [Attribute] -> a -> 'Colgroup :> a
+colgroup_A = WithAttributes
 
 command_ :: ('Command ?> a) => a -> 'Command > a
 command_ = Child
 
-command_A :: ('Command ?> a) => [(String, String)] -> a -> 'Command :> a
-command_A xs = addAttributes xs . Child
+command_A :: ('Command ?> a) => [Attribute] -> a -> 'Command :> a
+command_A = WithAttributes
 
 content_ :: ('Content ?> a) => a -> 'Content > a
 content_ = Child
 
-content_A :: ('Content ?> a) => [(String, String)] -> a -> 'Content :> a
-content_A xs = addAttributes xs . Child
+content_A :: ('Content ?> a) => [Attribute] -> a -> 'Content :> a
+content_A = WithAttributes
 
 data_ :: ('Data ?> a) => a -> 'Data > a
 data_ = Child
 
-data_A :: ('Data ?> a) => [(String, String)] -> a -> 'Data :> a
-data_A xs = addAttributes xs . Child
+data_A :: ('Data ?> a) => [Attribute] -> a -> 'Data :> a
+data_A = WithAttributes
 
 datalist_ :: ('Datalist ?> a) => a -> 'Datalist > a
 datalist_ = Child
 
-datalist_A :: ('Datalist ?> a) => [(String, String)] -> a -> 'Datalist :> a
-datalist_A xs = addAttributes xs . Child
+datalist_A :: ('Datalist ?> a) => [Attribute] -> a -> 'Datalist :> a
+datalist_A = WithAttributes
 
 dd_ :: ('Dd ?> a) => a -> 'Dd > a
 dd_ = Child
 
-dd_A :: ('Dd ?> a) => [(String, String)] -> a -> 'Dd :> a
-dd_A xs = addAttributes xs . Child
+dd_A :: ('Dd ?> a) => [Attribute] -> a -> 'Dd :> a
+dd_A = WithAttributes
 
 del_ :: ('Del ?> a) => a -> 'Del > a
 del_ = Child
 
-del_A :: ('Del ?> a) => [(String, String)] -> a -> 'Del :> a
-del_A xs = addAttributes xs . Child
+del_A :: ('Del ?> a) => [Attribute] -> a -> 'Del :> a
+del_A = WithAttributes
 
 details_ :: ('Details ?> a) => a -> 'Details > a
 details_ = Child
 
-details_A :: ('Details ?> a) => [(String, String)] -> a -> 'Details :> a
-details_A xs = addAttributes xs . Child
+details_A :: ('Details ?> a) => [Attribute] -> a -> 'Details :> a
+details_A = WithAttributes
 
 dfn_ :: ('Dfn ?> a) => a -> 'Dfn > a
 dfn_ = Child
 
-dfn_A :: ('Dfn ?> a) => [(String, String)] -> a -> 'Dfn :> a
-dfn_A xs = addAttributes xs . Child
+dfn_A :: ('Dfn ?> a) => [Attribute] -> a -> 'Dfn :> a
+dfn_A = WithAttributes
 
 dialog_ :: ('Dialog ?> a) => a -> 'Dialog > a
 dialog_ = Child
 
-dialog_A :: ('Dialog ?> a) => [(String, String)] -> a -> 'Dialog :> a
-dialog_A xs = addAttributes xs . Child
+dialog_A :: ('Dialog ?> a) => [Attribute] -> a -> 'Dialog :> a
+dialog_A = WithAttributes
 
 dir_ :: ('Dir ?> a) => a -> 'Dir > a
 dir_ = Child
 
-dir_A :: ('Dir ?> a) => [(String, String)] -> a -> 'Dir :> a
-dir_A xs = addAttributes xs . Child
+dir_A :: ('Dir ?> a) => [Attribute] -> a -> 'Dir :> a
+dir_A = WithAttributes
 
 div_ :: ('Div ?> a) => a -> 'Div > a
 div_ = Child
 
-div_A :: ('Div ?> a) => [(String, String)] -> a -> 'Div :> a
-div_A xs = addAttributes xs . Child
+div_A :: ('Div ?> a) => [Attribute] -> a -> 'Div :> a
+div_A = WithAttributes
 
 dl_ :: ('Dl ?> a) => a -> 'Dl > a
 dl_ = Child
 
-dl_A :: ('Dl ?> a) => [(String, String)] -> a -> 'Dl :> a
-dl_A xs = addAttributes xs . Child
+dl_A :: ('Dl ?> a) => [Attribute] -> a -> 'Dl :> a
+dl_A = WithAttributes
 
 dt_ :: ('Dt ?> a) => a -> 'Dt > a
 dt_ = Child
 
-dt_A :: ('Dt ?> a) => [(String, String)] -> a -> 'Dt :> a
-dt_A xs = addAttributes xs . Child
+dt_A :: ('Dt ?> a) => [Attribute] -> a -> 'Dt :> a
+dt_A = WithAttributes
 
 element_ :: ('Element ?> a) => a -> 'Element > a
 element_ = Child
 
-element_A :: ('Element ?> a) => [(String, String)] -> a -> 'Element :> a
-element_A xs = addAttributes xs . Child
+element_A :: ('Element ?> a) => [Attribute] -> a -> 'Element :> a
+element_A = WithAttributes
 
 em_ :: ('Em ?> a) => a -> 'Em > a
 em_ = Child
 
-em_A :: ('Em ?> a) => [(String, String)] -> a -> 'Em :> a
-em_A xs = addAttributes xs . Child
+em_A :: ('Em ?> a) => [Attribute] -> a -> 'Em :> a
+em_A = WithAttributes
 
 embed_ :: 'Embed > ()
 embed_ = Child ()
 
-embed_A :: [(String, String)] -> 'Embed :> ()
-embed_A xs = addAttributes xs $ Child ()
+embed_A :: [Attribute] -> 'Embed :> ()
+embed_A = flip WithAttributes ()
 
 fieldset_ :: ('Fieldset ?> a) => a -> 'Fieldset > a
 fieldset_ = Child
 
-fieldset_A :: ('Fieldset ?> a) => [(String, String)] -> a -> 'Fieldset :> a
-fieldset_A xs = addAttributes xs . Child
+fieldset_A :: ('Fieldset ?> a) => [Attribute] -> a -> 'Fieldset :> a
+fieldset_A = WithAttributes
 
 figcaption_ :: ('Figcaption ?> a) => a -> 'Figcaption > a
 figcaption_ = Child
 
-figcaption_A :: ('Figcaption ?> a) => [(String, String)] -> a -> 'Figcaption :> a
-figcaption_A xs = addAttributes xs . Child
+figcaption_A :: ('Figcaption ?> a) => [Attribute] -> a -> 'Figcaption :> a
+figcaption_A = WithAttributes
 
 figure_ :: ('Figure ?> a) => a -> 'Figure > a
 figure_ = Child
 
-figure_A :: ('Figure ?> a) => [(String, String)] -> a -> 'Figure :> a
-figure_A xs = addAttributes xs . Child
+figure_A :: ('Figure ?> a) => [Attribute] -> a -> 'Figure :> a
+figure_A = WithAttributes
 
 font_ :: ('Font ?> a) => a -> 'Font > a
 font_ = Child
 
-font_A :: ('Font ?> a) => [(String, String)] -> a -> 'Font :> a
-font_A xs = addAttributes xs . Child
+font_A :: ('Font ?> a) => [Attribute] -> a -> 'Font :> a
+font_A = WithAttributes
 
 footer_ :: ('Footer ?> a) => a -> 'Footer > a
 footer_ = Child
 
-footer_A :: ('Footer ?> a) => [(String, String)] -> a -> 'Footer :> a
-footer_A xs = addAttributes xs . Child
+footer_A :: ('Footer ?> a) => [Attribute] -> a -> 'Footer :> a
+footer_A = WithAttributes
 
 form_ :: ('Form ?> a) => a -> 'Form > a
 form_ = Child
 
-form_A :: ('Form ?> a) => [(String, String)] -> a -> 'Form :> a
-form_A xs = addAttributes xs . Child
+form_A :: ('Form ?> a) => [Attribute] -> a -> 'Form :> a
+form_A = WithAttributes
 
 frame_ :: ('Frame ?> a) => a -> 'Frame > a
 frame_ = Child
 
-frame_A :: ('Frame ?> a) => [(String, String)] -> a -> 'Frame :> a
-frame_A xs = addAttributes xs . Child
+frame_A :: ('Frame ?> a) => [Attribute] -> a -> 'Frame :> a
+frame_A = WithAttributes
 
 frameset_ :: ('Frameset ?> a) => a -> 'Frameset > a
 frameset_ = Child
 
-frameset_A :: ('Frameset ?> a) => [(String, String)] -> a -> 'Frameset :> a
-frameset_A xs = addAttributes xs . Child
+frameset_A :: ('Frameset ?> a) => [Attribute] -> a -> 'Frameset :> a
+frameset_A = WithAttributes
 
 h1_ :: ('H1 ?> a) => a -> 'H1 > a
 h1_ = Child
 
-h1_A :: ('H1 ?> a) => [(String, String)] -> a -> 'H1 :> a
-h1_A xs = addAttributes xs . Child
+h1_A :: ('H1 ?> a) => [Attribute] -> a -> 'H1 :> a
+h1_A = WithAttributes
 
 h2_ :: ('H2 ?> a) => a -> 'H2 > a
 h2_ = Child
 
-h2_A :: ('H2 ?> a) => [(String, String)] -> a -> 'H2 :> a
-h2_A xs = addAttributes xs . Child
+h2_A :: ('H2 ?> a) => [Attribute] -> a -> 'H2 :> a
+h2_A = WithAttributes
 
 h3_ :: ('H3 ?> a) => a -> 'H3 > a
 h3_ = Child
 
-h3_A :: ('H3 ?> a) => [(String, String)] -> a -> 'H3 :> a
-h3_A xs = addAttributes xs . Child
+h3_A :: ('H3 ?> a) => [Attribute] -> a -> 'H3 :> a
+h3_A = WithAttributes
 
 h4_ :: ('H4 ?> a) => a -> 'H4 > a
 h4_ = Child
 
-h4_A :: ('H4 ?> a) => [(String, String)] -> a -> 'H4 :> a
-h4_A xs = addAttributes xs . Child
+h4_A :: ('H4 ?> a) => [Attribute] -> a -> 'H4 :> a
+h4_A = WithAttributes
 
 h5_ :: ('H5 ?> a) => a -> 'H5 > a
 h5_ = Child
 
-h5_A :: ('H5 ?> a) => [(String, String)] -> a -> 'H5 :> a
-h5_A xs = addAttributes xs . Child
+h5_A :: ('H5 ?> a) => [Attribute] -> a -> 'H5 :> a
+h5_A = WithAttributes
 
 h6_ :: ('H6 ?> a) => a -> 'H6 > a
 h6_ = Child
 
-h6_A :: ('H6 ?> a) => [(String, String)] -> a -> 'H6 :> a
-h6_A xs = addAttributes xs . Child
+h6_A :: ('H6 ?> a) => [Attribute] -> a -> 'H6 :> a
+h6_A = WithAttributes
 
 head_ :: ('Head ?> a) => a -> 'Head > a
 head_ = Child
 
-head_A :: ('Head ?> a) => [(String, String)] -> a -> 'Head :> a
-head_A xs = addAttributes xs . Child
+head_A :: ('Head ?> a) => [Attribute] -> a -> 'Head :> a
+head_A = WithAttributes
 
 header_ :: ('Header ?> a) => a -> 'Header > a
 header_ = Child
 
-header_A :: ('Header ?> a) => [(String, String)] -> a -> 'Header :> a
-header_A xs = addAttributes xs . Child
+header_A :: ('Header ?> a) => [Attribute] -> a -> 'Header :> a
+header_A = WithAttributes
 
 hgroup_ :: ('Hgroup ?> a) => a -> 'Hgroup > a
 hgroup_ = Child
 
-hgroup_A :: ('Hgroup ?> a) => [(String, String)] -> a -> 'Hgroup :> a
-hgroup_A xs = addAttributes xs . Child
+hgroup_A :: ('Hgroup ?> a) => [Attribute] -> a -> 'Hgroup :> a
+hgroup_A = WithAttributes
 
 hr_ :: 'Hr > ()
 hr_ = Child ()
 
-hr_A :: [(String, String)] -> 'Hr :> ()
-hr_A xs = addAttributes xs $ Child ()
+hr_A :: [Attribute] -> 'Hr :> ()
+hr_A = flip WithAttributes ()
 
 html_ :: ('Html ?> a) => a -> 'Html > a
 html_ = Child
 
-html_A :: ('Html ?> a) => [(String, String)] -> a -> 'Html :> a
-html_A xs = addAttributes xs . Child
+html_A :: ('Html ?> a) => [Attribute] -> a -> 'Html :> a
+html_A = WithAttributes
 
 i_ :: ('I ?> a) => a -> 'I > a
 i_ = Child
 
-i_A :: ('I ?> a) => [(String, String)] -> a -> 'I :> a
-i_A xs = addAttributes xs . Child
+i_A :: ('I ?> a) => [Attribute] -> a -> 'I :> a
+i_A = WithAttributes
 
 iframe_ :: 'Iframe > ()
 iframe_ = Child ()
 
-iframe_A :: [(String, String)] -> 'Iframe :> ()
-iframe_A xs = addAttributes xs $ Child ()
+iframe_A :: [Attribute] -> 'Iframe :> ()
+iframe_A = flip WithAttributes ()
 
 image_ :: ('Image ?> a) => a -> 'Image > a
 image_ = Child
 
-image_A :: ('Image ?> a) => [(String, String)] -> a -> 'Image :> a
-image_A xs = addAttributes xs . Child
+image_A :: ('Image ?> a) => [Attribute] -> a -> 'Image :> a
+image_A = WithAttributes
 
 img_ :: 'Img > ()
 img_ = Child ()
 
-img_A :: [(String, String)] -> 'Img :> ()
-img_A xs = addAttributes xs $ Child ()
+img_A :: [Attribute] -> 'Img :> ()
+img_A = flip WithAttributes ()
 
 input_ :: ('Input ?> a) => a -> 'Input > a
 input_ = Child
 
-input_A :: ('Input ?> a) => [(String, String)] -> a -> 'Input :> a
-input_A xs = addAttributes xs . Child
+input_A :: ('Input ?> a) => [Attribute] -> a -> 'Input :> a
+input_A = WithAttributes
 
 ins_ :: ('Ins ?> a) => a -> 'Ins > a
 ins_ = Child
 
-ins_A :: ('Ins ?> a) => [(String, String)] -> a -> 'Ins :> a
-ins_A xs = addAttributes xs . Child
+ins_A :: ('Ins ?> a) => [Attribute] -> a -> 'Ins :> a
+ins_A = WithAttributes
 
 isindex_ :: ('Isindex ?> a) => a -> 'Isindex > a
 isindex_ = Child
 
-isindex_A :: ('Isindex ?> a) => [(String, String)] -> a -> 'Isindex :> a
-isindex_A xs = addAttributes xs . Child
+isindex_A :: ('Isindex ?> a) => [Attribute] -> a -> 'Isindex :> a
+isindex_A = WithAttributes
 
 kbd_ :: ('Kbd ?> a) => a -> 'Kbd > a
 kbd_ = Child
 
-kbd_A :: ('Kbd ?> a) => [(String, String)] -> a -> 'Kbd :> a
-kbd_A xs = addAttributes xs . Child
+kbd_A :: ('Kbd ?> a) => [Attribute] -> a -> 'Kbd :> a
+kbd_A = WithAttributes
 
 keygen_ :: ('Keygen ?> a) => a -> 'Keygen > a
 keygen_ = Child
 
-keygen_A :: ('Keygen ?> a) => [(String, String)] -> a -> 'Keygen :> a
-keygen_A xs = addAttributes xs . Child
+keygen_A :: ('Keygen ?> a) => [Attribute] -> a -> 'Keygen :> a
+keygen_A = WithAttributes
 
 label_ :: ('Label ?> a) => a -> 'Label > a
 label_ = Child
 
-label_A :: ('Label ?> a) => [(String, String)] -> a -> 'Label :> a
-label_A xs = addAttributes xs . Child
+label_A :: ('Label ?> a) => [Attribute] -> a -> 'Label :> a
+label_A = WithAttributes
 
 legend_ :: ('Legend ?> a) => a -> 'Legend > a
 legend_ = Child
 
-legend_A :: ('Legend ?> a) => [(String, String)] -> a -> 'Legend :> a
-legend_A xs = addAttributes xs . Child
+legend_A :: ('Legend ?> a) => [Attribute] -> a -> 'Legend :> a
+legend_A = WithAttributes
 
 li_ :: ('Li ?> a) => a -> 'Li > a
 li_ = Child
 
-li_A :: ('Li ?> a) => [(String, String)] -> a -> 'Li :> a
-li_A xs = addAttributes xs . Child
+li_A :: ('Li ?> a) => [Attribute] -> a -> 'Li :> a
+li_A = WithAttributes
 
 link_ :: 'Link > ()
 link_ = Child ()
 
-link_A :: [(String, String)] -> 'Link :> ()
-link_A xs = addAttributes xs $ Child ()
+link_A :: [Attribute] -> 'Link :> ()
+link_A = flip WithAttributes ()
 
 listing_ :: ('Listing ?> a) => a -> 'Listing > a
 listing_ = Child
 
-listing_A :: ('Listing ?> a) => [(String, String)] -> a -> 'Listing :> a
-listing_A xs = addAttributes xs . Child
+listing_A :: ('Listing ?> a) => [Attribute] -> a -> 'Listing :> a
+listing_A = WithAttributes
 
 main_ :: ('Main ?> a) => a -> 'Main > a
 main_ = Child
 
-main_A :: ('Main ?> a) => [(String, String)] -> a -> 'Main :> a
-main_A xs = addAttributes xs . Child
+main_A :: ('Main ?> a) => [Attribute] -> a -> 'Main :> a
+main_A = WithAttributes
 
 map_ :: ('Map ?> a) => a -> 'Map > a
 map_ = Child
 
-map_A :: ('Map ?> a) => [(String, String)] -> a -> 'Map :> a
-map_A xs = addAttributes xs . Child
+map_A :: ('Map ?> a) => [Attribute] -> a -> 'Map :> a
+map_A = WithAttributes
 
 mark_ :: ('Mark ?> a) => a -> 'Mark > a
 mark_ = Child
 
-mark_A :: ('Mark ?> a) => [(String, String)] -> a -> 'Mark :> a
-mark_A xs = addAttributes xs . Child
+mark_A :: ('Mark ?> a) => [Attribute] -> a -> 'Mark :> a
+mark_A = WithAttributes
 
 marquee_ :: ('Marquee ?> a) => a -> 'Marquee > a
 marquee_ = Child
 
-marquee_A :: ('Marquee ?> a) => [(String, String)] -> a -> 'Marquee :> a
-marquee_A xs = addAttributes xs . Child
+marquee_A :: ('Marquee ?> a) => [Attribute] -> a -> 'Marquee :> a
+marquee_A = WithAttributes
 
 math_ :: ('Math ?> a) => a -> 'Math > a
 math_ = Child
 
-math_A :: ('Math ?> a) => [(String, String)] -> a -> 'Math :> a
-math_A xs = addAttributes xs . Child
+math_A :: ('Math ?> a) => [Attribute] -> a -> 'Math :> a
+math_A = WithAttributes
 
 menu_ :: ('Menu ?> a) => a -> 'Menu > a
 menu_ = Child
 
-menu_A :: ('Menu ?> a) => [(String, String)] -> a -> 'Menu :> a
-menu_A xs = addAttributes xs . Child
+menu_A :: ('Menu ?> a) => [Attribute] -> a -> 'Menu :> a
+menu_A = WithAttributes
 
 menuitem_ :: 'Menuitem > ()
 menuitem_ = Child ()
 
-menuitem_A :: [(String, String)] -> 'Menuitem :> ()
-menuitem_A xs = addAttributes xs $ Child ()
+menuitem_A :: [Attribute] -> 'Menuitem :> ()
+menuitem_A = flip WithAttributes ()
 
 meta_ :: 'Meta > ()
 meta_ = Child ()
 
-meta_A :: [(String, String)] -> 'Meta :> ()
-meta_A xs = addAttributes xs $ Child ()
+meta_A :: [Attribute] -> 'Meta :> ()
+meta_A = flip WithAttributes ()
 
 meter_ :: ('Meter ?> a) => a -> 'Meter > a
 meter_ = Child
 
-meter_A :: ('Meter ?> a) => [(String, String)] -> a -> 'Meter :> a
-meter_A xs = addAttributes xs . Child
+meter_A :: ('Meter ?> a) => [Attribute] -> a -> 'Meter :> a
+meter_A = WithAttributes
 
 multicol_ :: ('Multicol ?> a) => a -> 'Multicol > a
 multicol_ = Child
 
-multicol_A :: ('Multicol ?> a) => [(String, String)] -> a -> 'Multicol :> a
-multicol_A xs = addAttributes xs . Child
+multicol_A :: ('Multicol ?> a) => [Attribute] -> a -> 'Multicol :> a
+multicol_A = WithAttributes
 
 nav_ :: ('Nav ?> a) => a -> 'Nav > a
 nav_ = Child
 
-nav_A :: ('Nav ?> a) => [(String, String)] -> a -> 'Nav :> a
-nav_A xs = addAttributes xs . Child
+nav_A :: ('Nav ?> a) => [Attribute] -> a -> 'Nav :> a
+nav_A = WithAttributes
 
 nextid_ :: ('Nextid ?> a) => a -> 'Nextid > a
 nextid_ = Child
 
-nextid_A :: ('Nextid ?> a) => [(String, String)] -> a -> 'Nextid :> a
-nextid_A xs = addAttributes xs . Child
+nextid_A :: ('Nextid ?> a) => [Attribute] -> a -> 'Nextid :> a
+nextid_A = WithAttributes
 
 nobr_ :: ('Nobr ?> a) => a -> 'Nobr > a
 nobr_ = Child
 
-nobr_A :: ('Nobr ?> a) => [(String, String)] -> a -> 'Nobr :> a
-nobr_A xs = addAttributes xs . Child
+nobr_A :: ('Nobr ?> a) => [Attribute] -> a -> 'Nobr :> a
+nobr_A = WithAttributes
 
 noembed_ :: ('Noembed ?> a) => a -> 'Noembed > a
 noembed_ = Child
 
-noembed_A :: ('Noembed ?> a) => [(String, String)] -> a -> 'Noembed :> a
-noembed_A xs = addAttributes xs . Child
+noembed_A :: ('Noembed ?> a) => [Attribute] -> a -> 'Noembed :> a
+noembed_A = WithAttributes
 
 noframes_ :: ('Noframes ?> a) => a -> 'Noframes > a
 noframes_ = Child
 
-noframes_A :: ('Noframes ?> a) => [(String, String)] -> a -> 'Noframes :> a
-noframes_A xs = addAttributes xs . Child
+noframes_A :: ('Noframes ?> a) => [Attribute] -> a -> 'Noframes :> a
+noframes_A = WithAttributes
 
 noscript_ :: ('Noscript ?> a) => a -> 'Noscript > a
 noscript_ = Child
 
-noscript_A :: ('Noscript ?> a) => [(String, String)] -> a -> 'Noscript :> a
-noscript_A xs = addAttributes xs . Child
+noscript_A :: ('Noscript ?> a) => [Attribute] -> a -> 'Noscript :> a
+noscript_A = WithAttributes
 
 object_ :: ('Object ?> a) => a -> 'Object > a
 object_ = Child
 
-object_A :: ('Object ?> a) => [(String, String)] -> a -> 'Object :> a
-object_A xs = addAttributes xs . Child
+object_A :: ('Object ?> a) => [Attribute] -> a -> 'Object :> a
+object_A = WithAttributes
 
 ol_ :: ('Ol ?> a) => a -> 'Ol > a
 ol_ = Child
 
-ol_A :: ('Ol ?> a) => [(String, String)] -> a -> 'Ol :> a
-ol_A xs = addAttributes xs . Child
+ol_A :: ('Ol ?> a) => [Attribute] -> a -> 'Ol :> a
+ol_A = WithAttributes
 
 optgroup_ :: ('Optgroup ?> a) => a -> 'Optgroup > a
 optgroup_ = Child
 
-optgroup_A :: ('Optgroup ?> a) => [(String, String)] -> a -> 'Optgroup :> a
-optgroup_A xs = addAttributes xs . Child
+optgroup_A :: ('Optgroup ?> a) => [Attribute] -> a -> 'Optgroup :> a
+optgroup_A = WithAttributes
 
 option_ :: ('Option ?> a) => a -> 'Option > a
 option_ = Child
 
-option_A :: ('Option ?> a) => [(String, String)] -> a -> 'Option :> a
-option_A xs = addAttributes xs . Child
+option_A :: ('Option ?> a) => [Attribute] -> a -> 'Option :> a
+option_A = WithAttributes
 
 output_ :: ('Output ?> a) => a -> 'Output > a
 output_ = Child
 
-output_A :: ('Output ?> a) => [(String, String)] -> a -> 'Output :> a
-output_A xs = addAttributes xs . Child
+output_A :: ('Output ?> a) => [Attribute] -> a -> 'Output :> a
+output_A = WithAttributes
 
 p_ :: ('P ?> a) => a -> 'P > a
 p_ = Child
 
-p_A :: ('P ?> a) => [(String, String)] -> a -> 'P :> a
-p_A xs = addAttributes xs . Child
+p_A :: ('P ?> a) => [Attribute] -> a -> 'P :> a
+p_A = WithAttributes
 
 param_ :: 'Param > ()
 param_ = Child ()
 
-param_A :: [(String, String)] -> 'Param :> ()
-param_A xs = addAttributes xs $ Child ()
+param_A :: [Attribute] -> 'Param :> ()
+param_A = flip WithAttributes ()
 
 picture_ :: ('Picture ?> a) => a -> 'Picture > a
 picture_ = Child
 
-picture_A :: ('Picture ?> a) => [(String, String)] -> a -> 'Picture :> a
-picture_A xs = addAttributes xs . Child
+picture_A :: ('Picture ?> a) => [Attribute] -> a -> 'Picture :> a
+picture_A = WithAttributes
 
 plaintext_ :: ('Plaintext ?> a) => a -> 'Plaintext > a
 plaintext_ = Child
 
-plaintext_A :: ('Plaintext ?> a) => [(String, String)] -> a -> 'Plaintext :> a
-plaintext_A xs = addAttributes xs . Child
+plaintext_A :: ('Plaintext ?> a) => [Attribute] -> a -> 'Plaintext :> a
+plaintext_A = WithAttributes
 
 pre_ :: ('Pre ?> a) => a -> 'Pre > a
 pre_ = Child
 
-pre_A :: ('Pre ?> a) => [(String, String)] -> a -> 'Pre :> a
-pre_A xs = addAttributes xs . Child
+pre_A :: ('Pre ?> a) => [Attribute] -> a -> 'Pre :> a
+pre_A = WithAttributes
 
 progress_ :: ('Progress ?> a) => a -> 'Progress > a
 progress_ = Child
 
-progress_A :: ('Progress ?> a) => [(String, String)] -> a -> 'Progress :> a
-progress_A xs = addAttributes xs . Child
+progress_A :: ('Progress ?> a) => [Attribute] -> a -> 'Progress :> a
+progress_A = WithAttributes
 
 q_ :: ('Q ?> a) => a -> 'Q > a
 q_ = Child
 
-q_A :: ('Q ?> a) => [(String, String)] -> a -> 'Q :> a
-q_A xs = addAttributes xs . Child
+q_A :: ('Q ?> a) => [Attribute] -> a -> 'Q :> a
+q_A = WithAttributes
 
 rp_ :: ('Rp ?> a) => a -> 'Rp > a
 rp_ = Child
 
-rp_A :: ('Rp ?> a) => [(String, String)] -> a -> 'Rp :> a
-rp_A xs = addAttributes xs . Child
+rp_A :: ('Rp ?> a) => [Attribute] -> a -> 'Rp :> a
+rp_A = WithAttributes
 
 rt_ :: ('Rt ?> a) => a -> 'Rt > a
 rt_ = Child
 
-rt_A :: ('Rt ?> a) => [(String, String)] -> a -> 'Rt :> a
-rt_A xs = addAttributes xs . Child
+rt_A :: ('Rt ?> a) => [Attribute] -> a -> 'Rt :> a
+rt_A = WithAttributes
 
 rtc_ :: ('Rtc ?> a) => a -> 'Rtc > a
 rtc_ = Child
 
-rtc_A :: ('Rtc ?> a) => [(String, String)] -> a -> 'Rtc :> a
-rtc_A xs = addAttributes xs . Child
+rtc_A :: ('Rtc ?> a) => [Attribute] -> a -> 'Rtc :> a
+rtc_A = WithAttributes
 
 ruby_ :: ('Ruby ?> a) => a -> 'Ruby > a
 ruby_ = Child
 
-ruby_A :: ('Ruby ?> a) => [(String, String)] -> a -> 'Ruby :> a
-ruby_A xs = addAttributes xs . Child
+ruby_A :: ('Ruby ?> a) => [Attribute] -> a -> 'Ruby :> a
+ruby_A = WithAttributes
 
 s_ :: ('S ?> a) => a -> 'S > a
 s_ = Child
 
-s_A :: ('S ?> a) => [(String, String)] -> a -> 'S :> a
-s_A xs = addAttributes xs . Child
+s_A :: ('S ?> a) => [Attribute] -> a -> 'S :> a
+s_A = WithAttributes
 
 samp_ :: ('Samp ?> a) => a -> 'Samp > a
 samp_ = Child
 
-samp_A :: ('Samp ?> a) => [(String, String)] -> a -> 'Samp :> a
-samp_A xs = addAttributes xs . Child
+samp_A :: ('Samp ?> a) => [Attribute] -> a -> 'Samp :> a
+samp_A = WithAttributes
 
 script_ :: ('Script ?> a) => a -> 'Script > a
 script_ = Child
 
-script_A :: ('Script ?> a) => [(String, String)] -> a -> 'Script :> a
-script_A xs = addAttributes xs . Child
+script_A :: ('Script ?> a) => [Attribute] -> a -> 'Script :> a
+script_A = WithAttributes
 
 section_ :: ('Section ?> a) => a -> 'Section > a
 section_ = Child
 
-section_A :: ('Section ?> a) => [(String, String)] -> a -> 'Section :> a
-section_A xs = addAttributes xs . Child
+section_A :: ('Section ?> a) => [Attribute] -> a -> 'Section :> a
+section_A = WithAttributes
 
 select_ :: ('Select ?> a) => a -> 'Select > a
 select_ = Child
 
-select_A :: ('Select ?> a) => [(String, String)] -> a -> 'Select :> a
-select_A xs = addAttributes xs . Child
+select_A :: ('Select ?> a) => [Attribute] -> a -> 'Select :> a
+select_A = WithAttributes
 
 shadow_ :: ('Shadow ?> a) => a -> 'Shadow > a
 shadow_ = Child
 
-shadow_A :: ('Shadow ?> a) => [(String, String)] -> a -> 'Shadow :> a
-shadow_A xs = addAttributes xs . Child
+shadow_A :: ('Shadow ?> a) => [Attribute] -> a -> 'Shadow :> a
+shadow_A = WithAttributes
 
 slot_ :: ('Slot ?> a) => a -> 'Slot > a
 slot_ = Child
 
-slot_A :: ('Slot ?> a) => [(String, String)] -> a -> 'Slot :> a
-slot_A xs = addAttributes xs . Child
+slot_A :: ('Slot ?> a) => [Attribute] -> a -> 'Slot :> a
+slot_A = WithAttributes
 
 small_ :: ('Small ?> a) => a -> 'Small > a
 small_ = Child
 
-small_A :: ('Small ?> a) => [(String, String)] -> a -> 'Small :> a
-small_A xs = addAttributes xs . Child
+small_A :: ('Small ?> a) => [Attribute] -> a -> 'Small :> a
+small_A = WithAttributes
 
 source_ :: 'Source > ()
 source_ = Child ()
 
-source_A :: [(String, String)] -> 'Source :> ()
-source_A xs = addAttributes xs $ Child ()
+source_A :: [Attribute] -> 'Source :> ()
+source_A = flip WithAttributes ()
 
 spacer_ :: ('Spacer ?> a) => a -> 'Spacer > a
 spacer_ = Child
 
-spacer_A :: ('Spacer ?> a) => [(String, String)] -> a -> 'Spacer :> a
-spacer_A xs = addAttributes xs . Child
+spacer_A :: ('Spacer ?> a) => [Attribute] -> a -> 'Spacer :> a
+spacer_A = WithAttributes
 
 span_ :: ('Span ?> a) => a -> 'Span > a
 span_ = Child
 
-span_A :: ('Span ?> a) => [(String, String)] -> a -> 'Span :> a
-span_A xs = addAttributes xs . Child
+span_A :: ('Span ?> a) => [Attribute] -> a -> 'Span :> a
+span_A = WithAttributes
 
 strike_ :: ('Strike ?> a) => a -> 'Strike > a
 strike_ = Child
 
-strike_A :: ('Strike ?> a) => [(String, String)] -> a -> 'Strike :> a
-strike_A xs = addAttributes xs . Child
+strike_A :: ('Strike ?> a) => [Attribute] -> a -> 'Strike :> a
+strike_A = WithAttributes
 
 strong_ :: ('Strong ?> a) => a -> 'Strong > a
 strong_ = Child
 
-strong_A :: ('Strong ?> a) => [(String, String)] -> a -> 'Strong :> a
-strong_A xs = addAttributes xs . Child
+strong_A :: ('Strong ?> a) => [Attribute] -> a -> 'Strong :> a
+strong_A = WithAttributes
 
 style_ :: ('Style ?> a) => a -> 'Style > a
 style_ = Child
 
-style_A :: ('Style ?> a) => [(String, String)] -> a -> 'Style :> a
-style_A xs = addAttributes xs . Child
+style_A :: ('Style ?> a) => [Attribute] -> a -> 'Style :> a
+style_A = WithAttributes
 
 sub_ :: ('Sub ?> a) => a -> 'Sub > a
 sub_ = Child
 
-sub_A :: ('Sub ?> a) => [(String, String)] -> a -> 'Sub :> a
-sub_A xs = addAttributes xs . Child
+sub_A :: ('Sub ?> a) => [Attribute] -> a -> 'Sub :> a
+sub_A = WithAttributes
 
 summary_ :: ('Summary ?> a) => a -> 'Summary > a
 summary_ = Child
 
-summary_A :: ('Summary ?> a) => [(String, String)] -> a -> 'Summary :> a
-summary_A xs = addAttributes xs . Child
+summary_A :: ('Summary ?> a) => [Attribute] -> a -> 'Summary :> a
+summary_A = WithAttributes
 
 sup_ :: ('Sup ?> a) => a -> 'Sup > a
 sup_ = Child
 
-sup_A :: ('Sup ?> a) => [(String, String)] -> a -> 'Sup :> a
-sup_A xs = addAttributes xs . Child
+sup_A :: ('Sup ?> a) => [Attribute] -> a -> 'Sup :> a
+sup_A = WithAttributes
 
 svg_ :: ('Svg ?> a) => a -> 'Svg > a
 svg_ = Child
 
-svg_A :: ('Svg ?> a) => [(String, String)] -> a -> 'Svg :> a
-svg_A xs = addAttributes xs . Child
+svg_A :: ('Svg ?> a) => [Attribute] -> a -> 'Svg :> a
+svg_A = WithAttributes
 
 table_ :: ('Table ?> a) => a -> 'Table > a
 table_ = Child
 
-table_A :: ('Table ?> a) => [(String, String)] -> a -> 'Table :> a
-table_A xs = addAttributes xs . Child
+table_A :: ('Table ?> a) => [Attribute] -> a -> 'Table :> a
+table_A = WithAttributes
 
 tbody_ :: ('Tbody ?> a) => a -> 'Tbody > a
 tbody_ = Child
 
-tbody_A :: ('Tbody ?> a) => [(String, String)] -> a -> 'Tbody :> a
-tbody_A xs = addAttributes xs . Child
+tbody_A :: ('Tbody ?> a) => [Attribute] -> a -> 'Tbody :> a
+tbody_A = WithAttributes
 
 td_ :: ('Td ?> a) => a -> 'Td > a
 td_ = Child
 
-td_A :: ('Td ?> a) => [(String, String)] -> a -> 'Td :> a
-td_A xs = addAttributes xs . Child
+td_A :: ('Td ?> a) => [Attribute] -> a -> 'Td :> a
+td_A = WithAttributes
 
 template_ :: ('Template ?> a) => a -> 'Template > a
 template_ = Child
 
-template_A :: ('Template ?> a) => [(String, String)] -> a -> 'Template :> a
-template_A xs = addAttributes xs . Child
+template_A :: ('Template ?> a) => [Attribute] -> a -> 'Template :> a
+template_A = WithAttributes
 
 textarea_ :: ('Textarea ?> a) => a -> 'Textarea > a
 textarea_ = Child
 
-textarea_A :: ('Textarea ?> a) => [(String, String)] -> a -> 'Textarea :> a
-textarea_A xs = addAttributes xs . Child
+textarea_A :: ('Textarea ?> a) => [Attribute] -> a -> 'Textarea :> a
+textarea_A = WithAttributes
 
 tfoot_ :: ('Tfoot ?> a) => a -> 'Tfoot > a
 tfoot_ = Child
 
-tfoot_A :: ('Tfoot ?> a) => [(String, String)] -> a -> 'Tfoot :> a
-tfoot_A xs = addAttributes xs . Child
+tfoot_A :: ('Tfoot ?> a) => [Attribute] -> a -> 'Tfoot :> a
+tfoot_A = WithAttributes
 
 th_ :: ('Th ?> a) => a -> 'Th > a
 th_ = Child
 
-th_A :: ('Th ?> a) => [(String, String)] -> a -> 'Th :> a
-th_A xs = addAttributes xs . Child
+th_A :: ('Th ?> a) => [Attribute] -> a -> 'Th :> a
+th_A = WithAttributes
 
 thead_ :: ('Thead ?> a) => a -> 'Thead > a
 thead_ = Child
 
-thead_A :: ('Thead ?> a) => [(String, String)] -> a -> 'Thead :> a
-thead_A xs = addAttributes xs . Child
+thead_A :: ('Thead ?> a) => [Attribute] -> a -> 'Thead :> a
+thead_A = WithAttributes
 
 time_ :: ('Time ?> a) => a -> 'Time > a
 time_ = Child
 
-time_A :: ('Time ?> a) => [(String, String)] -> a -> 'Time :> a
-time_A xs = addAttributes xs . Child
+time_A :: ('Time ?> a) => [Attribute] -> a -> 'Time :> a
+time_A = WithAttributes
 
 title_ :: ('Title ?> a) => a -> 'Title > a
 title_ = Child
 
-title_A :: ('Title ?> a) => [(String, String)] -> a -> 'Title :> a
-title_A xs = addAttributes xs . Child
+title_A :: ('Title ?> a) => [Attribute] -> a -> 'Title :> a
+title_A = WithAttributes
 
 tr_ :: ('Tr ?> a) => a -> 'Tr > a
 tr_ = Child
 
-tr_A :: ('Tr ?> a) => [(String, String)] -> a -> 'Tr :> a
-tr_A xs = addAttributes xs . Child
+tr_A :: ('Tr ?> a) => [Attribute] -> a -> 'Tr :> a
+tr_A = WithAttributes
 
 track_ :: 'Track > ()
 track_ = Child ()
 
-track_A :: [(String, String)] -> 'Track :> ()
-track_A xs = addAttributes xs $ Child ()
+track_A :: [Attribute] -> 'Track :> ()
+track_A = flip WithAttributes ()
 
 tt_ :: ('Tt ?> a) => a -> 'Tt > a
 tt_ = Child
 
-tt_A :: ('Tt ?> a) => [(String, String)] -> a -> 'Tt :> a
-tt_A xs = addAttributes xs . Child
+tt_A :: ('Tt ?> a) => [Attribute] -> a -> 'Tt :> a
+tt_A = WithAttributes
 
 u_ :: ('U ?> a) => a -> 'U > a
 u_ = Child
 
-u_A :: ('U ?> a) => [(String, String)] -> a -> 'U :> a
-u_A xs = addAttributes xs . Child
+u_A :: ('U ?> a) => [Attribute] -> a -> 'U :> a
+u_A = WithAttributes
 
 ul_ :: ('Ul ?> a) => a -> 'Ul > a
 ul_ = Child
 
-ul_A :: ('Ul ?> a) => [(String, String)] -> a -> 'Ul :> a
-ul_A xs = addAttributes xs . Child
+ul_A :: ('Ul ?> a) => [Attribute] -> a -> 'Ul :> a
+ul_A = WithAttributes
 
 var_ :: ('Var ?> a) => a -> 'Var > a
 var_ = Child
 
-var_A :: ('Var ?> a) => [(String, String)] -> a -> 'Var :> a
-var_A xs = addAttributes xs . Child
+var_A :: ('Var ?> a) => [Attribute] -> a -> 'Var :> a
+var_A = WithAttributes
 
 video_ :: ('Video ?> a) => a -> 'Video > a
 video_ = Child
 
-video_A :: ('Video ?> a) => [(String, String)] -> a -> 'Video :> a
-video_A xs = addAttributes xs . Child
+video_A :: ('Video ?> a) => [Attribute] -> a -> 'Video :> a
+video_A = WithAttributes
 
 wbr_ :: 'Wbr > ()
 wbr_ = Child ()
 
-wbr_A :: [(String, String)] -> 'Wbr :> ()
-wbr_A xs = addAttributes xs $ Child ()
+wbr_A :: [Attribute] -> 'Wbr :> ()
+wbr_A = flip WithAttributes ()
 
 xmp_ :: ('Xmp ?> a) => a -> 'Xmp > a
 xmp_ = Child
 
-xmp_A :: ('Xmp ?> a) => [(String, String)] -> a -> 'Xmp :> a
-xmp_A xs = addAttributes xs . Child
+xmp_A :: ('Xmp ?> a) => [Attribute] -> a -> 'Xmp :> a
+xmp_A = WithAttributes

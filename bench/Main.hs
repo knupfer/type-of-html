@@ -1,12 +1,14 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE TypeOperators       #-}
+{-# LANGUAGE DataKinds           #-}
 
 module Main where
 
 import Html
+import qualified Html.Attribute as A
 
 import Data.String
 import Control.Monad
@@ -16,7 +18,7 @@ import Text.Blaze.Html5 ((!))
 import Text.Blaze.Html.Renderer.Utf8
 
 import qualified Text.Blaze.Html5            as B
-import qualified Text.Blaze.Html5.Attributes as B (class_, id)
+import qualified Text.Blaze.Html5.Attributes as BA
 
 main :: IO ()
 main = defaultMain
@@ -31,6 +33,18 @@ main = defaultMain
     , bench "string"     $ nf (renderString . helloWorld)     "TEST"
     , bench "bytestring" $ nf (renderByteString . helloWorld) "TEST"
     , bench "text"       $ nf (renderText . helloWorld)       "TEST"
+    ]
+  , bgroup "attributes short"
+    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrShort)  (fromString "TEST")
+    , bench "string"     $ nf (renderString . attrShort)     "TEST"
+    , bench "bytestring" $ nf (renderByteString . attrShort) "TEST"
+    , bench "text"       $ nf (renderText . attrShort)       "TEST"
+    ]
+  , bgroup "attributes long"
+    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrLong)  (fromString "TEST")
+    , bench "string"     $ nf (renderString . attrLong)     "TEST"
+    , bench "bytestring" $ nf (renderByteString . attrLong) "TEST"
+    , bench "text"       $ nf (renderText . attrLong)       "TEST"
     ]
   , bgroup "big page"
     [ bench "blaze.utf8" $ nf (renderHtml . blazeBigPage)     (fromString "TEST")
@@ -87,27 +101,47 @@ blazeBigPage x =
               B.i x
             B.button . B.i $ fromString "e"
 
+blazeAttrShort :: B.Html -> B.Html
+blazeAttrShort x
+  = B.i ! BA.accept (fromString "a")
+  $ B.i ! BA.acceptCharset (fromString "b")
+  $ B.i ! BA.accesskey (fromString "c")
+  $ B.i ! BA.action (fromString "d")
+  $ B.i ! BA.alt (fromString "f")
+  $ B.i ! BA.async (fromString "g")
+  $ x
+
+blazeAttrLong :: B.Html -> B.Html
+blazeAttrLong x
+  = B.i ! BA.accept (fromString "a")
+        ! BA.acceptCharset (fromString "b")
+        ! BA.accesskey (fromString "c")
+        ! BA.action (fromString "d")
+        ! BA.alt (fromString "f")
+        ! BA.async (fromString "g")
+  $ x
+
 blazeBigPageA :: B.Html -> B.Html
 blazeBigPageA x =
   B.html $ do
     B.body $ do
-      B.h1 ! B.id (fromString "a") $ do
+      B.h1 ! BA.id (fromString "a") $ do
         B.img
-        B.strong ! B.class_ (fromString "b") $ fromString "0"
+        B.strong ! BA.class_ (fromString "b") $ fromString "0"
       B.div $ do
-        B.div ! B.id (fromString "c") $ fromString "1"
+        B.div ! BA.id (fromString "c") $ fromString "1"
       B.div $ do
-        B.form ! B.class_ (fromString "d") $ do
+        B.form ! BA.class_ (fromString "d") $ do
           B.fieldset $ do
-            B.div ! B.id (fromString "e") $ do
+            B.div ! BA.id (fromString "e") $ do
               B.div $ do
-                B.label ! B.class_ (fromString "f") $ fromString "a"
+                B.label ! BA.class_ (fromString "f") $ fromString "a"
                 B.select $ do
-                  B.option ! B.id (fromString "g") $ fromString "b"
+                  B.option ! BA.id (fromString "g") $ fromString "b"
                   B.option (fromString "c")
-                B.div ! B.class_ (fromString "h") $ fromString "d"
+                B.div ! BA.class_ (fromString "h") $ fromString "d"
               B.i x
-            B.button ! B.id (fromString "i") $ B.i $ fromString "e"
+            B.button ! BA.id (fromString "i") $ B.i $ fromString "e"
 
 blazeBigTable :: (Int, Int) -> B.Html
 blazeBigTable (n, m)
@@ -161,31 +195,48 @@ bigPage x =
       )
     )
 
+attrLong x =
+  i_A [ A.accept_ "a"
+      , A.acceptcharset_ "b"
+      , A.accesskey_ "c"
+      , A.action_ "d"
+      , A.alt_ "f"
+      , A.async_ "g"] x
+
+attrShort x
+  = i_A [A.accept_ "a"]
+  . i_A [A.acceptcharset_ "b"]
+  . i_A [A.accesskey_ "c"]
+  . i_A [A.action_ "d"]
+  . i_A [A.alt_ "f"]
+  $ i_A [A.async_ "g"] x
+
+
 bigPageA x =
   html_
     ( body_
-      ( h1_A [("id","a")]
+      ( h1_A [A.id_ "a"]
         ( img_
-        # strong_A [("class","b")] (0 :: Int)
+        # strong_A [A.class_ "b"] (0 :: Int)
         )
       # div_
-        ( div_A [("id","c")] (1 :: Int)
+        ( div_A [A.id_ "c"] (1 :: Int)
         )
       # div_
-        ( form_A [("class","d")]
+        ( form_A [A.class_ "d"]
           ( fieldset_
-            ( div_A [("id","e")]
+            ( div_A [A.id_ "e"]
               ( div_
-                ( label_A [("class","f")] "a"
+                ( label_A [A.class_ "f"] "a"
                 # select_
-                  ( option_A [("id","g")] "b"
+                  ( option_A [A.id_ "g"] "b"
                   # option_ "c"
                   )
-                # div_A [("class","h")] "d"
+                # div_A [A.class_ "h"] "d"
                 )
               # i_ x
               )
-            # button_A [("id","i")] (i_ "e")
+            # button_A [A.id_ "i"] (i_ "e")
             )
           )
         )

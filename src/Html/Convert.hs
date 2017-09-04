@@ -4,8 +4,6 @@
 
 module Html.Convert where
 
-import Html.Type
-
 import Data.Proxy
 import Data.String
 import GHC.TypeLits
@@ -16,6 +14,9 @@ import qualified Data.Text.Lazy.Builder           as TB
 import qualified Data.Text.Lazy.Builder.Int       as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
 import qualified Data.ByteString.Lazy.Char8       as B
+
+-- | Wrapper for types which won't be escaped.
+newtype Raw a = Raw a
 
 {-# INLINE escapeString #-}
 escapeString :: String -> String
@@ -38,6 +39,19 @@ escape f = \case
   '"'  -> "&quot;"
   '\'' -> "&#39;"
   x    -> f x
+
+class Conv b where
+  conv :: Convert a => a -> b
+
+instance Conv String where
+  {-# INLINE conv #-}
+  conv = convertString
+instance Conv T.Text where
+  {-# INLINE conv #-}
+  conv = convertText
+instance Conv B.ByteString where
+  {-# INLINE conv #-}
+  conv = convertByteString
 
 -- | Convert a type efficienctly to different string like types.
 class Convert a where

@@ -1,11 +1,12 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+
 {-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ExplicitNamespaces #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MonoLocalBinds #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances      #-}
+{-# LANGUAGE ExplicitNamespaces        #-}
+{-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE MonoLocalBinds            #-}
+{-# LANGUAGE TypeOperators             #-}
 
 {-| type-of-html has three main goals:
 

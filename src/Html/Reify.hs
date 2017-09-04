@@ -52,19 +52,6 @@ type Document a b =
   , Monoid b
   )
 
-class Conv b where
-  conv :: Convert a => a -> b
-
-instance Conv String where
-  {-# INLINE conv #-}
-  conv = convertString
-instance Conv T.Text where
-  {-# INLINE conv #-}
-  conv = convertText
-instance Conv B.ByteString where
-  {-# INLINE conv #-}
-  conv = convertByteString
-
 class Renderchunks a b where
   renderchunks :: a -> [b]
 
@@ -96,25 +83,26 @@ instance
   ( t ~ Tagged (Drop 1 prox) b (Close a)
   , Renderchunks t u
   , Conv u
-  , Semigroup u
+  , Monoid u
   , IsString u
   , KnownSymbol (HeadL prox)
   ) => Renderchunks (Tagged prox (a :> b) nex) u where
   {-# INLINE renderchunks #-}
-  renderchunks (Tagged ~(WithAttributes (Attributes xs) b))
+  renderchunks (Tagged (WithAttributes xs b))
     = conv (Proxy @ (HeadL prox))
-    : [ " " <> conv (Raw k) <> "=\"" <> conv v <> "\"" | (k,v) <- xs]
-    <> renderchunks (Tagged b :: t)
+    : foldMap (conv . Raw . (\(Attribute x) -> x)) xs
+    : renderchunks (Tagged b :: t)
 
 instance
   ( t1 ~ Tagged (Take (CountContent a) prox) a b
   , t2 ~ Tagged (Drop (CountContent a) prox) b nex
   , Renderchunks t1 u
   , Renderchunks t2 u
+  , Monoid u
   ) => Renderchunks (Tagged prox (a # b) nex) u where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged ~(a :#: b))
-    = renderchunks (Tagged a :: t1) <> renderchunks (Tagged b :: t2)
+    = mconcat (renderchunks (Tagged a :: t1)) : renderchunks (Tagged b :: t2)
 
 instance
   ( t1 ~ Tagged t2 (a `f` b) ()

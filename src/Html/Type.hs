@@ -8,6 +8,8 @@
 
 module Html.Type where
 
+import qualified Data.Text.Lazy as T
+
 import GHC.TypeLits
 import GHC.Exts
 import Data.Proxy
@@ -246,19 +248,21 @@ infixr 8 >
 
 -- | Decorate an element with attributes and descend to a valid child.
 --
--- >>> WithAttributes [("foo","bar")] "a" :: 'Div :> String
--- <div foo=bar>a</div>
+-- >>> WithAttributes [A.class_ "bar")] "a" :: 'Div :> String
+-- <div class="bar">a</div>
 data (:>) (a :: Element) b where
-  WithAttributes :: (a ?> b) => Attributes -> b -> a :> b
+  WithAttributes :: (a ?> b) => [Attribute] -> b -> a :> b
 infixr 8 :>
 
 {-# INLINE addAttributes #-}
-addAttributes :: (a ?> b) => [(String, String)] -> (a > b) -> (a :> b)
-addAttributes xs (Child b) = WithAttributes (Attributes xs) b
+addAttributes :: (a ?> b) => [Attribute] -> (a > b) -> (a :> b)
+addAttributes xs (Child b) = WithAttributes xs b
 
   -------------------
   -- internal code --
   -------------------
+
+newtype Attribute = Attribute T.Text
 
 type family ShowElement e where
   ShowElement DOCTYPE    = "!DOCTYPE html"
@@ -427,9 +431,9 @@ type family ToTypeList a where
   ToTypeList (Next val nex) = Next (ToTypeList val) (ToTypeList nex)
   ToTypeList (a # b)        = Append (ToTypeList a) (ToTypeList b)
   ToTypeList (a > ())       = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
-  ToTypeList (a :> ())      = If (HasContent (GetInfo a)) (OpenAttr a, (Attributes, (EndOfOpen, Close a))) (OpenAttr a, (Attributes, EndOfOpen))
+  ToTypeList (a :> ())      = If (HasContent (GetInfo a)) (OpenAttr a, (Attribute, (EndOfOpen, Close a))) (OpenAttr a, (Attribute, EndOfOpen))
   ToTypeList (a > b)        = Append (Open a, ToTypeList b) (Close a)
-  ToTypeList (a :> b)       = Append (OpenAttr a, (Attributes, (EndOfOpen, ToTypeList b))) (Close a)
+  ToTypeList (a :> b)       = Append (OpenAttr a, (Attribute, (EndOfOpen, ToTypeList b))) (Close a)
   ToTypeList x              = x
 
 -- | Append two type lists.
@@ -567,10 +571,6 @@ data EndOfOpen
 data Open (a :: Element)
 data OpenAttr (a :: Element)
 data Close (a :: Element)
-newtype Attributes = Attributes [(String, String)]
-
--- | Wrapper for types which won't be escaped.
-newtype Raw a = Raw a
 
 -- | Type of type level information about tags.
 data ElementInfo

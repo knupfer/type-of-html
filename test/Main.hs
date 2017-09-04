@@ -5,6 +5,7 @@
 module Main where
 
 import Html
+import qualified Html.Attribute as A
 
 import Data.Proxy
 import Test.Hspec
@@ -216,7 +217,7 @@ spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . d
         shouldBe
         "<div>a ä € 𝄞</div>"
 
-      allT (img_A [("id","a ä € 𝄞")])
+      allT (img_A [A.id_ "a ä € 𝄞"])
         shouldBe
         "<img id=\"a ä € 𝄞\">"
 
@@ -233,10 +234,6 @@ spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . d
       take 5 (renderString (errorWithoutStackTrace "not lazy" :: 'Div > String))
         `shouldBe`
         "<div>"
-
-      take 9 (renderString (img_A [("id", errorWithoutStackTrace "not lazy")]))
-        `shouldBe`
-        "<img id=\""
 
       take 12 (renderString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))
         `shouldBe`
@@ -260,10 +257,6 @@ spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . d
         `shouldBe`
         "<div>"
 
-      -- take 9 (T.unpack (renderText (img_A [("id", errorWithoutStackTrace "not lazy")])))
-      --   `shouldBe`
-      --   "<img id=\""
-
       take 12 (T.unpack (renderText (div_ "a" # (errorWithoutStackTrace "not lazy" :: String))))
         `shouldBe`
         "<div>a</div>"
@@ -285,10 +278,6 @@ spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . d
       take 5 (T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "not lazy" :: 'Div > String))))
         `shouldBe`
         "<div>"
-
-      -- take 9 (T.unpack (renderText (img_A [("id", errorWithoutStackTrace "not lazy")])))
-      --   `shouldBe`
-      --   "<img id=\""
 
       take 12 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))))
         `shouldBe`
