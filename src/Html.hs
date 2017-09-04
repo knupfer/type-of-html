@@ -67,6 +67,8 @@ module Main where
 
 import Html
 
+import qualified Html.Attribute as A
+
 main :: IO ()
 main
   = print
@@ -77,12 +79,12 @@ page
   :: 'Tr ?> a
   => a
   -> 'Div
-     > ( 'Div > [Char]
+     :> ( 'Div > [Char]
        # 'Div > [Char]
        # 'Table > 'Tr > a
        )
 page tds =
-  div_
+  div_A [A.class_ "qux", A.id_ "baz"]
     ( div_ "foo"
     # div_ "bar"
     # table_ (tr_ tds)
@@ -92,6 +94,22 @@ page tds =
 Please note that the type of page is inferable, so ask ghc-mod or
 whatever you use to write it for you.  If you choose not to write the
 types, you don't need the language extensions.
+
+All text will be automatically html escaped:
+
+>>> i_ "&"
+<i>&amp;</i>
+
+>>> div_A [A.id_ ">"] ()
+<div id="&gt;"></div>
+
+If you want to opt out, wrap your types into the 'Raw'
+constructor. This will increase performance, but can be only used with
+trusted input. You can use this e.g. to embed some blaze-html code
+into type-of-html.
+
+>>> i_ (Raw "</i><script></script><i>")
+<i></i><script></script><i></i>
 
 Last and fast: /performance/!
 

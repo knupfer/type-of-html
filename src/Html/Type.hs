@@ -248,7 +248,7 @@ infixr 8 >
 
 -- | Decorate an element with attributes and descend to a valid child.
 --
--- >>> WithAttributes [A.class_ "bar")] "a" :: 'Div :> String
+-- >>> WithAttributes [A.class_ "bar"] "a" :: 'Div :> String
 -- <div class="bar">a</div>
 data (:>) (a :: Element) b where
   WithAttributes :: (a ?> b) => [Attribute] -> b -> a :> b

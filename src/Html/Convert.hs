@@ -53,7 +53,43 @@ instance Conv B.ByteString where
   {-# INLINE conv #-}
   conv = convertByteString
 
--- | Convert a type efficienctly to different string like types.
+{-| Convert a type efficienctly to different string like types.  Add
+  instances if you want use custom types in your document.
+
+@
+{\-\# LANGUAGE RecordWildCards \#-\}
+
+module Main where
+
+import Html
+
+data Person
+  = Person
+  { name :: String
+  , age :: Int
+  , vegetarian :: Bool
+  }
+
+-- | This is not efficient, but understandable.
+-- The call to convertText is needed for escaping.
+instance Convert Person where
+  convertText (Person{..})
+    = convertText
+    $  name
+    ++ " is "
+    ++ show age
+    ++ " years old and likes "
+    ++ if vegetarian then "oranges." else "meat."
+
+john :: Person
+john = Person {name = "John", age = 52, vegetarian = True}
+
+main :: IO ()
+main = print (div_ john)
+@
+
+-}
+
 class Convert a where
 
   {-# MINIMAL convertText #-}
