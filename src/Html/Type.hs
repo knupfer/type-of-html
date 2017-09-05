@@ -258,6 +258,11 @@ infixr 8 :>
 addAttributes :: (a ?> b) => [Attribute] -> (a > b) -> (a :> b)
 addAttributes xs (Child b) = WithAttributes xs b
 
+-- | Wrapper for types which won't be escaped.
+newtype Raw a = Raw a
+
+newtype Converted a = Converted {unConv :: a}
+
   -------------------
   -- internal code --
   -------------------

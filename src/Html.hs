@@ -165,6 +165,7 @@ module Html
   , type (?>)
   , Raw(..)
   , Convert(..)
+  , Converted
   , Element(..)
   , module Html.Element
   ) where

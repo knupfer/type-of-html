@@ -28,7 +28,7 @@ import qualified Data.ByteString.Lazy as B
 {-# INLINE render #-}
 render :: forall a b. Document a b => a -> b
 render x = mconcat $ renderchunks (Tagged x :: Tagged (Symbols a) a ())
-                   <> [conv (Proxy @ (Last' (Symbols a)))]
+                   <> [unConv (conv (Proxy @ (Last' (Symbols a))))]
 
 -- | Render a html document to a String.
 {-# INLINE renderString #-}
@@ -69,8 +69,8 @@ instance {-# OVERLAPPABLE #-}
   ) => Renderchunks (Tagged prox val nex) u where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
-    = conv (Proxy @ (HeadL prox))
-    : [conv x]
+    = unConv (conv (Proxy @ (HeadL prox)))
+    : [unConv (conv x)]
 
 instance
   ( t ~ Tagged prox b (Close a)
@@ -89,8 +89,8 @@ instance
   ) => Renderchunks (Tagged prox (a :> b) nex) u where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged (WithAttributes xs b))
-    = conv (Proxy @ (HeadL prox))
-    : foldMap (conv . Raw . (\(Attribute x) -> x)) xs
+    = unConv (conv (Proxy @ (HeadL prox)))
+    : foldMap (unConv . conv . Raw . (\(Attribute x) -> x)) xs
     : renderchunks (Tagged b :: t)
 
 instance
@@ -114,6 +114,6 @@ instance
   ) => Renderchunks (Tagged prox [a `f` b] nex) u where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
-    = conv (Proxy @ (HeadL prox))
+    = unConv (conv (Proxy @ (HeadL prox)))
     : Prelude.concatMap (\x -> renderchunks (Tagged x :: t1) <> [closing]) xs
-    where closing = conv (Proxy @ (Last' t2))
+    where closing = unConv (conv (Proxy @ (Last' t2)))

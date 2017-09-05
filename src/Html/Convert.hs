@@ -7,6 +7,7 @@ module Html.Convert where
 import Data.Proxy
 import Data.String
 import GHC.TypeLits
+import Html.Type
 
 import qualified Data.Text.Lazy                   as T
 import qualified Data.Text.Lazy.Encoding          as T
@@ -14,9 +15,6 @@ import qualified Data.Text.Lazy.Builder           as TB
 import qualified Data.Text.Lazy.Builder.Int       as TB
 import qualified Data.Text.Lazy.Builder.RealFloat as TB
 import qualified Data.ByteString.Lazy.Char8       as B
-
--- | Wrapper for types which won't be escaped.
-newtype Raw a = Raw a
 
 {-# INLINE escapeString #-}
 escapeString :: String -> String
@@ -41,7 +39,7 @@ escape f = \case
   x    -> f x
 
 class Conv b where
-  conv :: Convert a => a -> b
+  conv :: Convert a => a -> Converted b
 
 instance Conv String where
   {-# INLINE conv #-}
@@ -72,6 +70,7 @@ data Person
 
 -- | This is not efficient, but understandable.
 -- The call to convertText is needed for escaping.
+-- This is enforced by a newtype. Wrap it in Raw if you don't want to escape.
 instance Convert Person where
   convertText (Person{..})
     = convertText
@@ -87,80 +86,78 @@ john = Person {name = "John", age = 52, vegetarian = True}
 main :: IO ()
 main = print (div_ john)
 @
-
 -}
-
 class Convert a where
 
   {-# MINIMAL convertText #-}
 
-  convertString :: a -> String
+  convertString :: a -> Converted String
   {-# INLINE convertString #-}
-  convertString = T.unpack . convertText
+  convertString = Converted . T.unpack . unConv . convertText
 
-  convertText :: a -> T.Text
+  convertText :: a -> Converted T.Text
 
-  convertByteString :: a -> B.ByteString
+  convertByteString :: a -> Converted B.ByteString
   {-# INLINE convertByteString #-}
-  convertByteString = T.encodeUtf8 . convertText
+  convertByteString = Converted . T.encodeUtf8 . unConv . convertText
 
 instance Convert (Raw String) where
   {-# INLINE convertText #-}
-  convertText (Raw x) = T.pack x
+  convertText (Raw x) = Converted (T.pack x)
 instance Convert (Raw T.Text) where
   {-# INLINE convertText #-}
-  convertText (Raw x) = x
+  convertText (Raw x) = Converted x
 instance Convert (Raw B.ByteString) where
   {-# INLINE convertText #-}
-  convertText (Raw x) = T.decodeUtf8 x
+  convertText (Raw x) = Converted (T.decodeUtf8 x)
   {-# INLINE convertByteString #-}
-  convertByteString (Raw x) = x
+  convertByteString (Raw x) = Converted x
 instance Convert String where
   {-# INLINE convertString #-}
-  convertString = escapeString
+  convertString = Converted . escapeString
   {-# INLINE convertText #-}
-  convertText = escapeText . T.pack
+  convertText = Converted . escapeText . T.pack
 instance Convert T.Text where
   {-# INLINE convertText #-}
-  convertText = escapeText
+  convertText = Converted . escapeText
 instance Convert Int where
   {-# INLINE convertString #-}
-  convertString = show
+  convertString = Converted . show
   {-# INLINE convertText #-}
-  convertText = TB.toLazyText . TB.decimal
+  convertText = Converted . TB.toLazyText . TB.decimal
   {-# INLINE convertByteString #-}
-  convertByteString = B.pack . show
+  convertByteString = Converted . B.pack . show
 instance Convert Integer where
   {-# INLINE convertString #-}
-  convertString = show
+  convertString = Converted . show
   {-# INLINE convertText #-}
-  convertText = TB.toLazyText . TB.decimal
+  convertText = Converted . TB.toLazyText . TB.decimal
   {-# INLINE convertByteString #-}
-  convertByteString = B.pack . show
+  convertByteString = Converted . B.pack . show
 instance Convert Float where
   {-# INLINE convertString #-}
-  convertString = show
+  convertString = Converted . show
   {-# INLINE convertText #-}
-  convertText = TB.toLazyText . TB.realFloat
+  convertText = Converted . TB.toLazyText . TB.realFloat
   {-# INLINE convertByteString #-}
-  convertByteString = B.pack . show
+  convertByteString = Converted . B.pack . show
 instance Convert Double where
-  convertString = show
+  convertString = Converted . show
   {-# INLINE convertText #-}
-  convertText = TB.toLazyText . TB.realFloat
+  convertText = Converted . TB.toLazyText . TB.realFloat
   {-# INLINE convertByteString #-}
-  convertByteString = B.pack . show
+  convertByteString = Converted . B.pack . show
 instance Convert Word where
   {-# INLINE convertString #-}
-  convertString = show
+  convertString = Converted . show
   {-# INLINE convertText #-}
-  convertText = TB.toLazyText . TB.decimal
+  convertText = Converted . TB.toLazyText . TB.decimal
   {-# INLINE convertByteString #-}
-  convertByteString = B.pack . show
+  convertByteString = Converted . B.pack . show
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convertString #-}
-  convertString = symbolVal
+  convertString = Converted . symbolVal
   {-# INLINE convertText #-}
-  convertText = T.pack . symbolVal
+  convertText = Converted . T.pack . symbolVal
   {-# INLINE convertByteString #-}
-  convertByteString = B.pack . symbolVal
+  convertByteString = Converted . B.pack . symbolVal
