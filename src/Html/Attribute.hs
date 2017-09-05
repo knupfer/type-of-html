@@ -1,10 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeOperators     #-}
 
 module Html.Attribute where
 
 import Html.Convert
 import Html.Type
 import Data.Semigroup
+
+{-# INLINE addAttributes #-}
+addAttributes :: (a ?> b) => [Attribute] -> (a > b) -> (a :> b)
+addAttributes xs (Child b) = WithAttributes xs b
 
 {-# INLINE accept_ #-}
 accept_ :: Convert a => a -> Attribute

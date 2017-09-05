@@ -166,6 +166,7 @@ module Html
   , Raw(..)
   , Convert(..)
   , Converted
+  , Attribute
   , Element(..)
   , module Html.Element
   ) where
@@ -177,6 +178,8 @@ import Html.Convert
 import Html.Element
 
 import Html.Type
+
+import Html.Attribute (addAttributes)
 
 -- | Orphan show instances to faciliate ghci development.
 instance                     Document (a > b) String => Show (a > b) where show = renderString

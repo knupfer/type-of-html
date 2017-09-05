@@ -254,10 +254,6 @@ data (:>) (a :: Element) b where
   WithAttributes :: (a ?> b) => [Attribute] -> b -> a :> b
 infixr 8 :>
 
-{-# INLINE addAttributes #-}
-addAttributes :: (a ?> b) => [Attribute] -> (a > b) -> (a :> b)
-addAttributes xs (Child b) = WithAttributes xs b
-
 -- | Wrapper for types which won't be escaped.
 newtype Raw a = Raw a
 
@@ -931,7 +927,7 @@ type family GetInfo a where
   GetInfo Li = ElementInfo
     '[]
     FlowContent
-    (LastChildOrFollowedBy '[Li]) -- if followed by li or no more content
+    (LastChildOrFollowedBy '[Li])
 
   GetInfo Link = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]

@@ -1,14 +1,12 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE PolyKinds             #-}
 
