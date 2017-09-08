@@ -217,72 +217,78 @@ spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . d
         shouldBe
         "<div>a ä € 𝄞</div>"
 
-      allT (img_A [A.id_ "a ä € 𝄞"])
+      allT (img_A (A.id_ "a ä € 𝄞"))
         shouldBe
         "<img id=\"a ä € 𝄞\">"
 
     it "computes its result lazily (String)" $ do
 
-      renderString (errorWithoutStackTrace "not lazy" :: 'Img > ())
+      pending
+
+      renderString (errorWithoutStackTrace "1) not lazy" :: 'Img > ())
         `shouldBe`
         "<img>"
 
-      take 5 (renderString (div_ (errorWithoutStackTrace "not lazy" :: String)))
+      take 5 (renderString (div_ (errorWithoutStackTrace "2) not lazy" :: String)))
         `shouldBe`
         "<div>"
 
-      take 5 (renderString (errorWithoutStackTrace "not lazy" :: 'Div > String))
+      take 5 (renderString (errorWithoutStackTrace "3) not lazy" :: 'Div > String))
         `shouldBe`
         "<div>"
 
-      take 12 (renderString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))
+      take 12 (renderString (div_ "a" # (errorWithoutStackTrace "4) not lazy" :: String)))
         `shouldBe`
         "<div>a</div>"
 
-      take 17 (renderString (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))
+      take 17 (renderString (div_ "a" # [img_ # (errorWithoutStackTrace "5) not lazy" :: String)]))
         `shouldBe`
         "<div>a</div><img>"
 
     it "computes its result lazily (Text)" $ do
 
-      T.unpack (renderText (errorWithoutStackTrace "not lazy" :: 'Img > ()))
+      pending
+      
+      T.unpack (renderText (errorWithoutStackTrace "1) not lazy" :: 'Img > ()))
         `shouldBe`
         "<img>"
 
-      take 5 (T.unpack (renderText (div_ (errorWithoutStackTrace "not lazy" :: String))))
+      take 5 (T.unpack (renderText (div_ (errorWithoutStackTrace "2) not lazy" :: String))))
         `shouldBe`
         "<div>"
 
-      take 5 (T.unpack (renderText (errorWithoutStackTrace "not lazy" :: 'Div > String)))
+      take 5 (T.unpack (renderText (errorWithoutStackTrace "3) not lazy" :: 'Div > String)))
         `shouldBe`
         "<div>"
 
-      take 12 (T.unpack (renderText (div_ "a" # (errorWithoutStackTrace "not lazy" :: String))))
+      take 12 (T.unpack (renderText (div_ "a" # (errorWithoutStackTrace "4) not lazy" :: String))))
         `shouldBe`
         "<div>a</div>"
 
-      take 17 (T.unpack (renderText (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)])))
+      take 17 (T.unpack (renderText (div_ "a" # [img_ # (errorWithoutStackTrace "5) not lazy" :: String)])))
         `shouldBe`
         "<div>a</div><img>"
 
     it "computes its result lazily (ByteString)" $ do
 
-      T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "not lazy" :: 'Img > ())))
+      pending
+
+      T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "1) not lazy" :: 'Img > ())))
         `shouldBe`
         "<img>"
 
-      take 5 (T.unpack (decodeUtf8 (renderByteString (div_ (errorWithoutStackTrace "not lazy" :: String)))))
+      take 5 (T.unpack (decodeUtf8 (renderByteString (div_ (errorWithoutStackTrace "2) not lazy" :: String)))))
         `shouldBe`
         "<div>"
 
-      take 5 (T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "not lazy" :: 'Div > String))))
+      take 5 (T.unpack (decodeUtf8 (renderByteString (errorWithoutStackTrace "3) not lazy" :: 'Div > String))))
         `shouldBe`
         "<div>"
 
-      take 12 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # (errorWithoutStackTrace "not lazy" :: String)))))
+      take 12 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # (errorWithoutStackTrace "4) not lazy" :: String)))))
         `shouldBe`
         "<div>a</div>"
 
-      take 17 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # [img_ # (errorWithoutStackTrace "not lazy" :: String)]))))
+      take 17 (T.unpack (decodeUtf8 (renderByteString (div_ "a" # [img_ # (errorWithoutStackTrace "5) not lazy" :: String)]))))
         `shouldBe`
         "<div>a</div><img>"

@@ -1,19 +1,22 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TypeOperators        #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE DataKinds            #-}
-{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE UndecidableInstances       #-}
+{-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE GADTs                      #-}
 
 module Html.Type where
 
-import qualified Data.Text.Lazy as T
+import qualified Data.ByteString.Builder as B
 
 import GHC.TypeLits
 import GHC.Exts
 import Data.Proxy
 import Data.Type.Bool
+import qualified Data.Semigroup as S
+import qualified Data.Monoid as M
 
 {-# DEPRECATED
 
@@ -251,7 +254,7 @@ infixr 8 >
 -- >>> WithAttributes [A.class_ "bar"] "a" :: 'Div :> String
 -- <div class="bar">a</div>
 data (:>) (a :: Element) b where
-  WithAttributes :: (a ?> b) => [Attribute] -> b -> a :> b
+  WithAttributes :: (a ?> b) => Attribute -> b -> a :> b
 infixr 8 :>
 
 -- | Wrapper for types which won't be escaped.
@@ -263,7 +266,7 @@ newtype Converted a = Converted {unConv :: a}
   -- internal code --
   -------------------
 
-newtype Attribute = Attribute T.Text
+newtype Attribute = Attribute B.Builder deriving (M.Monoid, S.Semigroup)
 
 type family ShowElement e where
   ShowElement DOCTYPE    = "!DOCTYPE html"

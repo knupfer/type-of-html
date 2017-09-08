@@ -157,6 +157,7 @@ module Html
   ( renderString
   , renderText
   , renderByteString
+  , renderBuilder
   , type (>)(..)
   , type (:>)(..)
   , addAttributes
@@ -182,9 +183,9 @@ import Html.Type
 import Html.Attribute (addAttributes)
 
 -- | Orphan show instances to faciliate ghci development.
-instance                     Document (a > b) String => Show (a > b) where show = renderString
-instance {-# OVERLAPPING #-} Document (a > b) String => Show [a > b] where show = renderString
-instance                     Document (a:> b) String => Show (a:> b) where show = renderString
-instance {-# OVERLAPPING #-} Document (a:> b) String => Show [a:> b] where show = renderString
-instance                     Document (a # b) String => Show (a # b) where show = renderString
-instance {-# OVERLAPPING #-} Document (a # b) String => Show [a # b] where show = renderString
+instance                     Document (a > b) => Show (a > b) where show = renderString
+instance {-# OVERLAPPING #-} Document (a > b) => Show [a > b] where show = renderString
+instance                     Document (a:> b) => Show (a:> b) where show = renderString
+instance {-# OVERLAPPING #-} Document (a:> b) => Show [a:> b] where show = renderString
+instance                     Document (a # b) => Show (a # b) where show = renderString
+instance {-# OVERLAPPING #-} Document (a # b) => Show [a # b] where show = renderString

@@ -31,6 +31,7 @@ library
   build-depends:      base >= 4.10 && < 4.11
                     , text
                     , bytestring
+                    , ghc-prim
 
 test-suite test
   type:               exitcode-stdio-1.0
