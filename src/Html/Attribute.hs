@@ -1,6 +1,5 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeOperators     #-}
-{-# LANGUAGE MagicHash         #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE MagicHash     #-}
 
 module Html.Attribute where
 

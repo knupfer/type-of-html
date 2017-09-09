@@ -1,19 +1,20 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE OverloadedStrings   #-}
-{-# LANGUAGE FlexibleInstances   #-}
-{-# LANGUAGE TypeApplications    #-}
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE MagicHash           #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleInstances          #-}
 
 module Html.Convert where
 
+import Data.Word
 import Data.Proxy
 import Data.String
 import GHC.TypeLits
 import Html.Type
-import GHC.Prim (Addr#)
 
 import Data.Char (ord)
+
+import qualified Data.Monoid as M
+import qualified Data.Semigroup as S
 
 import qualified Data.ByteString.Internal as U
 import qualified Data.ByteString.Unsafe   as U
@@ -24,13 +25,15 @@ import qualified Data.ByteString.Builder.Internal as U
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
 
+import qualified Data.Text.Lazy              as TL
+import qualified Data.Text.Lazy.Encoding     as TL
+
 {-# INLINE unsafe #-}
-unsafe :: Int -> Addr# -> U.ByteString
 unsafe i addr = U.accursedUnutterablePerformIO (U.unsafePackAddressLen i addr)
 
 {-# INLINE escape #-}
-escape :: T.Text -> B.Builder
-escape = T.encodeUtf8BuilderEscaped $
+escape :: BP.BoundedPrim Word8
+escape =
     BP.condB (>  c2w '>' ) (BP.liftFixedToBounded BP.word8) $
     BP.condB (== c2w '<' ) (fixed4 (c2w '&',(c2w 'l',(c2w 't',c2w ';')))) $        -- &lt;
     BP.condB (== c2w '>' ) (fixed4 (c2w '&',(c2w 'g',(c2w 't',c2w ';')))) $        -- &gt;
@@ -56,29 +59,32 @@ escape = T.encodeUtf8BuilderEscaped $
 
 @
 {\-\# LANGUAGE RecordWildCards \#-\}
+{\-\# LANGUAGE OverloadedStrings \#-\}
 
 module Main where
 
 import Html
 
+import Data.Text (Text)
+import Data.Monoid
+
 data Person
   = Person
-  { name :: String
+  { name :: Text
   , age :: Int
   , vegetarian :: Bool
   }
 
--- | This is not efficient, but understandable.
--- The call to convertText is needed for escaping.
--- This is enforced by a newtype. Wrap it in Raw if you don't want to escape.
+-- | This is already very efficient.
+-- Wrap the Strings in Raw if you don't want to escape them.
+
 instance Convert Person where
-  convertText (Person{..})
-    = convertText
-    $  name
-    ++ " is "
-    ++ show age
-    ++ " years old and likes "
-    ++ if vegetarian then "oranges." else "meat."
+  convert (Person{..})
+    =  convert name
+    <> " is "
+    <> convert age
+    <> " years old and likes "
+    <> if vegetarian then "oranges." else "meat."
 
 john :: Person
 john = Person {name = "John", age = 52, vegetarian = True}
@@ -87,8 +93,14 @@ main :: IO ()
 main = print (div_ john)
 @
 -}
+
+newtype Converted = Converted {unConv :: B.Builder} deriving (M.Monoid,S.Semigroup)
+
+instance IsString Converted where
+  fromString = convert
+
 class Convert a where
-  convert :: a -> Converted B.Builder
+  convert :: a -> Converted
 
 instance Convert (Raw String) where
   {-# INLINE convert #-}
@@ -96,12 +108,18 @@ instance Convert (Raw String) where
 instance Convert (Raw T.Text) where
   {-# INLINE convert #-}
   convert (Raw x) = Converted (T.encodeUtf8Builder x)
+instance Convert (Raw TL.Text) where
+  {-# INLINE convert #-}
+  convert (Raw x) = Converted (TL.encodeUtf8Builder x)
 instance Convert String where
   {-# INLINE convert #-}
-  convert = Converted . escape . fromString
+  convert = convert . T.pack
 instance Convert T.Text where
   {-# INLINE convert #-}
-  convert = Converted . escape
+  convert = Converted . T.encodeUtf8BuilderEscaped escape
+instance Convert TL.Text where
+  {-# INLINE convert #-}
+  convert = Converted . TL.encodeUtf8BuilderEscaped escape
 instance Convert Int where
   {-# INLINE convert #-}
   convert = Converted . B.intDec
@@ -120,4 +138,3 @@ instance Convert Word where
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convert #-}
   convert = Converted . U.byteStringCopy . fromString . symbolVal
-

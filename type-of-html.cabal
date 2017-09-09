@@ -1,5 +1,5 @@
 name:                 type-of-html
-version:              0.4.0.1
+version:              0.4.1.1
 synopsis:             High performance type driven html generation.
 description:          This library makes most invalid html documents compile time errors and uses advanced type level features to realise compile time computations.
 license:              BSD3
@@ -31,7 +31,6 @@ library
   build-depends:      base >= 4.10 && < 4.11
                     , text
                     , bytestring
-                    , ghc-prim
 
 test-suite test
   type:               exitcode-stdio-1.0

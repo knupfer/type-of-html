@@ -260,8 +260,6 @@ infixr 8 :>
 -- | Wrapper for types which won't be escaped.
 newtype Raw a = Raw a
 
-newtype Converted a = Converted {unConv :: a}
-
   -------------------
   -- internal code --
   -------------------
