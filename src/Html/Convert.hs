@@ -11,15 +11,22 @@ import Data.Proxy
 import Data.String
 import GHC.TypeLits
 import Html.Type
+import GHC.Prim (Addr#)
 
 import Data.Char (ord)
 
+import qualified Data.ByteString.Internal as U
+import qualified Data.ByteString.Unsafe   as U
 import qualified Data.ByteString.Builder as B
 import qualified Data.ByteString.Builder.Prim as BP
 import qualified Data.ByteString.Builder.Internal as U
 
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
+
+{-# INLINE unsafe #-}
+unsafe :: Int -> Addr# -> U.ByteString
+unsafe i addr = U.accursedUnutterablePerformIO (U.unsafePackAddressLen i addr)
 
 {-# INLINE escape #-}
 escape :: T.Text -> B.Builder
@@ -35,18 +42,14 @@ escape = T.encodeUtf8BuilderEscaped $
 
     {-# INLINE c2w #-}
     c2w = fromIntegral . ord
-    
+
     {-# INLINE fixed4 #-}
     fixed4 x = BP.liftFixedToBounded $ const x BP.>$<
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
-     
+
     {-# INLINE fixed5 #-}
     fixed5 x = BP.liftFixedToBounded $ const x BP.>$<
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
-
-
-
-
 
 {-| Convert a type efficienctly to different string like types.  Add
   instances if you want use custom types in your document.
@@ -117,3 +120,4 @@ instance Convert Word where
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convert #-}
   convert = Converted . U.byteStringCopy . fromString . symbolVal
+

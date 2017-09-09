@@ -8,19 +8,8 @@ import Html.Convert
 import Html.Type
 import Data.Semigroup
 import Data.ByteString.Builder
-import GHC.Prim (Addr#)
 
 import qualified Data.ByteString.Builder.Internal as U
-import qualified Data.ByteString.Internal as U
-import qualified Data.ByteString.Unsafe   as U
-
-{-# INLINE unsafe #-}
-unsafe :: Int -> Addr# -> U.ByteString
-unsafe i addr = U.accursedUnutterablePerformIO (U.unsafePackAddressLen i addr)
-
-{-# INLINE addAttributes #-}
-addAttributes :: (a ?> b) => Attribute -> (a > b) -> (a :> b)
-addAttributes xs (Child b) = WithAttributes xs b
 
 {-# INLINE accept_ #-}
 accept_ :: Convert a => a -> Attribute
@@ -485,3 +474,7 @@ width_ x = Attribute $ U.byteStringCopy (unsafe 8 " width=\""#) <> unConv (conve
 {-# INLINE wrap_ #-}
 wrap_ :: Convert a => a -> Attribute
 wrap_ x = Attribute $ U.byteStringCopy (unsafe 7 " wrap=\""#) <> unConv (convert x) <> char7 '"'
+
+{-# INLINE addAttributes #-}
+addAttributes :: (a ?> b) => Attribute -> (a > b) -> (a :> b)
+addAttributes xs (Child b) = WithAttributes xs b

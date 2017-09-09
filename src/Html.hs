@@ -84,7 +84,7 @@ page
        # 'Table > 'Tr > a
        )
 page tds =
-  div_A [A.class_ "qux", A.id_ "baz"]
+  div_A (A.class_ "qux" <> A.id_ "baz")
     ( div_ "foo"
     # div_ "bar"
     # table_ (tr_ tds)
@@ -100,7 +100,7 @@ All text will be automatically html escaped:
 >>> i_ "&"
 <i>&amp;</i>
 
->>> div_A [A.id_ ">"] ()
+>>> div_A (A.id_ ">") ()
 <div id="&gt;"></div>
 
 If you want to opt out, wrap your types into the 'Raw'
@@ -160,7 +160,6 @@ module Html
   , renderBuilder
   , type (>)(..)
   , type (:>)(..)
-  , addAttributes
   , type (#)(..)
   , (#)
   , type (?>)
@@ -179,8 +178,6 @@ import Html.Convert
 import Html.Element
 
 import Html.Type
-
-import Html.Attribute (addAttributes)
 
 -- | Orphan show instances to faciliate ghci development.
 instance                     Document (a > b) => Show (a > b) where show = renderString
