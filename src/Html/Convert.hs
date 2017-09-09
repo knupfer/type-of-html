@@ -54,6 +54,11 @@ escape =
     fixed5 x = BP.liftFixedToBounded $ const x BP.>$<
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
 
+newtype Converted = Converted {unConv :: B.Builder} deriving (M.Monoid,S.Semigroup)
+
+instance IsString Converted where
+  fromString = convert
+
 {-| Convert a type efficienctly to different string like types.  Add
   instances if you want use custom types in your document.
 
@@ -93,12 +98,6 @@ main :: IO ()
 main = print (div_ john)
 @
 -}
-
-newtype Converted = Converted {unConv :: B.Builder} deriving (M.Monoid,S.Semigroup)
-
-instance IsString Converted where
-  fromString = convert
-
 class Convert a where
   convert :: a -> Converted
 
