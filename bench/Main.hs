@@ -13,6 +13,7 @@ import qualified Html.Attribute as A
 import Data.String
 import Control.Monad
 import Criterion.Main
+import Data.Monoid
 
 import Text.Blaze.Html5 ((!))
 import Text.Blaze.Html.Renderer.Utf8
@@ -24,45 +25,31 @@ main :: IO ()
 main = defaultMain
   [ bgroup "minimal"
     [ bench "blaze.utf8" $ nf (renderHtml . blazeMinimal)     (fromString "TEST")
-    , bench "string"     $ nf (renderString . minimal)        "TEST"
     , bench "bytestring" $ nf (renderByteString . minimal)    "TEST"
-    , bench "text"       $ nf (renderText . minimal)          "TEST"
     ]
   , bgroup "hello world"
     [ bench "blaze.utf8" $ nf (renderHtml . blazeHelloWorld)  (fromString "TEST")
-    , bench "string"     $ nf (renderString . helloWorld)     "TEST"
     , bench "bytestring" $ nf (renderByteString . helloWorld) "TEST"
-    , bench "text"       $ nf (renderText . helloWorld)       "TEST"
     ]
   , bgroup "attributes short"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrShort)  (fromString "TEST")
-    , bench "string"     $ nf (renderString . attrShort)     "TEST"
-    , bench "bytestring" $ nf (renderByteString . attrShort) "TEST"
-    , bench "text"       $ nf (renderText . attrShort)       "TEST"
+    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrShort)   (fromString "TEST")
+    , bench "bytestring" $ nf (renderByteString . attrShort)  "TEST"
     ]
   , bgroup "attributes long"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrLong)  (fromString "TEST")
-    , bench "string"     $ nf (renderString . attrLong)     "TEST"
-    , bench "bytestring" $ nf (renderByteString . attrLong) "TEST"
-    , bench "text"       $ nf (renderText . attrLong)       "TEST"
+    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrLong)    (fromString "TEST")
+    , bench "bytestring" $ nf (renderByteString . attrLong)   "TEST"
     ]
   , bgroup "big page"
     [ bench "blaze.utf8" $ nf (renderHtml . blazeBigPage)     (fromString "TEST")
-    , bench "string"     $ nf (renderString . bigPage)        "TEST"
     , bench "bytestring" $ nf (renderByteString . bigPage)    "TEST"
-    , bench "text"       $ nf (renderText . bigPage)          "TEST"
     ]
   , bgroup "big page with attributes"
     [ bench "blaze.utf8" $ nf (renderHtml . blazeBigPageA)    (fromString "TEST")
-    , bench "string"     $ nf (renderString . bigPageA)       "TEST"
     , bench "bytestring" $ nf (renderByteString . bigPageA)   "TEST"
-    , bench "text"       $ nf (renderText . bigPageA)         "TEST"
     ]
   , bgroup "big table"
     [ bench "blaze.utf8" $ nf (renderHtml . blazeBigTable)    (4,4)
-    , bench "string"     $ nf (renderString . bigTable)       (4,4)
     , bench "bytestring" $ nf (renderByteString . bigTable)   (4,4)
-    , bench "text"       $ nf (renderText . bigTable)         (4,4)
     ]
   ]
 
@@ -196,47 +183,47 @@ bigPage x =
     )
 
 attrLong x =
-  i_A [ A.accept_ "a"
-      , A.acceptcharset_ "b"
-      , A.accesskey_ "c"
-      , A.action_ "d"
-      , A.alt_ "f"
-      , A.async_ "g"] x
+  i_A ( A.accept_ "a"
+     <> A.acceptcharset_ "b"
+     <> A.accesskey_ "c"
+     <> A.action_ "d"
+     <> A.alt_ "f"
+     <> A.async_ "g") x
 
 attrShort x
-  = i_A [A.accept_ "a"]
-  . i_A [A.acceptcharset_ "b"]
-  . i_A [A.accesskey_ "c"]
-  . i_A [A.action_ "d"]
-  . i_A [A.alt_ "f"]
-  $ i_A [A.async_ "g"] x
+  = i_A (A.accept_ "a")
+  . i_A (A.acceptcharset_ "b")
+  . i_A (A.accesskey_ "c")
+  . i_A (A.action_ "d")
+  . i_A (A.alt_ "f")
+  $ i_A (A.async_ "g") x
 
 
 bigPageA x =
   html_
     ( body_
-      ( h1_A [A.id_ "a"]
+      ( h1_A (A.id_ "a")
         ( img_
-        # strong_A [A.class_ "b"] (0 :: Int)
+        # strong_A (A.class_ "b") (0 :: Int)
         )
       # div_
-        ( div_A [A.id_ "c"] (1 :: Int)
+        ( div_A (A.id_ "c") (1 :: Int)
         )
       # div_
-        ( form_A [A.class_ "d"]
+        ( form_A (A.class_ "d")
           ( fieldset_
-            ( div_A [A.id_ "e"]
+            ( div_A (A.id_ "e")
               ( div_
-                ( label_A [A.class_ "f"] "a"
+                ( label_A (A.class_ "f") "a"
                 # select_
-                  ( option_A [A.id_ "g"] "b"
+                  ( option_A (A.id_ "g") "b"
                   # option_ "c"
                   )
-                # div_A [A.class_ "h"] "d"
+                # div_A (A.class_ "h") "d"
                 )
               # i_ x
               )
-            # button_A [A.id_ "i"] (i_ "e")
+            # button_A (A.id_ "i") (i_ "e")
             )
           )
         )
