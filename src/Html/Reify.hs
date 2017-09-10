@@ -23,6 +23,7 @@ import qualified Data.Text.Lazy.Encoding as T
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString.Builder as B
 
+-- | Render a html document to a Builder.
 {-# INLINE renderBuilder #-}
 renderBuilder :: forall a. Document a => a -> B.Builder
 renderBuilder x = renderchunks (Tagged x :: Tagged (Symbols a) a ())

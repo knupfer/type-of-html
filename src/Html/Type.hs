@@ -202,18 +202,6 @@ data Element
 -- | Check whether `b` is a valid child of `a`.  You'll propably never
 -- need to call this directly.  Through a GADT, it is enforced that
 -- every child is lawful.
---
--- The only way to circumvent this would be to use 'undefined' or
--- 'error' in combination with only type level values.
---
--- >>> undefined :: 'Div > ('Html > ())
--- <div><html></html></div>
---
--- >>> undefined :: 'Div > ('Html > Proxy "a")
--- <div><html>a</html></div>
---
--- >>> undefined :: 'Div > ('Html > String)
--- <div><html>*** Exception: Prelude.undefined
 type family (a :: Element) ?> b :: Constraint where
   a ?> (b # c)    = (a ?> b, a ?> c)
   a ?> (b > _)    = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
