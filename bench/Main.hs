@@ -24,32 +24,32 @@ import qualified Text.Blaze.Html5.Attributes as BA
 main :: IO ()
 main = defaultMain
   [ bgroup "minimal"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeMinimal)     (fromString "TEST")
-    , bench "bytestring" $ nf (renderByteString . minimal)    "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeMinimal)     (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . minimal)    "TEST"
     ]
   , bgroup "hello world"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeHelloWorld)  (fromString "TEST")
-    , bench "bytestring" $ nf (renderByteString . helloWorld) "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeHelloWorld)  (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . helloWorld) "TEST"
     ]
   , bgroup "attributes short"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrShort)   (fromString "TEST")
-    , bench "bytestring" $ nf (renderByteString . attrShort)  "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeAttrShort)   (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . attrShort)  "TEST"
     ]
   , bgroup "attributes long"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeAttrLong)    (fromString "TEST")
-    , bench "bytestring" $ nf (renderByteString . attrLong)   "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeAttrLong)    (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . attrLong)   "TEST"
     ]
   , bgroup "big page"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeBigPage)     (fromString "TEST")
-    , bench "bytestring" $ nf (renderByteString . bigPage)    "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeBigPage)     (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . bigPage)    "TEST"
     ]
   , bgroup "big page with attributes"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeBigPageA)    (fromString "TEST")
-    , bench "bytestring" $ nf (renderByteString . bigPageA)   "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeBigPageA)    (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . bigPageA)   "TEST"
     ]
   , bgroup "big table"
-    [ bench "blaze.utf8" $ nf (renderHtml . blazeBigTable)    (4,4)
-    , bench "bytestring" $ nf (renderByteString . bigTable)   (4,4)
+    [ bench "blaze-html"   $ nf (renderHtml . blazeBigTable)    (4,4)
+    , bench "type-of-html" $ nf (renderByteString . bigTable)   (4,4)
     ]
   ]
 
