@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "type-of-html";
-  version = "0.4.1.1";
+  version = "0.4.2.0";
   src = ./.;
   libraryHaskellDepends = [ base bytestring text ];
   testHaskellDepends = [ base hspec QuickCheck text ];

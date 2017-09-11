@@ -30,7 +30,7 @@ Let's check out the /type safety/ in ghci:
       In an equation for ‘it’: it = td_ (tr_ "a")
 
 >>> tr_ (td_ "a")
-<tr><td>a</tr>
+<tr><td>a</td></tr>
 ```
 
 For every child, it is checked if it could possibly be lawful.
@@ -52,10 +52,10 @@ Html documents are just ordinary haskell values which can be composed or abstrac
 >>> :t table
 table :: ('Td ?> a) => [[a]] -> 'Table > ['Tr > ['Td > a]]
 >>> table [["A","B"],["C"]]
-<table><tr><td>A<td>B<tr><td>C</table>
+<table><tr><td>A</td><td>B</td></tr><tr><td>C</td></tr></table>
 >>> import Data.Char
 >>> html_ . body_ . table $ map (\c -> [[c], show $ ord c]) ['a'..'d']
-<html><body><table><tr><td>a<td>97<tr><td>b<td>98<tr><td>c<td>99<tr><td>d<td>100</table></body></html>
+<html><body><table><tr><td>a</td><td>97</td></tr><tr><td>b</td><td>98</td></tr><tr><td>c</td><td>99</td></tr><tr><td>d</td><td>100</td></tr></table></body></html>
 ```
 
 And here's an example module:
@@ -139,13 +139,12 @@ make the other benchmarks unreadable.
 
 How is this possible? We supercompile lots of parts of the generation
 process. This is possible thanks to the new features of GHC 8.2:
-AppendSymbol. We represent tags as kinds and remove according to the
-html specification omittable closing tags with type
-families. Afterwards we map these tags to (a :: [Symbol]) and then
-fold all neighbouring Proxies with AppendSymbol. Afterwards we
-retrieve the Proxies with symbolVal which will be embedded in the
-executable as Addr#. All this happens at compile time. At runtime we
-do only generate the content and append Builders.
+AppendSymbol. We represent tags as kinds and map these tags to (a ::
+[Symbol]) and then fold all neighbouring Proxies with
+AppendSymbol. Afterwards we retrieve the Proxies with symbolVal which
+will be embedded in the executable as Addr#. All this happens at
+compile time. At runtime we do only generate the content and append
+Builders.
 
 For example, if you write:
 

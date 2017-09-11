@@ -1,5 +1,10 @@
 # Revision history for type-of-html
 
+## 0.4.2.0  -- 2017-09-11
+
+* don't remove omittable tags
+* simplify internals
+
 ## 0.4.0.0  -- 2017-09-09
 
 * new api: attributes are now monoids

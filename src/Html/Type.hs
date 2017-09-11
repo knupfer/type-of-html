@@ -212,7 +212,7 @@ type family (a :: Element) ?> b :: Constraint where
   a ?> f (b :> c) = a ?> (b > c)
   a ?> f (b # c)  = a ?> (b # c)
   a ?> ()         = ()
-  a ?> (b -> c)   = (TypeError (Text "Html elements can't contain functions"))
+  a ?> (b -> c)   = TypeError (Text "Html elements can't contain functions")
   a ?> b          = CheckString a
 
 -- | Combine two elements sequentially.
@@ -418,164 +418,61 @@ type family CountContent c where
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
-  ToTypeList (Next val nex) = Next (ToTypeList val) (ToTypeList nex)
-  ToTypeList (a # b)        = Append (ToTypeList a) (ToTypeList b)
-  ToTypeList (a > ())       = If (HasContent (GetInfo a)) (Open a, Close a) (Open a)
-  ToTypeList (a :> ())      = If (HasContent (GetInfo a)) (OpenAttr a, (Attribute, (EndOfOpen, Close a))) (OpenAttr a, (Attribute, EndOfOpen))
-  ToTypeList (a > b)        = Append (Open a, ToTypeList b) (Close a)
-  ToTypeList (a :> b)       = Append (OpenAttr a, (Attribute, (EndOfOpen, ToTypeList b))) (Close a)
-  ToTypeList x              = x
+  ToTypeList (() # b)  = ToTypeList b
+  ToTypeList (a # ())  = ToTypeList a
+  ToTypeList (a # b)   = Append (ToTypeList a) (ToTypeList b)
+  ToTypeList (a > ())  = If (HasContent (GetInfo a)) '[OpenTag a, CloseTag a] '[OpenTag a]
+  ToTypeList (a :> ()) = If (HasContent (GetInfo a)) '[AppendSymbol "<" (ShowElement a), "", ">", CloseTag a] '[AppendSymbol "<" (ShowElement a), "", ">"]
+  ToTypeList (a > b)   = Append (OpenTag a ': ToTypeList b) '[CloseTag a]
+  ToTypeList (a :> b)  = Append (AppendSymbol "<" (ShowElement a) ': "" ': ">" ': ToTypeList b) '[CloseTag a]
+  ToTypeList (Proxy x) = '[x]
+  ToTypeList x         = '[""]
 
 -- | Append two type lists.
-type family Append a b where
-  Append (a, b) c = (a, Append b c)
-  Append a      b = (a, b)
+type family Append xs ys :: [Symbol] where
+  Append xs '[]       = xs
+  Append '[] ys       = ys
+  Append (x ': xs) ys = x ': Append xs ys
 
 -- | Check whether an element may have content.
 type family HasContent a where
-  HasContent (ElementInfo _ NoContent _) = False
-  HasContent _                           = True
+  HasContent (ElementInfo _ NoContent) = False
+  HasContent _                         = True
 
--- | Remove omittable and empty tags from a type list of tags.
-type family PruneTags a where
-  PruneTags ((), a)      = PruneTags a
-  PruneTags (a , ())     = PruneTags a
-  PruneTags (Close a, b) = IsOmittable (GetInfo a) (Close a, b)
-  PruneTags (Next a b)   = IsOmittableL (Head' (PruneTags a)) (PruneTags a) (Last (PruneTags a)) b
-  PruneTags (a, b)       = (a, PruneTags b)
-  PruneTags a            = a
-
-data Next v nex
-
-type family IsOmittableL head val last next where
-  IsOmittableL (OpenAttr head) val (Close last) (Close next) = IsOmittable2 (Open head) val (GetInfo last) (Close next)
-  IsOmittableL (Open head)     val (Close last) (Close next) = IsOmittable2 (Open head) val (GetInfo last) (Close next)
-
--- Base case
-  IsOmittableL _head val _last next = val
-
-type family IsOmittable2 head list last next where
-  IsOmittable2
-    (Open head)
-    val
-    (ElementInfo _ _ (LastChildOrFollowedBy (head ': _))) -- last
-    (Close next)
-    = Init val
-
-  IsOmittable2
-    (Open head)
-    val
-    (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) -- last
-    (Close next)
-    = IsOmittable2 (Open head) val (ElementInfo a b (LastChildOrFollowedBy xs)) (Close next)
-
--- Base case
-  IsOmittable2
-    _head
-    val
-    _last
-    next
-    = val
-
--- | Checks whether a tag is omittable.  Sadly, returning a kind Bool
--- would make the compiler loop, so we inline the if into the type
--- function.
-type family IsOmittable a b where
-  IsOmittable (ElementInfo _ _ RightOmission) (_,c)                                   = PruneTags c
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,(Close b, c))            = PruneTags (Close b, c)
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy _)) (_,Close b)                 = Close b
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy '[])) (b,c)                     = (b, PruneTags c)
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (Open x, d))     = PruneTags (Open x, d)
-  IsOmittable (ElementInfo _ _ (LastChildOrFollowedBy (x ': _))) (c, (OpenAttr x, d)) = PruneTags (OpenAttr x, d)
-  IsOmittable (ElementInfo a b (LastChildOrFollowedBy (_ ': xs))) c                   = IsOmittable (ElementInfo a b (LastChildOrFollowedBy xs)) c
-  IsOmittable _ (c,d)                                                                 = (c, PruneTags d)
-
--- | Convert tags to type level strings.
-type family RenderTags a where
-  RenderTags (a, b)       = (RenderTags a, RenderTags b)
-  RenderTags (Open a)     = Proxy (OpenTag a)
-  RenderTags (OpenAttr a) = Proxy (AppendSymbol "<" (ShowElement a))
-  RenderTags (Close a)    = Proxy (CloseTag a)
-  RenderTags EndOfOpen    = Proxy ">"
-  RenderTags a            = a
-
--- | Fuse neighbouring type level strings.
+-- | Fuse neighbouring non empty type level strings.
 type family Fuse a where
-  Fuse (Proxy (a :: Symbol), (Proxy (b :: Symbol), c)) = Fuse (Proxy (AppendSymbol a b), c)
-  Fuse (Proxy (a :: Symbol), Proxy (b :: Symbol))      = '[AppendSymbol a b]
-  Fuse (Proxy (a :: Symbol), (b,c))                    =  a ': Fuse c
-  Fuse (Proxy (a :: Symbol), b)                        = a ': Fuse b
-  Fuse (Proxy (a :: Symbol))                           = '[a]
-  Fuse (a, b)                                          = "" ': Fuse b
-  Fuse a                                               = '[""]
+  Fuse ("" ': xs)      = "" ': Fuse xs
+  Fuse '[a, ""]        = '[a, ""]
+  Fuse (a ': "" ': xs) = a ': Fuse xs
+  Fuse (a ': b ': xs)  = Fuse (AppendSymbol a b ': xs)
+  Fuse (a ': xs)       = '[a]
+  Fuse '[]             = '[]
 
 type family Drop n xs :: [Symbol] where
   Drop 0 xs = xs
-  Drop 1 (_ ': xs) = xs
-  Drop 2 (_ ': _ ': xs) = xs
-  Drop 3 (_ ': _ ': _ ': xs) = xs
-  Drop 4 (_ ': _ ': _ ': _ ': xs) = xs
-  Drop n (_ ': _ ': _ ': _ ': _ ': xs) = Drop (n-5) xs
+  Drop n (_ ': xs) = Drop (n-1) xs
 
 type family Take n xs :: [Symbol] where
   Take 0 _ = '[]
-  Take 1 (x1 ': _) = '[x1]
-  Take 2 (x1 ': x2 ': _) = [x1,x2]
-  Take 3 (x1 ': x2 ': x3 ': _) = [x1,x2,x3]
-  Take 4 (x1 ': x2 ': x3 ': x4 ': _) = [x1,x2,x3,x4]
-  Take n (x1 ': x2 ': x3 ': x4 ': x5 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': Take (n-5) xs
-
--- | Init for type level lists.
-type family Init xs where
-  Init (a, (b, (c, d))) = (a, (b, Init (c, d)))
-  Init (a, (b,c)) = (a, b)
-  Init (a, b)     = a
-  Init a          = a
+  Take n (x ': xs) = x ': Take (n-1) xs
 
 -- | Last for type level lists.
-type family Last a where
-  Last (a, (b, (c, d))) = Last d
-  Last (a, (b, c)) = c
-  Last (a, b) = b
-  Last a = a
-
--- | Last for type level lists.
-type family Last' (xs :: [Symbol]) where
-  Last' (_ ': _ ': _ ': _ ': x ': xs) = Last' (x ': xs)
-  Last' (_ ': _ ': _ ': x ': xs) = x
-  Last' (_ ': _ ': x ': xs) = x
-  Last' (_ ': x ': xs) = x
-  Last' (x ': xs) = x
-  Last' _         = ""
+type family Last (xs :: [Symbol]) where
+  Last (_ ': x ': xs) = Last (x ': xs)
+  Last (x ': xs) = x
+  Last _         = ""
 
 -- | Head for type level lists.
-type family Head' a where
-  Head' (a, as) = a
-  Head' a       = a
-
-type family HeadL a :: Symbol where
-  HeadL (a ': _) = a
-
--- | Utility types.
-data EndOfOpen
-data Open (a :: Element)
-data OpenAttr (a :: Element)
-data Close (a :: Element)
+type family Head' a :: Symbol where
+  Head' (a ': _) = a
 
 -- | Type of type level information about tags.
 data ElementInfo
   (contentCategories :: [ContentCategory])
   (permittedContent  :: ContentCategory)
-  (tagOmission       :: TagOmission)
-
--- | Kind describing whether it is valid to delete a closing tag.
-data TagOmission
-  = NoOmission
-  | RightOmission
-  | LastChildOrFollowedBy [Element]
 
 type family TestPaternity a b c :: Bool where
-  TestPaternity a (ElementInfo _ ps _) (ElementInfo cs _ _) = CheckContentCategory ps (a ': cs)
+  TestPaternity a (ElementInfo _ ps) (ElementInfo cs _) = CheckContentCategory ps (a ': cs)
 
 type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory]) :: Bool where
   CheckContentCategory (a :|: b) c = CheckContentCategory a c || CheckContentCategory b c
@@ -585,7 +482,7 @@ type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory])
 
 -- | Check whether a given element may contain a string.
 type family CheckString (a :: Element) where
-  CheckString a = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent NoOmission))
+  CheckString a = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent))
                      (() :: Constraint)
                      (TypeError (ShowType a :<>: Text " can't contain a string"))
 
@@ -621,9 +518,9 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
-newtype Tagged (proxies :: [Symbol]) target (next :: *) = Tagged target
+newtype Tagged (proxies :: [Symbol]) target = Tagged target
 
-type Symbols a = Fuse (RenderTags (PruneTags (ToTypeList a)))
+type Symbols a = Fuse (ToTypeList a)
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where
@@ -631,576 +528,459 @@ type family GetInfo a where
   GetInfo DOCTYPE = ElementInfo
     '[]
     NoContent
-    RightOmission
 
   GetInfo A = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, PalpableContent ]
     (TransparentContent :|: FlowContent :&: NOT InteractiveContent :|: PhrasingContent)
-    NoOmission
 
   GetInfo Abbr = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Address = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (HeadingContent :|: SectioningContent :|: SingleElement Address :|: SingleElement Header :|: SingleElement Footer))
-    NoOmission
 
   GetInfo Area = ElementInfo
     [ FlowContent, PhrasingContent ]
     NoContent
-    RightOmission
 
   GetInfo Article = ElementInfo
     [ FlowContent, SectioningContent, PalpableContent ]
     FlowContent
-    NoOmission
 
   GetInfo Aside = ElementInfo
     [ FlowContent, SectioningContent, PalpableContent ]
     FlowContent
-    NoOmission
 
   GetInfo Audio = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
     (SingleElement Source :|: SingleElement Track :|: TransparentContent :&: NOT (SingleElement Audio :|: SingleElement Video))
-    NoOmission
 
   GetInfo B = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Base = ElementInfo
     '[ MetadataContent ]
     NoContent
-    RightOmission
 
   GetInfo Bdi = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Bdo = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Blockquote = ElementInfo
     [ FlowContent, SectioningRoot, PalpableContent ]
     FlowContent
-    NoOmission
 
   GetInfo Body = ElementInfo
     '[ SectioningRoot ]
     FlowContent
-    NoOmission -- complicated exceptions
 
   GetInfo Br = ElementInfo
     [ FlowContent, PhrasingContent ]
     NoContent
-    RightOmission
 
   GetInfo Button = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Canvas = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent ]
     (TransparentContent :&: NOT InteractiveContent :|: SingleElement A :|: SingleElement Button :|: SingleElement Input)
-    NoOmission
 
   GetInfo Caption = ElementInfo
     '[]
     FlowContent
-    NoOmission
 
   GetInfo Cite = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Code = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Col = ElementInfo
     '[]
     NoContent
-    RightOmission
 
   GetInfo Colgroup = ElementInfo
     '[]
     (SingleElement Col)
-    NoOmission -- complicated rules
 
   GetInfo Data = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Datalist = ElementInfo
     [ FlowContent, PhrasingContent ]
     (PhrasingContent :|: SingleElement Option)
-    NoOmission
 
   GetInfo Dd = ElementInfo
     '[]
     FlowContent
-    (LastChildOrFollowedBy '[Dd])
 
   GetInfo Del = ElementInfo
     [ FlowContent, PhrasingContent ]
     TransparentContent
-    NoOmission
 
   GetInfo Details = ElementInfo
     [ FlowContent, SectioningRoot, InteractiveContent, PalpableContent ]
     ( SingleElement Summary :|: FlowContent)
-    NoOmission
 
   GetInfo Dfn = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     (PhrasingContent :&: NOT (SingleElement Dfn))
-    NoOmission
 
   GetInfo Dialog = ElementInfo
     [ FlowContent, SectioningRoot ]
     FlowContent
-    NoOmission
 
   GetInfo Div = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :|: SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template)
-    NoOmission
 
   GetInfo Dl = ElementInfo
     [ FlowContent, PalpableContent ]
     (SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template :|: SingleElement Div)
-    NoOmission
 
   GetInfo Dt = ElementInfo
     '[]
     (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
-    (LastChildOrFollowedBy '[Dd]) -- really?
 
   GetInfo Em = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Embed = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
     NoContent
-    RightOmission
 
   GetInfo Fieldset = ElementInfo
     [ FlowContent, SectioningRoot, FormAssociatedContent, PalpableContent ]
     (SingleElement Legend :|: FlowContent)
-    NoOmission
 
   GetInfo Figcaption = ElementInfo
     '[]
     FlowContent
-    NoOmission
 
   GetInfo Figure = ElementInfo
     [ FlowContent, SectioningRoot, PalpableContent ]
     (SingleElement Figcaption :|: FlowContent)
-    NoOmission
 
   GetInfo Footer = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (SingleElement Footer :|: SingleElement Header))
-    NoOmission
 
   GetInfo Form = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (SingleElement Form))
-    NoOmission
 
   GetInfo H1 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo H2 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo H3 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo H4 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo H5 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo H6 = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Head = ElementInfo
     '[]
     (MetadataContent :|: SingleElement Title)
-    NoOmission -- complicated
 
   GetInfo Header = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer))
-    NoOmission
 
   GetInfo Hgroup = ElementInfo
     [ FlowContent, HeadingContent, PalpableContent ]
     (SingleElement H1 :|: SingleElement H2 :|: SingleElement H3 :|: SingleElement H4 :|: SingleElement H5 :|: SingleElement H6)
-    NoOmission
 
   GetInfo Hr = ElementInfo
     '[ FlowContent ]
     NoContent
-    RightOmission
 
   GetInfo Html = ElementInfo
     '[]
     (SingleElement Head :|: SingleElement Body)
-    NoOmission -- complicated
 
   GetInfo I = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Iframe = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
-    NoContent -- complicated
-    NoOmission
+    NoContent
 
   GetInfo Img = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent, InteractiveContent ]
     NoContent
-    RightOmission
 
   GetInfo Ins = ElementInfo
     [ FlowContent, PhrasingContent ]
     TransparentContent
-    NoOmission
 
   GetInfo Kbd = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Label = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent, PalpableContent ]
     (PhrasingContent :&: NOT (SingleElement Label))
-    NoOmission
 
   GetInfo Legend = ElementInfo
     '[]
     PhrasingContent
-    NoOmission
 
   GetInfo Li = ElementInfo
     '[]
     FlowContent
-    (LastChildOrFollowedBy '[Li])
 
   GetInfo Link = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
     NoContent
-    RightOmission
 
   GetInfo Main = ElementInfo
     [ FlowContent, PalpableContent ]
     FlowContent
-    NoOmission
 
   GetInfo Map = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     TransparentContent
-    NoOmission
 
   GetInfo Mark = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Menu = ElementInfo
     [ FlowContent, PalpableContent ]
     (FlowContent :|: SingleElement Li :|: SingleElement Script :|: SingleElement Template :|: SingleElement Menu :|: SingleElement Menuitem :|: SingleElement Hr)
-    NoOmission
 
   GetInfo Menuitem = ElementInfo
     '[]
     NoContent
-    RightOmission
 
   GetInfo Meta = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
     NoContent
-    RightOmission
 
   GetInfo Meter = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     (PhrasingContent :&: NOT (SingleElement Meter))
-    NoOmission
 
   GetInfo Nav = ElementInfo
     [ FlowContent, SectioningContent, PalpableContent ]
     FlowContent
-    NoOmission
 
   GetInfo Noscript = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
     (SingleElement Link :|: SingleElement Style :|: SingleElement Meta :|: TransparentContent :&: NOT (SingleElement Noscript) :|: FlowContent :|: PhrasingContent)
-    NoOmission
 
   GetInfo Object = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent, InteractiveContent, FormAssociatedContent ]
     (SingleElement Param :|: TransparentContent)
-    NoOmission
 
   GetInfo Ol = ElementInfo
     [ FlowContent, PalpableContent ]
     (SingleElement Li)
-    NoOmission
 
   GetInfo Optgroup = ElementInfo
     '[]
     (SingleElement Option)
-    (LastChildOrFollowedBy '[Optgroup])
 
   GetInfo Option = ElementInfo
     '[]
     OnlyText
-    (LastChildOrFollowedBy '[Option, Optgroup])
 
   GetInfo Output = ElementInfo
     [ FlowContent, PhrasingContent, FormAssociatedContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo P = ElementInfo
     [ FlowContent, PalpableContent ]
     PhrasingContent
-    (LastChildOrFollowedBy '[Address, Article, Aside, Blockquote, Div, Dl, Fieldset, Footer, Form, H1, H2, H3, H4, H5, H6, Header, Hr, Menu, Nav, Ol, Pre, Section, Table, Ul, P])
-    -- And parent isn't <a>
 
   GetInfo Param = ElementInfo
     '[]
     NoContent
-    RightOmission
 
   GetInfo Picture = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent ]
     (SingleElement Source :|: SingleElement Img)
-    NoOmission
 
   GetInfo Pre = ElementInfo
     [ FlowContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Progress = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     (PhrasingContent :&: NOT (SingleElement Progress))
-    NoOmission
 
   GetInfo Q = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Rp = ElementInfo
     '[]
     OnlyText
-    NoOmission
 
   GetInfo Rt = ElementInfo
     '[]
     PhrasingContent
-    (LastChildOrFollowedBy '[Rt, Rp])
 
   GetInfo Rtc = ElementInfo
     '[]
     (PhrasingContent :|: SingleElement Rt)
-    (LastChildOrFollowedBy '[Rtc, Rt])
 
   GetInfo Ruby = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo S = ElementInfo
     [ FlowContent, PhrasingContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Samp = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Script = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
     OnlyText
-    NoOmission
 
   GetInfo Section = ElementInfo
     [ FlowContent, SectioningContent, PalpableContent ]
     FlowContent
-    NoOmission
 
   GetInfo Select = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent ]
     (SingleElement Option :|: SingleElement Optgroup)
-    NoOmission
 
   GetInfo Slot = ElementInfo
     [ FlowContent, PhrasingContent ]
     TransparentContent
-    NoOmission
 
   GetInfo Small = ElementInfo
     [ FlowContent, PhrasingContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Source = ElementInfo
     '[]
     NoContent
-    RightOmission
 
   GetInfo Span = ElementInfo
     [ FlowContent, PhrasingContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Strong = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Style = ElementInfo
     [ MetadataContent, FlowContent ]
     OnlyText
-    NoOmission
 
   GetInfo Sub = ElementInfo
     [ FlowContent, PhrasingContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Summary = ElementInfo
     '[]
     (PhrasingContent :|: HeadingContent)
-    NoOmission
 
   GetInfo Sup = ElementInfo
     [ FlowContent, PhrasingContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Table = ElementInfo
     '[FlowContent]
     (SingleElement Caption :|: SingleElement Colgroup :|: SingleElement Thead :|: SingleElement Tbody :|: SingleElement Tr :|: SingleElement Tfoot)
-    NoOmission
 
   GetInfo Tbody = ElementInfo
     '[]
     (SingleElement Tr)
-    NoOmission
 
   GetInfo Td = ElementInfo
     '[]
     FlowContent
-    (LastChildOrFollowedBy '[Th, Td])
 
   GetInfo Template = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
     (MetadataContent :|: FlowContent) -- complicated
-    NoOmission
 
   GetInfo Textarea = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent ]
     OnlyText
-    NoOmission
 
   GetInfo Tfoot = ElementInfo
     '[]
     (SingleElement Tr)
-    (LastChildOrFollowedBy '[])
 
   GetInfo Th = ElementInfo
     '[]
     (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
-    (LastChildOrFollowedBy '[Th, Td])
 
   GetInfo Thead = ElementInfo
     '[]
     (SingleElement Tr)
-    (LastChildOrFollowedBy '[Tbody, Tfoot])
-    -- nearly
 
   GetInfo Time = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Title = ElementInfo
     '[ MetadataContent ]
     OnlyText
-    NoOmission
 
   GetInfo Tr = ElementInfo
     '[]
     (SingleElement Td :|: SingleElement Th)
-    (LastChildOrFollowedBy '[Tr])
 
   GetInfo Track = ElementInfo
     '[]
     NoContent
-    RightOmission
 
   GetInfo U = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Ul = ElementInfo
     [ FlowContent, PalpableContent ]
     (SingleElement Li)
-    NoOmission
 
   GetInfo Var = ElementInfo
     [ FlowContent, PhrasingContent, PalpableContent ]
     PhrasingContent
-    NoOmission
 
   GetInfo Video = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
     (SingleElement Track :|: TransparentContent :&: NOT (SingleElement Audio :|: SingleElement Video) :|: SingleElement Source)
-    NoOmission
 
   GetInfo Wbr = ElementInfo
     [ FlowContent, PhrasingContent ]
     NoContent
-    RightOmission
 
   GetInfo _ = ElementInfo
     [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
     (FlowContent :|: PhrasingContent :|: EmbeddedContent :|: InteractiveContent :|: PalpableContent)
-    NoOmission
