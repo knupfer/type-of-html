@@ -147,7 +147,7 @@ Remember this benchmark from blaze?
 
 This is comparing blaze with type of html:
 
-![bench-8a453cc](https://user-images.githubusercontent.com/5609565/30251664-8c1f63bc-9664-11e7-84f4-017f6cbc48c6.png)
+![bench-324712b](https://user-images.githubusercontent.com/5609565/30344227-b4547230-9800-11e7-8c9d-6a8b8b5ab64d.png)
 
 To look at the exact code of this benchmark look [here](bench/Main.hs)
 in the repo.  The big table benchmark here is only a 4x4 table. Using
