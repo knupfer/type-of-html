@@ -18,9 +18,9 @@ import GHC.TypeLits
 import Data.Proxy
 import Data.Semigroup ((<>))
 
-import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy          as T
 import qualified Data.Text.Lazy.Encoding as T
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy    as B
 import qualified Data.ByteString.Builder as B
 
 -- | Render a html document to a Builder.
@@ -59,13 +59,20 @@ instance Renderchunks (Tagged prox ()) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
 
-instance {-# OVERLAPPABLE #-}
+instance {-# INCOHERENT #-}
   ( Convert val
-  , KnownSymbol (Head' prox)
-  ) => Renderchunks (Tagged prox val) where
+  ) => Renderchunks (Tagged ("" ': ss) val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
-    = unConv (convert (Proxy @ (Head' prox)))
+    = unConv (convert x)
+
+instance {-# INCOHERENT #-}
+  ( Convert val
+  , KnownSymbol s
+  ) => Renderchunks (Tagged (s ': ss) val) where
+  {-# INLINE renderchunks #-}
+  renderchunks (Tagged x)
+    = unConv (convert (Proxy @ s))
     <> unConv (convert x)
 
 instance
@@ -75,14 +82,13 @@ instance
   renderchunks (Tagged ~(Child b)) = renderchunks (Tagged b :: Tagged prox b)
 
 instance
-  ( Renderchunks (Tagged (Drop 1 prox) b)
-  , KnownSymbol (Head' prox)
-  ) => Renderchunks (Tagged prox (a :> b)) where
+  ( Renderchunks (Tagged (Take (CountContent b) prox) b)
+  , Renderchunks (Tagged (Drop (CountContent b) prox) c)
+  ) => Renderchunks (Tagged prox ((a :@: b) c)) where
   {-# INLINE renderchunks #-}
-  renderchunks (Tagged ~(WithAttributes (Attribute x) b))
-    = unConv (convert (Proxy @ (Head' prox)))
-    <> x
-    <> renderchunks (Tagged b :: Tagged (Drop 1 prox) b)
+  renderchunks (Tagged ~(WithAttributes b c))
+    = renderchunks (Tagged b :: Tagged (Take (CountContent b) prox) b)
+   <> renderchunks (Tagged c :: Tagged (Drop (CountContent b) prox) c)
 
 instance
   ( Renderchunks (Tagged (Take (CountContent a) prox) a)
@@ -96,11 +102,11 @@ instance
 instance
   ( Renderchunks (Tagged (Symbols (a `f` b)) (a `f` b))
   , KnownSymbol (Last (Symbols (a `f` b)))
-  , KnownSymbol (Head' prox)
-  ) => Renderchunks (Tagged prox [a `f` b]) where
+  , KnownSymbol s
+  ) => Renderchunks (Tagged (s ': ss) [a `f` b]) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
-    = unConv (convert (Proxy @ (Head' prox)))
+    = unConv (convert (Proxy @ s))
     <> foldMap (\x -> renderchunks (Tagged x :: Tagged (Symbols (a `f` b)) (a `f` b)) <> closing) xs
     where closing = unConv (convert (Proxy @ (Last (Symbols (a `f` b)))))
-          {-# INLINE closing #-}
+

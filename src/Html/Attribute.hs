@@ -1,479 +1,357 @@
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE MagicHash     #-}
+{-# LANGUAGE DataKinds     #-}
 
 module Html.Attribute where
 
-import Html.Convert
 import Html.Type
-import Data.Semigroup
-import Data.ByteString.Builder
 
-import qualified Data.ByteString.Builder.Internal as U
+accept_ :: a -> 'AcceptA := a
+accept_ = AT
 
-{-# INLINE accept_ #-}
-accept_ :: Convert a => a -> Attribute
-accept_ x = Attribute $ U.byteStringCopy (unsafe 9 " accept=\""#) <> unConv (convert x) <> char7 '"'
+acceptCharset_ :: a -> 'AcceptCharsetA := a
+acceptCharset_ = AT
 
-{-# INLINE acceptcharset_ #-}
-acceptcharset_ :: Convert a => a -> Attribute
-acceptcharset_ x = Attribute $ U.byteStringCopy (unsafe 16 " acceptcharset=\""#) <> unConv (convert x) <> char7 '"'
+accesskey_ :: a -> 'AccesskeyA := a
+accesskey_ = AT
 
-{-# INLINE accesskey_ #-}
-accesskey_ :: Convert a => a -> Attribute
-accesskey_ x = Attribute $ U.byteStringCopy (unsafe 12 " accesskey=\""#) <> unConv (convert x) <> char7 '"'
+action_ :: a -> 'ActionA := a
+action_ = AT
 
-{-# INLINE action_ #-}
-action_ :: Convert a => a -> Attribute
-action_ x = Attribute $ U.byteStringCopy (unsafe 9 " action=\""#) <> unConv (convert x) <> char7 '"'
+align_ :: a -> 'AlignA := a
+align_ = AT
 
-{-# INLINE align_ #-}
-align_ :: Convert a => a -> Attribute
-align_ x = Attribute $ U.byteStringCopy (unsafe 8 " align=\""#) <> unConv (convert x) <> char7 '"'
+alt_ :: a -> 'AltA := a
+alt_ = AT
 
-{-# INLINE alt_ #-}
-alt_ :: Convert a => a -> Attribute
-alt_ x = Attribute $ U.byteStringCopy (unsafe 6 " alt=\""#) <> unConv (convert x) <> char7 '"'
+async_ :: a -> 'AsyncA := a
+async_ = AT
 
-{-# INLINE async_ #-}
-async_ :: Convert a => a -> Attribute
-async_ x = Attribute $ U.byteStringCopy (unsafe 8 " async=\""#) <> unConv (convert x) <> char7 '"'
+autocomplete_ :: a -> 'AutocompleteA := a
+autocomplete_ = AT
 
-{-# INLINE autocomplete_ #-}
-autocomplete_ :: Convert a => a -> Attribute
-autocomplete_ x = Attribute $ U.byteStringCopy (unsafe 15 " autocomplete=\""#) <> unConv (convert x) <> char7 '"'
+autofocus_ :: a -> 'AutofocusA := a
+autofocus_ = AT
 
-{-# INLINE autofocus_ #-}
-autofocus_ :: Convert a => a -> Attribute
-autofocus_ x = Attribute $ U.byteStringCopy (unsafe 12 " autofocus=\""#) <> unConv (convert x) <> char7 '"'
+autoplay_ :: a -> 'AutoplayA := a
+autoplay_ = AT
 
-{-# INLINE autoplay_ #-}
-autoplay_ :: Convert a => a -> Attribute
-autoplay_ x = Attribute $ U.byteStringCopy (unsafe 11 " autoplay=\""#) <> unConv (convert x) <> char7 '"'
+autosave_ :: a -> 'AutosaveA := a
+autosave_ = AT
 
-{-# INLINE autosave_ #-}
-autosave_ :: Convert a => a -> Attribute
-autosave_ x = Attribute $ U.byteStringCopy (unsafe 11 " autosave=\""#) <> unConv (convert x) <> char7 '"'
+bgcolor_ :: a -> 'BgcolorA := a
+bgcolor_ = AT
 
-{-# INLINE bgcolor_ #-}
-bgcolor_ :: Convert a => a -> Attribute
-bgcolor_ x = Attribute $ U.byteStringCopy (unsafe 10 " bgcolor=\""#) <> unConv (convert x) <> char7 '"'
+border_ :: a -> 'BorderA := a
+border_ = AT
 
-{-# INLINE border_ #-}
-border_ :: Convert a => a -> Attribute
-border_ x = Attribute $ U.byteStringCopy (unsafe 9 " border=\""#) <> unConv (convert x) <> char7 '"'
+buffered_ :: a -> 'BufferedA := a
+buffered_ = AT
 
-{-# INLINE buffered_ #-}
-buffered_ :: Convert a => a -> Attribute
-buffered_ x = Attribute $ U.byteStringCopy (unsafe 11 " buffered=\""#) <> unConv (convert x) <> char7 '"'
+challenge_ :: a -> 'ChallengeA := a
+challenge_ = AT
 
-{-# INLINE challenge_ #-}
-challenge_ :: Convert a => a -> Attribute
-challenge_ x = Attribute $ U.byteStringCopy (unsafe 12 " challenge=\""#) <> unConv (convert x) <> char7 '"'
+charset_ :: a -> 'CharsetA := a
+charset_ = AT
 
-{-# INLINE charset_ #-}
-charset_ :: Convert a => a -> Attribute
-charset_ x = Attribute $ U.byteStringCopy (unsafe 10 " charset=\""#) <> unConv (convert x) <> char7 '"'
+checked_ :: a -> 'CheckedA := a
+checked_ = AT
 
-{-# INLINE checked_ #-}
-checked_ :: Convert a => a -> Attribute
-checked_ x = Attribute $ U.byteStringCopy (unsafe 10 " checked=\""#) <> unConv (convert x) <> char7 '"'
+cite_ :: a -> 'CiteA := a
+cite_ = AT
 
-{-# INLINE cite_ #-}
-cite_ :: Convert a => a -> Attribute
-cite_ x = Attribute $ U.byteStringCopy (unsafe 7 " cite=\""#) <> unConv (convert x) <> char7 '"'
+class_ :: a -> 'ClassA := a
+class_ = AT
 
-{-# INLINE class_ #-}
-class_ :: Convert a => a -> Attribute
-class_ x = Attribute $ U.byteStringCopy (unsafe 8 " class=\""#) <> unConv (convert x) <> char7 '"'
+code_ :: a -> 'CodeA := a
+code_ = AT
 
-{-# INLINE code_ #-}
-code_ :: Convert a => a -> Attribute
-code_ x = Attribute $ U.byteStringCopy (unsafe 7 " code=\""#) <> unConv (convert x) <> char7 '"'
+codebase_ :: a -> 'CodebaseA := a
+codebase_ = AT
 
-{-# INLINE codebase_ #-}
-codebase_ :: Convert a => a -> Attribute
-codebase_ x = Attribute $ U.byteStringCopy (unsafe 11 " codebase=\""#) <> unConv (convert x) <> char7 '"'
+color_ :: a -> 'ColorA := a
+color_ = AT
 
-{-# INLINE color_ #-}
-color_ :: Convert a => a -> Attribute
-color_ x = Attribute $ U.byteStringCopy (unsafe 8 " color=\""#) <> unConv (convert x) <> char7 '"'
+cols_ :: a -> 'ColsA := a
+cols_ = AT
 
-{-# INLINE cols_ #-}
-cols_ :: Convert a => a -> Attribute
-cols_ x = Attribute $ U.byteStringCopy (unsafe 7 " cols=\""#) <> unConv (convert x) <> char7 '"'
+colspan_ :: a -> 'ColspanA := a
+colspan_ = AT
 
-{-# INLINE colspan_ #-}
-colspan_ :: Convert a => a -> Attribute
-colspan_ x = Attribute $ U.byteStringCopy (unsafe 10 " colspan=\""#) <> unConv (convert x) <> char7 '"'
+content_ :: a -> 'ContentA := a
+content_ = AT
 
-{-# INLINE content_ #-}
-content_ :: Convert a => a -> Attribute
-content_ x = Attribute $ U.byteStringCopy (unsafe 10 " content=\""#) <> unConv (convert x) <> char7 '"'
+contenteditable_ :: a -> 'ContenteditableA := a
+contenteditable_ = AT
 
-{-# INLINE contenteditable_ #-}
-contenteditable_ :: Convert a => a -> Attribute
-contenteditable_ x = Attribute $ U.byteStringCopy (unsafe 18 " contenteditable=\""#) <> unConv (convert x) <> char7 '"'
+contextmenu_ :: a -> 'ContextmenuA := a
+contextmenu_ = AT
 
-{-# INLINE contextmenu_ #-}
-contextmenu_ :: Convert a => a -> Attribute
-contextmenu_ x = Attribute $ U.byteStringCopy (unsafe 14 " contextmenu=\""#) <> unConv (convert x) <> char7 '"'
+controls_ :: a -> 'ControlsA := a
+controls_ = AT
 
-{-# INLINE controls_ #-}
-controls_ :: Convert a => a -> Attribute
-controls_ x = Attribute $ U.byteStringCopy (unsafe 11 " controls=\""#) <> unConv (convert x) <> char7 '"'
+coords_ :: a -> 'CoordsA := a
+coords_ = AT
 
-{-# INLINE coords_ #-}
-coords_ :: Convert a => a -> Attribute
-coords_ x = Attribute $ U.byteStringCopy (unsafe 9 " coords=\""#) <> unConv (convert x) <> char7 '"'
+crossorigin_ :: a -> 'CrossoriginA := a
+crossorigin_ = AT
 
-{-# INLINE crossorigin_ #-}
-crossorigin_ :: Convert a => a -> Attribute
-crossorigin_ x = Attribute $ U.byteStringCopy (unsafe 14 " crossorigin=\""#) <> unConv (convert x) <> char7 '"'
+data_ :: a -> 'DataA := a
+data_ = AT
 
-{-# INLINE data_ #-}
-data_ :: Convert a => a -> Attribute
-data_ x = Attribute $ U.byteStringCopy (unsafe 7 " data=\""#) <> unConv (convert x) <> char7 '"'
+datetime_ :: a -> 'DatetimeA := a
+datetime_ = AT
 
-{-# INLINE datetime_ #-}
-datetime_ :: Convert a => a -> Attribute
-datetime_ x = Attribute $ U.byteStringCopy (unsafe 11 " datetime=\""#) <> unConv (convert x) <> char7 '"'
+default_ :: a -> 'DefaultA := a
+default_ = AT
 
-{-# INLINE default_ #-}
-default_ :: Convert a => a -> Attribute
-default_ x = Attribute $ U.byteStringCopy (unsafe 10 " default=\""#) <> unConv (convert x) <> char7 '"'
+defer_ :: a -> 'DeferA := a
+defer_ = AT
 
-{-# INLINE defer_ #-}
-defer_ :: Convert a => a -> Attribute
-defer_ x = Attribute $ U.byteStringCopy (unsafe 8 " defer=\""#) <> unConv (convert x) <> char7 '"'
+dir_ :: a -> 'DirA := a
+dir_ = AT
 
-{-# INLINE dir_ #-}
-dir_ :: Convert a => a -> Attribute
-dir_ x = Attribute $ U.byteStringCopy (unsafe 6 " dir=\""#) <> unConv (convert x) <> char7 '"'
+dirname_ :: a -> 'DirnameA := a
+dirname_ = AT
 
-{-# INLINE dirname_ #-}
-dirname_ :: Convert a => a -> Attribute
-dirname_ x = Attribute $ U.byteStringCopy (unsafe 10 " dirname=\""#) <> unConv (convert x) <> char7 '"'
+disabled_ :: a -> 'DisabledA := a
+disabled_ = AT
 
-{-# INLINE disabled_ #-}
-disabled_ :: Convert a => a -> Attribute
-disabled_ x = Attribute $ U.byteStringCopy (unsafe 11 " disabled=\""#) <> unConv (convert x) <> char7 '"'
+download_ :: a -> 'DownloadA := a
+download_ = AT
 
-{-# INLINE download_ #-}
-download_ :: Convert a => a -> Attribute
-download_ x = Attribute $ U.byteStringCopy (unsafe 11 " download=\""#) <> unConv (convert x) <> char7 '"'
+draggable_ :: a -> 'DraggableA := a
+draggable_ = AT
 
-{-# INLINE draggable_ #-}
-draggable_ :: Convert a => a -> Attribute
-draggable_ x = Attribute $ U.byteStringCopy (unsafe 12 " draggable=\""#) <> unConv (convert x) <> char7 '"'
+dropzone_ :: a -> 'DropzoneA := a
+dropzone_ = AT
 
-{-# INLINE dropzone_ #-}
-dropzone_ :: Convert a => a -> Attribute
-dropzone_ x = Attribute $ U.byteStringCopy (unsafe 11 " dropzone=\""#) <> unConv (convert x) <> char7 '"'
+enctype_ :: a -> 'EnctypeA := a
+enctype_ = AT
 
-{-# INLINE enctype_ #-}
-enctype_ :: Convert a => a -> Attribute
-enctype_ x = Attribute $ U.byteStringCopy (unsafe 10 " enctype=\""#) <> unConv (convert x) <> char7 '"'
+for_ :: a -> 'ForA := a
+for_ = AT
 
-{-# INLINE for_ #-}
-for_ :: Convert a => a -> Attribute
-for_ x = Attribute $ U.byteStringCopy (unsafe 6 " for=\""#) <> unConv (convert x) <> char7 '"'
+form_ :: a -> 'FormA := a
+form_ = AT
 
-{-# INLINE form_ #-}
-form_ :: Convert a => a -> Attribute
-form_ x = Attribute $ U.byteStringCopy (unsafe 7 " form=\""#) <> unConv (convert x) <> char7 '"'
+formaction_ :: a -> 'FormactionA := a
+formaction_ = AT
 
-{-# INLINE formaction_ #-}
-formaction_ :: Convert a => a -> Attribute
-formaction_ x = Attribute $ U.byteStringCopy (unsafe 13 " formaction=\""#) <> unConv (convert x) <> char7 '"'
+headers_ :: a -> 'HeadersA := a
+headers_ = AT
 
-{-# INLINE headers_ #-}
-headers_ :: Convert a => a -> Attribute
-headers_ x = Attribute $ U.byteStringCopy (unsafe 10 " headers=\""#) <> unConv (convert x) <> char7 '"'
+height_ :: a -> 'HeightA := a
+height_ = AT
 
-{-# INLINE height_ #-}
-height_ :: Convert a => a -> Attribute
-height_ x = Attribute $ U.byteStringCopy (unsafe 9 " height=\""#) <> unConv (convert x) <> char7 '"'
+hidden_ :: a -> 'HiddenA := a
+hidden_ = AT
 
-{-# INLINE hidden_ #-}
-hidden_ :: Convert a => a -> Attribute
-hidden_ x = Attribute $ U.byteStringCopy (unsafe 9 " hidden=\""#) <> unConv (convert x) <> char7 '"'
+high_ :: a -> 'HighA := a
+high_ = AT
 
-{-# INLINE high_ #-}
-high_ :: Convert a => a -> Attribute
-high_ x = Attribute $ U.byteStringCopy (unsafe 7 " high=\""#) <> unConv (convert x) <> char7 '"'
+href_ :: a -> 'HrefA := a
+href_ = AT
 
-{-# INLINE href_ #-}
-href_ :: Convert a => a -> Attribute
-href_ x = Attribute $ U.byteStringCopy (unsafe 7 " href=\""#) <> unConv (convert x) <> char7 '"'
+hreflang_ :: a -> 'HreflangA := a
+hreflang_ = AT
 
-{-# INLINE hreflang_ #-}
-hreflang_ :: Convert a => a -> Attribute
-hreflang_ x = Attribute $ U.byteStringCopy (unsafe 11 " hreflang=\""#) <> unConv (convert x) <> char7 '"'
+httpEquiv_ :: a -> 'HttpEquivA := a
+httpEquiv_ = AT
 
-{-# INLINE httpequiv_ #-}
-httpequiv_ :: Convert a => a -> Attribute
-httpequiv_ x = Attribute $ U.byteStringCopy (unsafe 12 " httpequiv=\""#) <> unConv (convert x) <> char7 '"'
+icon_ :: a -> 'IconA := a
+icon_ = AT
 
-{-# INLINE icon_ #-}
-icon_ :: Convert a => a -> Attribute
-icon_ x = Attribute $ U.byteStringCopy (unsafe 7 " icon=\""#) <> unConv (convert x) <> char7 '"'
+id_ :: a -> 'IdA := a
+id_ = AT
 
-{-# INLINE id_ #-}
-id_ :: Convert a => a -> Attribute
-id_ x = Attribute $ U.byteStringCopy (unsafe 5 " id=\""#) <> unConv (convert x) <> char7 '"'
+integrity_ :: a -> 'IntegrityA := a
+integrity_ = AT
 
-{-# INLINE integrity_ #-}
-integrity_ :: Convert a => a -> Attribute
-integrity_ x = Attribute $ U.byteStringCopy (unsafe 12 " integrity=\""#) <> unConv (convert x) <> char7 '"'
+ismap_ :: a -> 'IsmapA := a
+ismap_ = AT
 
-{-# INLINE ismap_ #-}
-ismap_ :: Convert a => a -> Attribute
-ismap_ x = Attribute $ U.byteStringCopy (unsafe 8 " ismap=\""#) <> unConv (convert x) <> char7 '"'
+itemprop_ :: a -> 'ItempropA := a
+itemprop_ = AT
 
-{-# INLINE itemprop_ #-}
-itemprop_ :: Convert a => a -> Attribute
-itemprop_ x = Attribute $ U.byteStringCopy (unsafe 11 " itemprop=\""#) <> unConv (convert x) <> char7 '"'
+keytype_ :: a -> 'KeytypeA := a
+keytype_ = AT
 
-{-# INLINE keytype_ #-}
-keytype_ :: Convert a => a -> Attribute
-keytype_ x = Attribute $ U.byteStringCopy (unsafe 10 " keytype=\""#) <> unConv (convert x) <> char7 '"'
+kind_ :: a -> 'KindA := a
+kind_ = AT
 
-{-# INLINE kind_ #-}
-kind_ :: Convert a => a -> Attribute
-kind_ x = Attribute $ U.byteStringCopy (unsafe 7 " kind=\""#) <> unConv (convert x) <> char7 '"'
+label_ :: a -> 'LabelA := a
+label_ = AT
 
-{-# INLINE label_ #-}
-label_ :: Convert a => a -> Attribute
-label_ x = Attribute $ U.byteStringCopy (unsafe 8 " label=\""#) <> unConv (convert x) <> char7 '"'
+lang_ :: a -> 'LangA := a
+lang_ = AT
 
-{-# INLINE lang_ #-}
-lang_ :: Convert a => a -> Attribute
-lang_ x = Attribute $ U.byteStringCopy (unsafe 7 " lang=\""#) <> unConv (convert x) <> char7 '"'
+language_ :: a -> 'LanguageA := a
+language_ = AT
 
-{-# INLINE language_ #-}
-language_ :: Convert a => a -> Attribute
-language_ x = Attribute $ U.byteStringCopy (unsafe 11 " language=\""#) <> unConv (convert x) <> char7 '"'
+list_ :: a -> 'ListA := a
+list_ = AT
 
-{-# INLINE list_ #-}
-list_ :: Convert a => a -> Attribute
-list_ x = Attribute $ U.byteStringCopy (unsafe 7 " list=\""#) <> unConv (convert x) <> char7 '"'
+loop_ :: a -> 'LoopA := a
+loop_ = AT
 
-{-# INLINE loop_ #-}
-loop_ :: Convert a => a -> Attribute
-loop_ x = Attribute $ U.byteStringCopy (unsafe 7 " loop=\""#) <> unConv (convert x) <> char7 '"'
+low_ :: a -> 'LowA := a
+low_ = AT
 
-{-# INLINE low_ #-}
-low_ :: Convert a => a -> Attribute
-low_ x = Attribute $ U.byteStringCopy (unsafe 6 " low=\""#) <> unConv (convert x) <> char7 '"'
+manifest_ :: a -> 'ManifestA := a
+manifest_ = AT
 
-{-# INLINE manifest_ #-}
-manifest_ :: Convert a => a -> Attribute
-manifest_ x = Attribute $ U.byteStringCopy (unsafe 11 " manifest=\""#) <> unConv (convert x) <> char7 '"'
+max_ :: a -> 'MaxA := a
+max_ = AT
 
-{-# INLINE max_ #-}
-max_ :: Convert a => a -> Attribute
-max_ x = Attribute $ U.byteStringCopy (unsafe 6 " max=\""#) <> unConv (convert x) <> char7 '"'
+maxlength_ :: a -> 'MaxlengthA := a
+maxlength_ = AT
 
-{-# INLINE maxlength_ #-}
-maxlength_ :: Convert a => a -> Attribute
-maxlength_ x = Attribute $ U.byteStringCopy (unsafe 12 " maxlength=\""#) <> unConv (convert x) <> char7 '"'
+minlength_ :: a -> 'MinlengthA := a
+minlength_ = AT
 
-{-# INLINE minlength_ #-}
-minlength_ :: Convert a => a -> Attribute
-minlength_ x = Attribute $ U.byteStringCopy (unsafe 6 " minlength=\""#) <> unConv (convert x) <> char7 '"'
+media_ :: a -> 'MediaA := a
+media_ = AT
 
-{-# INLINE media_ #-}
-media_ :: Convert a => a -> Attribute
-media_ x = Attribute $ U.byteStringCopy (unsafe 8 " media=\""#) <> unConv (convert x) <> char7 '"'
+method_ :: a -> 'MethodA := a
+method_ = AT
 
-{-# INLINE method_ #-}
-method_ :: Convert a => a -> Attribute
-method_ x = Attribute $ U.byteStringCopy (unsafe 9 " method=\""#) <> unConv (convert x) <> char7 '"'
+min_ :: a -> 'MinA := a
+min_ = AT
 
-{-# INLINE min_ #-}
-min_ :: Convert a => a -> Attribute
-min_ x = Attribute $ U.byteStringCopy (unsafe 6 " min=\""#) <> unConv (convert x) <> char7 '"'
+multiple_ :: a -> 'MultipleA := a
+multiple_ = AT
 
-{-# INLINE multiple_ #-}
-multiple_ :: Convert a => a -> Attribute
-multiple_ x = Attribute $ U.byteStringCopy (unsafe 11 " multiple=\""#) <> unConv (convert x) <> char7 '"'
+muted_ :: a -> 'MutedA := a
+muted_ = AT
 
-{-# INLINE muted_ #-}
-muted_ :: Convert a => a -> Attribute
-muted_ x = Attribute $ U.byteStringCopy (unsafe 8 " muted=\""#) <> unConv (convert x) <> char7 '"'
+name_ :: a -> 'NameA := a
+name_ = AT
 
-{-# INLINE name_ #-}
-name_ :: Convert a => a -> Attribute
-name_ x = Attribute $ U.byteStringCopy (unsafe 7 " name=\""#) <> unConv (convert x) <> char7 '"'
+novalidate_ :: a -> 'NovalidateA := a
+novalidate_ = AT
 
-{-# INLINE novalidate_ #-}
-novalidate_ :: Convert a => a -> Attribute
-novalidate_ x = Attribute $ U.byteStringCopy (unsafe 13 " novalidate=\""#) <> unConv (convert x) <> char7 '"'
+open_ :: a -> 'OpenA := a
+open_ = AT
 
-{-# INLINE open_ #-}
-open_ :: Convert a => a -> Attribute
-open_ x = Attribute $ U.byteStringCopy (unsafe 7 " open=\""#) <> unConv (convert x) <> char7 '"'
+optimum_ :: a -> 'OptimumA := a
+optimum_ = AT
 
-{-# INLINE optimum_ #-}
-optimum_ :: Convert a => a -> Attribute
-optimum_ x = Attribute $ U.byteStringCopy (unsafe 10 " optimum=\""#) <> unConv (convert x) <> char7 '"'
+pattern_ :: a -> 'PatternA := a
+pattern_ = AT
 
-{-# INLINE pattern_ #-}
-pattern_ :: Convert a => a -> Attribute
-pattern_ x = Attribute $ U.byteStringCopy (unsafe 10 " pattern=\""#) <> unConv (convert x) <> char7 '"'
+ping_ :: a -> 'PingA := a
+ping_ = AT
 
-{-# INLINE ping_ #-}
-ping_ :: Convert a => a -> Attribute
-ping_ x = Attribute $ U.byteStringCopy (unsafe 7 " ping=\""#) <> unConv (convert x) <> char7 '"'
+placeholder_ :: a -> 'PlaceholderA := a
+placeholder_ = AT
 
-{-# INLINE placeholder_ #-}
-placeholder_ :: Convert a => a -> Attribute
-placeholder_ x = Attribute $ U.byteStringCopy (unsafe 14 " placeholder=\""#) <> unConv (convert x) <> char7 '"'
+poster_ :: a -> 'PosterA := a
+poster_ = AT
 
-{-# INLINE poster_ #-}
-poster_ :: Convert a => a -> Attribute
-poster_ x = Attribute $ U.byteStringCopy (unsafe 9 " poster=\""#) <> unConv (convert x) <> char7 '"'
+preload_ :: a -> 'PreloadA := a
+preload_ = AT
 
-{-# INLINE preload_ #-}
-preload_ :: Convert a => a -> Attribute
-preload_ x = Attribute $ U.byteStringCopy (unsafe 10 " preload=\""#) <> unConv (convert x) <> char7 '"'
+radiogroup_ :: a -> 'RadiogroupA := a
+radiogroup_ = AT
 
-{-# INLINE radiogroup_ #-}
-radiogroup_ :: Convert a => a -> Attribute
-radiogroup_ x = Attribute $ U.byteStringCopy (unsafe 13 " radiogroup=\""#) <> unConv (convert x) <> char7 '"'
+readonly_ :: a -> 'ReadonlyA := a
+readonly_ = AT
 
-{-# INLINE readonly_ #-}
-readonly_ :: Convert a => a -> Attribute
-readonly_ x = Attribute $ U.byteStringCopy (unsafe 11 " readonly=\""#) <> unConv (convert x) <> char7 '"'
+rel_ :: a -> 'RelA := a
+rel_ = AT
 
-{-# INLINE rel_ #-}
-rel_ :: Convert a => a -> Attribute
-rel_ x = Attribute $ U.byteStringCopy (unsafe 6 " rel=\""#) <> unConv (convert x) <> char7 '"'
+required_ :: a -> 'RequiredA := a
+required_ = AT
 
-{-# INLINE required_ #-}
-required_ :: Convert a => a -> Attribute
-required_ x = Attribute $ U.byteStringCopy (unsafe 11 " required=\""#) <> unConv (convert x) <> char7 '"'
+reversed_ :: a -> 'ReversedA := a
+reversed_ = AT
 
-{-# INLINE reversed_ #-}
-reversed_ :: Convert a => a -> Attribute
-reversed_ x = Attribute $ U.byteStringCopy (unsafe 11 " reversed=\""#) <> unConv (convert x) <> char7 '"'
+rows_ :: a -> 'RowsA := a
+rows_ = AT
 
-{-# INLINE rows_ #-}
-rows_ :: Convert a => a -> Attribute
-rows_ x = Attribute $ U.byteStringCopy (unsafe 7 " rows=\""#) <> unConv (convert x) <> char7 '"'
+rowspan_ :: a -> 'RowspanA := a
+rowspan_ = AT
 
-{-# INLINE rowspan_ #-}
-rowspan_ :: Convert a => a -> Attribute
-rowspan_ x = Attribute $ U.byteStringCopy (unsafe 10 " rowspan=\""#) <> unConv (convert x) <> char7 '"'
+sandbox_ :: a -> 'SandboxA := a
+sandbox_ = AT
 
-{-# INLINE sandbox_ #-}
-sandbox_ :: Convert a => a -> Attribute
-sandbox_ x = Attribute $ U.byteStringCopy (unsafe 10 " sandbox=\""#) <> unConv (convert x) <> char7 '"'
+scope_ :: a -> 'ScopeA := a
+scope_ = AT
 
-{-# INLINE scope_ #-}
-scope_ :: Convert a => a -> Attribute
-scope_ x = Attribute $ U.byteStringCopy (unsafe 8 " scope=\""#) <> unConv (convert x) <> char7 '"'
+scoped_ :: a -> 'ScopedA := a
+scoped_ = AT
 
-{-# INLINE scoped_ #-}
-scoped_ :: Convert a => a -> Attribute
-scoped_ x = Attribute $ U.byteStringCopy (unsafe 9 " scoped=\""#) <> unConv (convert x) <> char7 '"'
+seamless_ :: a -> 'SeamlessA := a
+seamless_ = AT
 
-{-# INLINE seamless_ #-}
-seamless_ :: Convert a => a -> Attribute
-seamless_ x = Attribute $ U.byteStringCopy (unsafe 11 " seamless=\""#) <> unConv (convert x) <> char7 '"'
+selected_ :: a -> 'SelectedA := a
+selected_ = AT
 
-{-# INLINE selected_ #-}
-selected_ :: Convert a => a -> Attribute
-selected_ x = Attribute $ U.byteStringCopy (unsafe 11 " selected=\""#) <> unConv (convert x) <> char7 '"'
+shape_ :: a -> 'ShapeA := a
+shape_ = AT
 
-{-# INLINE shape_ #-}
-shape_ :: Convert a => a -> Attribute
-shape_ x = Attribute $ U.byteStringCopy (unsafe 8 " shape=\""#) <> unConv (convert x) <> char7 '"'
+size_ :: a -> 'SizeA := a
+size_ = AT
 
-{-# INLINE size_ #-}
-size_ :: Convert a => a -> Attribute
-size_ x = Attribute $ U.byteStringCopy (unsafe 7 " size=\""#) <> unConv (convert x) <> char7 '"'
+sizes_ :: a -> 'SizesA := a
+sizes_ = AT
 
-{-# INLINE sizes_ #-}
-sizes_ :: Convert a => a -> Attribute
-sizes_ x = Attribute $ U.byteStringCopy (unsafe 8 " sizes=\""#) <> unConv (convert x) <> char7 '"'
+slot_ :: a -> 'SlotA := a
+slot_ = AT
 
-{-# INLINE slot_ #-}
-slot_ :: Convert a => a -> Attribute
-slot_ x = Attribute $ U.byteStringCopy (unsafe 7 " slot=\""#) <> unConv (convert x) <> char7 '"'
+span_ :: a -> 'SpanA := a
+span_ = AT
 
-{-# INLINE span_ #-}
-span_ :: Convert a => a -> Attribute
-span_ x = Attribute $ U.byteStringCopy (unsafe 7 " span=\""#) <> unConv (convert x) <> char7 '"'
+spellcheck_ :: a -> 'SpellcheckA := a
+spellcheck_ = AT
 
-{-# INLINE spellcheck_ #-}
-spellcheck_ :: Convert a => a -> Attribute
-spellcheck_ x = Attribute $ U.byteStringCopy (unsafe 13 " spellcheck=\""#) <> unConv (convert x) <> char7 '"'
+src_ :: a -> 'SrcA := a
+src_ = AT
 
-{-# INLINE src_ #-}
-src_ :: Convert a => a -> Attribute
-src_ x = Attribute $ U.byteStringCopy (unsafe 6 " src=\""#) <> unConv (convert x) <> char7 '"'
+srcdoc_ :: a -> 'SrcdocA := a
+srcdoc_ = AT
 
-{-# INLINE srcdoc_ #-}
-srcdoc_ :: Convert a => a -> Attribute
-srcdoc_ x = Attribute $ U.byteStringCopy (unsafe 9 " srcdoc=\""#) <> unConv (convert x) <> char7 '"'
+srclang_ :: a -> 'SrclangA := a
+srclang_ = AT
 
-{-# INLINE srclang_ #-}
-srclang_ :: Convert a => a -> Attribute
-srclang_ x = Attribute $ U.byteStringCopy (unsafe 10 " srclang=\""#) <> unConv (convert x) <> char7 '"'
+srcset_ :: a -> 'SrcsetA := a
+srcset_ = AT
 
-{-# INLINE srcset_ #-}
-srcset_ :: Convert a => a -> Attribute
-srcset_ x = Attribute $ U.byteStringCopy (unsafe 9 " srcset=\""#) <> unConv (convert x) <> char7 '"'
+start_ :: a -> 'StartA := a
+start_ = AT
 
-{-# INLINE start_ #-}
-start_ :: Convert a => a -> Attribute
-start_ x = Attribute $ U.byteStringCopy (unsafe 8 " start=\""#) <> unConv (convert x) <> char7 '"'
+step_ :: a -> 'StepA := a
+step_ = AT
 
-{-# INLINE step_ #-}
-step_ :: Convert a => a -> Attribute
-step_ x = Attribute $ U.byteStringCopy (unsafe 7 " step=\""#) <> unConv (convert x) <> char7 '"'
+style_ :: a -> 'StyleA := a
+style_ = AT
 
-{-# INLINE style_ #-}
-style_ :: Convert a => a -> Attribute
-style_ x = Attribute $ U.byteStringCopy (unsafe 8 " style=\""#) <> unConv (convert x) <> char7 '"'
+summary_ :: a -> 'SummaryA := a
+summary_ = AT
 
-{-# INLINE summary_ #-}
-summary_ :: Convert a => a -> Attribute
-summary_ x = Attribute $ U.byteStringCopy (unsafe 10 " summary=\""#) <> unConv (convert x) <> char7 '"'
+tabindex_ :: a -> 'TabindexA := a
+tabindex_ = AT
 
-{-# INLINE tabindex_ #-}
-tabindex_ :: Convert a => a -> Attribute
-tabindex_ x = Attribute $ U.byteStringCopy (unsafe 11 " tabindex=\""#) <> unConv (convert x) <> char7 '"'
+target_ :: a -> 'TargetA := a
+target_ = AT
 
-{-# INLINE target_ #-}
-target_ :: Convert a => a -> Attribute
-target_ x = Attribute $ U.byteStringCopy (unsafe 9 " target=\""#) <> unConv (convert x) <> char7 '"'
+title_ :: a -> 'TitleA := a
+title_ = AT
 
-{-# INLINE title_ #-}
-title_ :: Convert a => a -> Attribute
-title_ x = Attribute $ U.byteStringCopy (unsafe 8 " title=\""#) <> unConv (convert x) <> char7 '"'
+type_ :: a -> 'TypeA := a
+type_ = AT
 
-{-# INLINE type_ #-}
-type_ :: Convert a => a -> Attribute
-type_ x = Attribute $ U.byteStringCopy (unsafe 7 " type=\""#) <> unConv (convert x) <> char7 '"'
+usemap_ :: a -> 'UsemapA := a
+usemap_ = AT
 
-{-# INLINE usemap_ #-}
-usemap_ :: Convert a => a -> Attribute
-usemap_ x = Attribute $ U.byteStringCopy (unsafe 9 " usemap=\""#) <> unConv (convert x) <> char7 '"'
+value_ :: a -> 'ValueA := a
+value_ = AT
 
-{-# INLINE value_ #-}
-value_ :: Convert a => a -> Attribute
-value_ x = Attribute $ U.byteStringCopy (unsafe 8 " value=\""#) <> unConv (convert x) <> char7 '"'
+width_ :: a -> 'WidthA := a
+width_ = AT
 
-{-# INLINE width_ #-}
-width_ :: Convert a => a -> Attribute
-width_ x = Attribute $ U.byteStringCopy (unsafe 8 " width=\""#) <> unConv (convert x) <> char7 '"'
+wrap_ :: a -> 'WrapA := a
+wrap_ = AT
 
-{-# INLINE wrap_ #-}
-wrap_ :: Convert a => a -> Attribute
-wrap_ x = Attribute $ U.byteStringCopy (unsafe 7 " wrap=\""#) <> unConv (convert x) <> char7 '"'
-
-{-# INLINE addAttributes #-}
-addAttributes :: (a ?> b) => Attribute -> (a > b) -> (a :> b)
-addAttributes xs (Child b) = WithAttributes xs b
+addAttributes :: (a ??> b, a ?> c) => b -> a > c -> (a :@: b) c
+addAttributes b (Child c) = WithAttributes b c

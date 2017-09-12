@@ -2,6 +2,7 @@
 
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE TypeOperators              #-}
 
 module Html.Convert where
 
@@ -13,13 +14,11 @@ import Html.Type
 
 import Data.Char (ord)
 
-import qualified Data.Monoid as M
+import qualified Data.Monoid    as M
 import qualified Data.Semigroup as S
 
-import qualified Data.ByteString.Internal as U
-import qualified Data.ByteString.Unsafe   as U
-import qualified Data.ByteString.Builder as B
-import qualified Data.ByteString.Builder.Prim as BP
+import qualified Data.ByteString.Builder          as B
+import qualified Data.ByteString.Builder.Prim     as BP
 import qualified Data.ByteString.Builder.Internal as U
 
 import qualified Data.Text                   as T
@@ -27,9 +26,6 @@ import qualified Data.Text.Encoding          as T
 
 import qualified Data.Text.Lazy              as TL
 import qualified Data.Text.Lazy.Encoding     as TL
-
-{-# INLINE unsafe #-}
-unsafe i addr = U.accursedUnutterablePerformIO (U.unsafePackAddressLen i addr)
 
 {-# INLINE escape #-}
 escape :: BP.BoundedPrim Word8
@@ -82,7 +78,6 @@ data Person
 
 -- | This is already very efficient.
 -- Wrap the Strings in Raw if you don't want to escape them.
-
 instance Convert Person where
   convert (Person{..})
     =  convert name
@@ -101,6 +96,9 @@ main = print (div_ john)
 class Convert a where
   convert :: a -> Converted
 
+instance Convert b => Convert (a := b) where
+  {-# INLINE convert #-}
+  convert (AT x) = convert x
 instance Convert (Raw String) where
   {-# INLINE convert #-}
   convert (Raw x) = Converted (fromString x)

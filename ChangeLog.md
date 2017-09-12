@@ -1,5 +1,12 @@
 # Revision history for type-of-html
 
+## 0.5.0.0  -- 2017-09-12
+
+* type attributes
+* don't allow invalid attributes
+* perf increase
+* better compile times
+
 ## 0.4.2.0  -- 2017-09-11
 
 * don't remove omittable tags

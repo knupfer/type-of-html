@@ -5,18 +5,15 @@
 {-# LANGUAGE TypeOperators              #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE PolyKinds                  #-}
 {-# LANGUAGE GADTs                      #-}
 
 module Html.Type where
-
-import qualified Data.ByteString.Builder as B
 
 import GHC.TypeLits
 import GHC.Exts
 import Data.Proxy
 import Data.Type.Bool
-import qualified Data.Semigroup as S
-import qualified Data.Monoid as M
 
 {-# DEPRECATED
 
@@ -199,26 +196,161 @@ data Element
   | Wbr
   | Xmp
 
+data Attribute
+  = AcceptA
+  | AcceptCharsetA
+  | AccesskeyA
+  | ActionA
+  | AlignA
+  | AltA
+  | AsyncA
+  | AutocompleteA
+  | AutofocusA
+  | AutoplayA
+  | AutosaveA
+  | BgcolorA
+  | BorderA
+  | BufferedA
+  | ChallengeA
+  | CharsetA
+  | CheckedA
+  | CiteA
+  | ClassA
+  | CodeA
+  | CodebaseA
+  | ColorA
+  | ColsA
+  | ColspanA
+  | ContentA
+  | ContenteditableA
+  | ContextmenuA
+  | ControlsA
+  | CoordsA
+  | CrossoriginA
+  | DataA
+  | Data'A
+  | DatetimeA
+  | DefaultA
+  | DeferA
+  | DirA
+  | DirnameA
+  | DisabledA
+  | DownloadA
+  | DraggableA
+  | DropzoneA
+  | EnctypeA
+  | ForA
+  | FormA
+  | FormactionA
+  | HeadersA
+  | HeightA
+  | HiddenA
+  | HighA
+  | HrefA
+  | HreflangA
+  | HttpEquivA
+  | IconA
+  | IdA
+  | IntegrityA
+  | IsmapA
+  | ItempropA
+  | KeytypeA
+  | KindA
+  | LabelA
+  | LangA
+  | LanguageA
+  | ListA
+  | LoopA
+  | LowA
+  | ManifestA
+  | MaxA
+  | MaxlengthA
+  | MinlengthA
+  | MediaA
+  | MethodA
+  | MinA
+  | MultipleA
+  | MutedA
+  | NameA
+  | NovalidateA
+  | OpenA
+  | OptimumA
+  | PatternA
+  | PingA
+  | PlaceholderA
+  | PosterA
+  | PreloadA
+  | RadiogroupA
+  | ReadonlyA
+  | RelA
+  | RequiredA
+  | ReversedA
+  | RowsA
+  | RowspanA
+  | SandboxA
+  | ScopeA
+  | ScopedA
+  | SeamlessA
+  | SelectedA
+  | ShapeA
+  | SizeA
+  | SizesA
+  | SlotA
+  | SpanA
+  | SpellcheckA
+  | SrcA
+  | SrcdocA
+  | SrclangA
+  | SrcsetA
+  | StartA
+  | StepA
+  | StyleA
+  | SummaryA
+  | TabindexA
+  | TargetA
+  | TitleA
+  | TypeA
+  | UsemapA
+  | ValueA
+  | WidthA
+  | WrapA
+
+newtype (:=) (a :: Attribute) b = AT b
+
 -- | Check whether `b` is a valid child of `a`.  You'll propably never
 -- need to call this directly.  Through a GADT, it is enforced that
 -- every child is lawful.
 type family (a :: Element) ?> b :: Constraint where
-  a ?> (b # c)    = (a ?> b, a ?> c)
-  a ?> (b > _)    = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
-  a ?> (b :> _)   = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
-  a ?> Maybe b    = a ?> b
-  a ?> Either b c = (a ?> b, a ?> c)
-  a ?> f (b > c)  = a ?> (b > c)
-  a ?> f (b :> c) = a ?> (b > c)
-  a ?> f (b # c)  = a ?> (b # c)
-  a ?> ()         = ()
-  a ?> (b -> c)   = TypeError (Text "Html elements can't contain functions")
-  a ?> b          = CheckString a
+  a ?> (b # c)         = (a ?> b, a ?> c)
+  a ?> (b > _)         = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
+  a ?> (b :@: _) _     = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
+  a ?> Maybe b         = a ?> b
+  a ?> Either b c      = (a ?> b, a ?> c)
+  a ?> f (b > c)       = a ?> (b > c)
+  a ?> f ((b :@: c) d) = a ?> (b > d)
+  a ?> f (b # c)       = a ?> (b # c)
+  a ?> ()              = ()
+  a ?> (b -> c)        = TypeError (Text "Html elements can't contain functions")
+  a ?> b               = CheckString a
 
--- | Combine two elements sequentially.
+type family Null xs where
+  Null '[] = True
+  Null _ = False
+
+type family (a :: Element) ??> b :: Constraint where
+  a ??> (b # c)  = (a ??> b, a ??> c)
+  a ??> (b := _) = If (Elem a (GetAttributeInfo b) || Null (GetAttributeInfo b))
+                   (() :: Constraint)
+                   (TypeError (ShowType b :<>: Text " is not a valid attribute of " :<>: ShowType a))
+  a ??> b        = TypeError (ShowType b :<>: Text " is not an attribute.")
+
+-- | Combine two elements or attributes sequentially.
 --
--- >>> render (i_ () # div_ ()) :: String
--- "<i></i><div></div>"
+-- >>> i_ () # div_ ()
+-- <i></i><div></div>
+--
+-- >>> i_A (A.id_ "a" # A.class_ "b") "c"
+-- <i id="a" class="b">c</i>
 data (#) a b = (:#:) a b
 {-# INLINE (#) #-}
 (#) :: a -> b -> a # b
@@ -241,9 +373,9 @@ infixr 8 >
 --
 -- >>> WithAttributes (A.class_ "bar") "a" :: 'Div :> String
 -- <div class="bar">a</div>
-data (:>) (a :: Element) b where
-  WithAttributes :: (a ?> b) => Attribute -> b -> a :> b
-infixr 8 :>
+data (:@:) (a :: Element) b c where
+  WithAttributes :: (a ??> b, a ?> c) => b -> c -> (a :@: b) c
+infixr 8 :@:
 
 -- | Wrapper for types which won't be escaped.
 newtype Raw a = Raw a
@@ -251,8 +383,6 @@ newtype Raw a = Raw a
   -------------------
   -- internal code --
   -------------------
-
-newtype Attribute = Attribute B.Builder deriving (M.Monoid, S.Semigroup)
 
 type family ShowElement e where
   ShowElement DOCTYPE    = "!DOCTYPE html"
@@ -403,6 +533,125 @@ type family ShowElement e where
   ShowElement Wbr        = "wbr"
   ShowElement Xmp        = "xmp"
 
+type family ShowAttribute (x :: Attribute) where
+  ShowAttribute AcceptA          = "accept"
+  ShowAttribute AcceptCharsetA   = "accept-charset"
+  ShowAttribute AccesskeyA       = "accesskey"
+  ShowAttribute ActionA          = "action"
+  ShowAttribute AlignA           = "align"
+  ShowAttribute AltA             = "alt"
+  ShowAttribute AsyncA           = "async"
+  ShowAttribute AutocompleteA    = "autocomplete"
+  ShowAttribute AutofocusA       = "autofocus"
+  ShowAttribute AutoplayA        = "autoplay"
+  ShowAttribute AutosaveA        = "autosave"
+  ShowAttribute BgcolorA         = "bgcolor"
+  ShowAttribute BorderA          = "border"
+  ShowAttribute BufferedA        = "buffered"
+  ShowAttribute ChallengeA       = "challenge"
+  ShowAttribute CharsetA         = "charset"
+  ShowAttribute CheckedA         = "checked"
+  ShowAttribute CiteA            = "cite"
+  ShowAttribute ClassA           = "class"
+  ShowAttribute CodeA            = "code"
+  ShowAttribute CodebaseA        = "codebase"
+  ShowAttribute ColorA           = "color"
+  ShowAttribute ColsA            = "cols"
+  ShowAttribute ColspanA         = "colspan"
+  ShowAttribute ContentA         = "content"
+  ShowAttribute ContenteditableA = "contenteditable"
+  ShowAttribute ContextmenuA     = "contextmenu"
+  ShowAttribute ControlsA        = "controls"
+  ShowAttribute CoordsA          = "coords"
+  ShowAttribute CrossoriginA     = "crossorigin"
+  ShowAttribute DataA            = "data"
+  ShowAttribute Data'A           = "data'"
+  ShowAttribute DatetimeA        = "datetime"
+  ShowAttribute DefaultA         = "default"
+  ShowAttribute DeferA           = "defer"
+  ShowAttribute DirA             = "dir"
+  ShowAttribute DirnameA         = "dirname"
+  ShowAttribute DisabledA        = "disabled"
+  ShowAttribute DownloadA        = "download"
+  ShowAttribute DraggableA       = "draggable"
+  ShowAttribute DropzoneA        = "dropzone"
+  ShowAttribute EnctypeA         = "enctype"
+  ShowAttribute ForA             = "for"
+  ShowAttribute FormA            = "form"
+  ShowAttribute FormactionA      = "formaction"
+  ShowAttribute HeadersA         = "headers"
+  ShowAttribute HeightA          = "height"
+  ShowAttribute HiddenA          = "hidden"
+  ShowAttribute HighA            = "high"
+  ShowAttribute HrefA            = "href"
+  ShowAttribute HreflangA        = "hreflang"
+  ShowAttribute HttpEquivA       = "httpequiv"
+  ShowAttribute IconA            = "icon"
+  ShowAttribute IdA              = "id"
+  ShowAttribute IntegrityA       = "integrity"
+  ShowAttribute IsmapA           = "ismap"
+  ShowAttribute ItempropA        = "itemprop"
+  ShowAttribute KeytypeA         = "keytype"
+  ShowAttribute KindA            = "kind"
+  ShowAttribute LabelA           = "label"
+  ShowAttribute LangA            = "lang"
+  ShowAttribute LanguageA        = "language"
+  ShowAttribute ListA            = "list"
+  ShowAttribute LoopA            = "loop"
+  ShowAttribute LowA             = "low"
+  ShowAttribute ManifestA        = "manifest"
+  ShowAttribute MaxA             = "max"
+  ShowAttribute MaxlengthA       = "maxlength"
+  ShowAttribute MinlengthA       = "minlength"
+  ShowAttribute MediaA           = "media"
+  ShowAttribute MethodA          = "method"
+  ShowAttribute MinA             = "min"
+  ShowAttribute MultipleA        = "multiple"
+  ShowAttribute MutedA           = "muted"
+  ShowAttribute NameA            = "name"
+  ShowAttribute NovalidateA      = "novalidate"
+  ShowAttribute OpenA            = "open"
+  ShowAttribute OptimumA         = "optimum"
+  ShowAttribute PatternA         = "pattern"
+  ShowAttribute PingA            = "ping"
+  ShowAttribute PlaceholderA     = "placeholder"
+  ShowAttribute PosterA          = "poster"
+  ShowAttribute PreloadA         = "preload"
+  ShowAttribute RadiogroupA      = "radiogroup"
+  ShowAttribute ReadonlyA        = "readonly"
+  ShowAttribute RelA             = "rel"
+  ShowAttribute RequiredA        = "required"
+  ShowAttribute ReversedA        = "reversed"
+  ShowAttribute RowsA            = "rows"
+  ShowAttribute RowspanA         = "rowspan"
+  ShowAttribute SandboxA         = "sandbox"
+  ShowAttribute ScopeA           = "scope"
+  ShowAttribute ScopedA          = "scoped"
+  ShowAttribute SeamlessA        = "seamless"
+  ShowAttribute SelectedA        = "selected"
+  ShowAttribute ShapeA           = "shape"
+  ShowAttribute SizeA            = "size"
+  ShowAttribute SizesA           = "sizes"
+  ShowAttribute SlotA            = "slot"
+  ShowAttribute SpanA            = "span"
+  ShowAttribute SpellcheckA      = "spellcheck"
+  ShowAttribute SrcA             = "src"
+  ShowAttribute SrcdocA          = "srcdoc"
+  ShowAttribute SrclangA         = "srclang"
+  ShowAttribute SrcsetA          = "srcset"
+  ShowAttribute StartA           = "start"
+  ShowAttribute StepA            = "step"
+  ShowAttribute StyleA           = "style"
+  ShowAttribute SummaryA         = "summary"
+  ShowAttribute TabindexA        = "tabindex"
+  ShowAttribute TargetA          = "target"
+  ShowAttribute TitleA           = "title"
+  ShowAttribute TypeA            = "type"
+  ShowAttribute UsemapA          = "usemap"
+  ShowAttribute ValueA           = "value"
+  ShowAttribute WidthA           = "width"
+  ShowAttribute WrapA            = "wrap"
+
 type family OpenTag e where
   OpenTag e = AppendSymbol (AppendSymbol "<" (ShowElement e)) ">"
 
@@ -410,29 +659,53 @@ type family CloseTag e where
   CloseTag e = AppendSymbol (AppendSymbol "</" (ShowElement e)) ">"
 
 type family CountContent c where
-  CountContent (a # b)  = CountContent a + CountContent b
-  CountContent (a > b)  = CountContent b
-  CountContent (a :> b) = 1 + CountContent b
-  CountContent ()       = 0
-  CountContent _        = 1
+  CountContent (a # b)       = CountContent a + CountContent b
+  CountContent (_ > b)       = CountContent b
+  CountContent ((_ :@: b) c) = CountContent b + CountContent c
+  CountContent ()            = 0
+  CountContent _             = 1
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
-  ToTypeList (() # b)  = ToTypeList b
-  ToTypeList (a # ())  = ToTypeList a
-  ToTypeList (a # b)   = Append (ToTypeList a) (ToTypeList b)
-  ToTypeList (a > ())  = If (HasContent (GetInfo a)) '[OpenTag a, CloseTag a] '[OpenTag a]
-  ToTypeList (a :> ()) = If (HasContent (GetInfo a)) '[AppendSymbol "<" (ShowElement a), "", ">", CloseTag a] '[AppendSymbol "<" (ShowElement a), "", ">"]
-  ToTypeList (a > b)   = Append (OpenTag a ': ToTypeList b) '[CloseTag a]
-  ToTypeList (a :> b)  = Append (AppendSymbol "<" (ShowElement a) ': "" ': ">" ': ToTypeList b) '[CloseTag a]
-  ToTypeList (Proxy x) = '[x]
-  ToTypeList x         = '[""]
+  ToTypeList (() # b)       = ToTypeList b
+  ToTypeList (a # ())       = ToTypeList a
+  ToTypeList (a # b)        = Append (ToTypeList a) (ToTypeList b)
+  ToTypeList (a > ())       = If (HasContent (GetInfo a)) '[Just (AppendSymbol (OpenTag a) (CloseTag a))] '[Just (OpenTag a)]
+  ToTypeList ((a :@: b) ()) = Append (Just (AppendSymbol "<" (ShowElement a)) ': ToTypeList b) (If (HasContent (GetInfo a)) '[Just (AppendSymbol ">" (CloseTag a))] '[Just ">"])
+  ToTypeList (a > b)        = Append (Just (OpenTag a) ': ToTypeList b) '[Just (CloseTag a)]
+  ToTypeList ((a :@: b) c)  = Append (Just (AppendSymbol "<" (ShowElement a)) ': ToTypeList b) (Append (Just ">" ': ToTypeList c) '[Just (CloseTag a)])
+  ToTypeList (a := b)       = '[Just (AppendSymbol (AppendSymbol " " (ShowAttribute a)) "=\""), Nothing, Just "\""]
+  ToTypeList (Proxy x)      = '[Just x]
+  ToTypeList ()             = '[]
+  ToTypeList x              = '[Nothing]
 
 -- | Append two type lists.
-type family Append xs ys :: [Symbol] where
+type family Append xs ys :: [k] where
   Append xs '[]       = xs
+
+  Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': Append xs ys
+
+  Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': Append xs ys
+
+  Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': Append xs ys
+
+  Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': Append xs ys
+
+  Append (x1 ': x2 ': x3 ': x4 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': Append xs ys
+
+  Append (x1 ': x2 ': xs) ys
+        = x1 ': x2 ': Append xs ys
+
+  Append (x1 ': xs) ys
+        = x1 ': Append xs ys
+
   Append '[] ys       = ys
-  Append (x ': xs) ys = x ': Append xs ys
+
 
 -- | Check whether an element may have content.
 type family HasContent a where
@@ -441,30 +714,53 @@ type family HasContent a where
 
 -- | Fuse neighbouring non empty type level strings.
 type family Fuse a where
-  Fuse ("" ': xs)      = "" ': Fuse xs
-  Fuse '[a, ""]        = '[a, ""]
-  Fuse (a ': "" ': xs) = a ': Fuse xs
-  Fuse (a ': b ': xs)  = Fuse (AppendSymbol a b ': xs)
-  Fuse (a ': xs)       = '[a]
+  Fuse '[Just a, Nothing]        = '[a, ""]
+  Fuse (Just x1 ': Nothing ': Just x2 ': Nothing ': x ': xs) = x1 ': x2 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': x3 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 x3 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Just x3 ': Nothing ': Just x4 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 x3) ': x4 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Just x4 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': AppendSymbol x3 x4 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Just x4 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 (AppendSymbol x3 x4) ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Nothing ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 x4)) ': x5 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Just x3 ': Nothing ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 x3) ': AppendSymbol x4 x5 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': AppendSymbol x3 (AppendSymbol x4 x5) ': Fuse (x ': xs)
+  Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 (AppendSymbol x3 (AppendSymbol x4 x5)) ': Fuse (x ': xs)
+
+  Fuse (Just x1 ': Nothing ': xs) = x1 ': Fuse xs
+  Fuse (Just x1 ': Just x2 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Just x3 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 x3) ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 x4)) ': Fuse (x ': xs)
+  Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 (AppendSymbol x4 x5))) ': Fuse (x ': xs)
+
+  Fuse (Just x1 ': Just x2 ': xs)  = Fuse (Just (AppendSymbol x1 x2) ': xs)
+  Fuse (Just a ': xs)       = '[a]
+  Fuse (Nothing ': xs) = "" ': Fuse xs
   Fuse '[]             = '[]
 
 type family Drop n xs :: [Symbol] where
   Drop 0 xs = xs
-  Drop n (_ ': xs) = Drop (n-1) xs
+  Drop 1 (_ ': xs) = xs
+  Drop 2 (_ ': _ ': xs) = xs
+  Drop 3 (_ ': _ ': _ ': xs) = xs
+  Drop 4 (_ ': _ ': _ ': _ ': xs) = xs
+  Drop n (_ ': _ ': _ ': _ ': _ ': xs) = Drop (n-5) xs
 
 type family Take n xs :: [Symbol] where
   Take 0 _ = '[]
-  Take n (x ': xs) = x ': Take (n-1) xs
+  Take 1 (x1 ': _) = '[x1]
+  Take 2 (x1 ': x2 ': _) = '[x1, x2]
+  Take 3 (x1 ': x2 ': x3 ': _) = '[x1, x2, x3]
+  Take 4 (x1 ': x2 ': x3 ': x4 ': _) = '[x1, x2, x3, x4]
+  Take n (x1 ': x2 ': x3 ': x4 ': x5 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': Take (n-5) xs
 
 -- | Last for type level lists.
 type family Last (xs :: [Symbol]) where
+  Last (_ ': _ ': _ ': _ ': _ ': _ ': _ ': _ ': x ': xs) = Last (x ': xs)
+  Last (_ ': _ ': _ ': _ ': x ': xs) = Last (x ': xs)
+  Last (_ ': _ ': x ': xs) = Last (x ': xs)
   Last (_ ': x ': xs) = Last (x ': xs)
   Last (x ': xs) = x
   Last _         = ""
-
--- | Head for type level lists.
-type family Head' a :: Symbol where
-  Head' (a ': _) = a
 
 -- | Type of type level information about tags.
 data ElementInfo
@@ -513,7 +809,7 @@ type family MaybeTypeError (a :: Element) (b :: Element) c where
   MaybeTypeError a b c = If c (() :: Constraint)
    (TypeError (ShowType b :<>: Text " is not a valid child of " :<>: ShowType a))
 
-type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
+type family Elem (a :: k) (xs :: [k]) where
   Elem a (a : xs) = True
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
@@ -521,6 +817,124 @@ type family Elem (a :: ContentCategory) (xs :: [ContentCategory]) where
 newtype Tagged (proxies :: [Symbol]) target = Tagged target
 
 type Symbols a = Fuse (ToTypeList a)
+
+type family GetAttributeInfo a where
+  GetAttributeInfo AcceptA          = '[Form, Input]
+  GetAttributeInfo AcceptCharsetA   = '[Form]
+  GetAttributeInfo AccesskeyA       = '[]
+  GetAttributeInfo ActionA          = '[Form]
+  GetAttributeInfo AlignA           = '[Applet, Caption, Col, Colgroup, Hr, Iframe, Img, Table, Tbody, Td, Tfoot, Th, Thead, Tr]
+  GetAttributeInfo AltA             = '[Applet, Area, Img, Input]
+  GetAttributeInfo AsyncA           = '[Script]
+  GetAttributeInfo AutocompleteA    = '[Form, Input]
+  GetAttributeInfo AutofocusA       = '[Button, Input, Keygen, Select, Textarea]
+  GetAttributeInfo AutoplayA        = '[Audio, Video]
+  GetAttributeInfo AutosaveA        = '[Input]
+  GetAttributeInfo BgcolorA         = '[Body, Col, Colgroup, Marquee, Table, Tbody, Tfoot, Td, Th, Tr]
+  GetAttributeInfo BorderA          = '[Img, Object, Table]
+  GetAttributeInfo BufferedA        = '[Audio, Video]
+  GetAttributeInfo ChallengeA       = '[Keygen]
+  GetAttributeInfo CharsetA         = '[Meta, Script]
+  GetAttributeInfo CheckedA         = '[Command, Input]
+  GetAttributeInfo CiteA            = '[Blockquote, Del, Ins, Q]
+  GetAttributeInfo ClassA           = '[]
+  GetAttributeInfo CodeA            = '[Applet]
+  GetAttributeInfo CodebaseA        = '[Applet]
+  GetAttributeInfo ColorA           = '[Basefont, Font, Hr]
+  GetAttributeInfo ColsA            = '[Textarea]
+  GetAttributeInfo ColspanA         = '[Td, Th]
+  GetAttributeInfo ContentA         = '[Meta]
+  GetAttributeInfo ContenteditableA = '[]
+  GetAttributeInfo ContextmenuA     = '[]
+  GetAttributeInfo ControlsA        = '[Audio, Video]
+  GetAttributeInfo CoordsA          = '[Area]
+  GetAttributeInfo CrossoriginA     = '[Audio, Img, Link, Script, Video]
+  GetAttributeInfo DataA            = '[Object]
+  GetAttributeInfo DatetimeA        = '[Del, Ins, Time]
+  GetAttributeInfo DefaultA         = '[Track]
+  GetAttributeInfo DeferA           = '[Script]
+  GetAttributeInfo DirA             = '[]
+  GetAttributeInfo DirnameA         = '[Input, Textarea]
+  GetAttributeInfo DisabledA        = '[Button, Command, Fieldset, Input, Keygen, Optgroup, Option, Select, Textarea]
+  GetAttributeInfo DownloadA        = '[A, Area]
+  GetAttributeInfo DraggableA       = '[]
+  GetAttributeInfo DropzoneA        = '[]
+  GetAttributeInfo EnctypeA         = '[Form]
+  GetAttributeInfo ForA             = '[Label, Output]
+  GetAttributeInfo FormA            = '[Button, Fieldset, Input, Keygen, Label, Meter, Object, Output, Progress, Select, Textarea]
+  GetAttributeInfo FormactionA      = '[Input, Button]
+  GetAttributeInfo HeadersA         = '[Td, Th]
+  GetAttributeInfo HeightA          = '[Canvas, Embed, Iframe, Img, Input, Object, Video]
+  GetAttributeInfo HiddenA          = '[]
+  GetAttributeInfo HighA            = '[Meter]
+  GetAttributeInfo HrefA            = '[A, Area, Base, Link]
+  GetAttributeInfo HreflangA        = '[A, Area, Link]
+  GetAttributeInfo HttpEquivA       = '[Meta]
+  GetAttributeInfo IconA            = '[Command]
+  GetAttributeInfo IdA              = '[]
+  GetAttributeInfo IntegrityA       = '[Link, Script]
+  GetAttributeInfo IsmapA           = '[Img]
+  GetAttributeInfo ItempropA        = '[]
+  GetAttributeInfo KeytypeA         = '[Keygen]
+  GetAttributeInfo KindA            = '[Track]
+  GetAttributeInfo LabelA           = '[Track]
+  GetAttributeInfo LangA            = '[]
+  GetAttributeInfo LanguageA        = '[Script]
+  GetAttributeInfo ListA            = '[Input]
+  GetAttributeInfo LoopA            = '[Audio, Bgsound, Marquee, Video]
+  GetAttributeInfo LowA             = '[Meter]
+  GetAttributeInfo ManifestA        = '[Html]
+  GetAttributeInfo MaxA             = '[Input, Meter, Progress]
+  GetAttributeInfo MaxlengthA       = '[Input, Textarea]
+  GetAttributeInfo MinlengthA       = '[Input, Textarea]
+  GetAttributeInfo MediaA           = '[A, Area, Link, Source, Style]
+  GetAttributeInfo MethodA          = '[Form]
+  GetAttributeInfo MinA             = '[Input, Meter]
+  GetAttributeInfo MultipleA        = '[Input, Select]
+  GetAttributeInfo MutedA           = '[Video]
+  GetAttributeInfo NameA            = '[Button, Form, Fieldset, Iframe, Input, Keygen, Object, Output, Select, Textarea, Map, Meta, Param]
+  GetAttributeInfo NovalidateA      = '[Form]
+  GetAttributeInfo OpenA            = '[Details]
+  GetAttributeInfo OptimumA         = '[Meter]
+  GetAttributeInfo PatternA         = '[Input]
+  GetAttributeInfo PingA            = '[A, Area]
+  GetAttributeInfo PlaceholderA     = '[Input, Textarea]
+  GetAttributeInfo PosterA          = '[Video]
+  GetAttributeInfo PreloadA         = '[Audio, Video]
+  GetAttributeInfo RadiogroupA      = '[Command]
+  GetAttributeInfo ReadonlyA        = '[Input, Textarea]
+  GetAttributeInfo RelA             = '[A, Area, Link]
+  GetAttributeInfo RequiredA        = '[Input, Select, Textarea]
+  GetAttributeInfo ReversedA        = '[Ol]
+  GetAttributeInfo RowsA            = '[Textarea]
+  GetAttributeInfo RowspanA         = '[Td, Th]
+  GetAttributeInfo SandboxA         = '[Iframe]
+  GetAttributeInfo ScopeA           = '[Th]
+  GetAttributeInfo ScopedA          = '[Style]
+  GetAttributeInfo SeamlessA        = '[Iframe]
+  GetAttributeInfo SelectedA        = '[Option]
+  GetAttributeInfo ShapeA           = '[A, Area]
+  GetAttributeInfo SizeA            = '[Input, Select]
+  GetAttributeInfo SizesA           = '[Link, Img, Source]
+  GetAttributeInfo SlotA            = '[]
+  GetAttributeInfo SpanA            = '[Col, Colgroup]
+  GetAttributeInfo SpellcheckA      = '[]
+  GetAttributeInfo SrcA             = '[Audio, Embed, Iframe, Img, Input, Script, Source, Track, Video]
+  GetAttributeInfo SrcdocA          = '[Iframe]
+  GetAttributeInfo SrclangA         = '[Track]
+  GetAttributeInfo SrcsetA          = '[Img]
+  GetAttributeInfo StartA           = '[Ol]
+  GetAttributeInfo StepA            = '[Input]
+  GetAttributeInfo StyleA           = '[]
+  GetAttributeInfo SummaryA         = '[Table]
+  GetAttributeInfo TabindexA        = '[]
+  GetAttributeInfo TargetA          = '[A, Area, Base, Form]
+  GetAttributeInfo TitleA           = '[]
+  GetAttributeInfo TypeA            = '[Button, Input, Command, Embed, Object, Script, Source, Style, Menu]
+  GetAttributeInfo UsemapA          = '[Img, Input, Object]
+  GetAttributeInfo ValueA           = '[Button, Option, Input, Li, Meter, Progress, Param]
+  GetAttributeInfo WidthA           = '[Canvas, Embed, Iframe, Img, Input, Object, Video]
+  GetAttributeInfo WrapA            = '[Textarea]
 
 -- | Retrieve type level meta data about elements.
 type family GetInfo a where
@@ -927,7 +1341,7 @@ type family GetInfo a where
 
   GetInfo Template = ElementInfo
     [ MetadataContent, FlowContent, PhrasingContent ]
-    (MetadataContent :|: FlowContent) -- complicated
+    (MetadataContent :|: FlowContent)
 
   GetInfo Textarea = ElementInfo
     [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent ]

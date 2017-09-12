@@ -33,15 +33,33 @@ Let's check out the /type safety/ in ghci:
 <tr><td>a</td></tr>
 ```
 
-For every child, it is checked if it could possibly be lawful.
+And
+
+```haskell
+>>> td_A (A.coords_ "a") "b"
+
+<interactive>:1:1: error:
+    • 'CoordsA is not a valid attribute of 'Td
+    • In the expression: td_A (A.coords_ "a") "b"
+      In an equation for ‘it’: it = td_A (A.coords_ "a") "b"
+
+>>> td_A (A.id_ "a") "b"
+<td id="a">b</td>
+```
+
+Every parent child relation of html elements is checked against the
+specification of html and non conforming elements result in compile
+errors.
+
+The same is true for html attributes.
 
 The checking is a bit lenient at the moment:
 
 - some elements can't contain itself as any descendant: at the moment we look only at direct children. This allows some (quite exotic) invalid html documents.
-- some elements change their permitted content based on attributes: we don't know at compile time the attributes, therefore we always allow content as if all relevant attributes are set.
-- some elements can't be brethren: we look only at parent child relations, therefore if you don't specify the parent, it'll compile
+- some elements change their permitted content based on attributes: we always allow content as if all relevant attributes are set.
 
 Never the less: these cases are seldom.  In the vast majority of cases you're only allowed to construct valid html.
+These restrictions aren't fundamental, they could be turned into compile time errors.  Perhaps a future version will be even more strict.
 
 ## Modularity
 
@@ -79,13 +97,13 @@ main
 page
   :: 'Tr ?> a
   => a
-  -> 'Div
-     :> ( 'Div > [Char]
-        # 'Div > [Char]
+  -> ('Div :@: ('ClassA := String # 'IdA := String))
+        ( 'Div > String
+        # 'Div > String
         # 'Table > 'Tr > a
         )
 page tds =
-  div_A (A.class_ "qux" <> A.id_ "baz")
+  div_A (A.class_ "qux" # A.id_ "baz")
     ( div_ "foo"
     # div_ "bar"
     # table_ (tr_ tds)
@@ -125,17 +143,17 @@ Look at the following benchmarks:
 
 Remember this benchmark from blaze?
 
-[blaze](https://jaspervdj.be/blaze/benchmarks.html)
+![blaze](https://jaspervdj.be/blaze/images/benchmarks-bigtable.png)
 
 This is comparing blaze with type of html:
 
 ![bench-8a453cc](https://user-images.githubusercontent.com/5609565/30251664-8c1f63bc-9664-11e7-84f4-017f6cbc48c6.png)
 
-To look at the exact code generating this code look
-[here](bench/Main.hs) in the repo.  The big table benchmark here is
-only a 4x4 table. Using a 1000x10 table like on the blaze homepage
-yields even better relative performance (~9 times faster), but would
-make the other benchmarks unreadable.
+To look at the exact code of this benchmark look [here](bench/Main.hs)
+in the repo.  The big table benchmark here is only a 4x4 table. Using
+a 1000x10 table like on the blaze homepage yields even better relative
+performance (~9 times faster), but would make the other benchmarks
+unreadable.
 
 How is this possible? We supercompile lots of parts of the generation
 process. This is possible thanks to the new features of GHC 8.2:
@@ -175,8 +193,8 @@ The compiler does optimize it to the following:
 Data.ByteString.Builder.unpackCString# "<div><div></div></div>"#
 ```
 
-Note that optional ending tags were chopped off (tr, td).  This sort of
-compiletime optimization isn't for free, it'll increase compilation times.
+This sort of compiletime optimization isn't for free, it'll increase
+compilation times.
 
 ## Comparision to lucid and blaze-html
 
@@ -188,7 +206,7 @@ Advantages of 'type-of-html':
 Disadvantages of 'type-of-html':
 - a bit noisy syntax (don't write types!)
 - sometimes unusual type error messages
-- compile times (1 min for a medium sized page)
+- compile times (1 min for a medium sized page, with -O0 only ~4sec)
 - needs at least ghc 8.2
 
 I'd generally recommend that you put your documents into an extra
@@ -200,6 +218,8 @@ efficient representation.
 ## Example usage
 
 ```haskell
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+
 module Main where
 
 import Html

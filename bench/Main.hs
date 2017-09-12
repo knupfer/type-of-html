@@ -13,7 +13,6 @@ import qualified Html.Attribute as A
 import Data.String
 import Control.Monad
 import Criterion.Main
-import Data.Monoid
 
 import Text.Blaze.Html5 ((!))
 import Text.Blaze.Html.Renderer.Utf8
@@ -31,13 +30,13 @@ main = defaultMain
     [ bench "blaze-html"   $ nf (renderHtml . blazeHelloWorld)  (fromString "TEST")
     , bench "type-of-html" $ nf (renderByteString . helloWorld) "TEST"
     ]
-  , bgroup "attributes short"
-    [ bench "blaze-html"   $ nf (renderHtml . blazeAttrShort)   (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . attrShort)  "TEST"
-    ]
   , bgroup "attributes long"
     [ bench "blaze-html"   $ nf (renderHtml . blazeAttrLong)    (fromString "TEST")
     , bench "type-of-html" $ nf (renderByteString . attrLong)   "TEST"
+    ]
+  , bgroup "attributes short"
+    [ bench "blaze-html"   $ nf (renderHtml . blazeAttrShort)   (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . attrShort)  "TEST"
     ]
   , bgroup "big page"
     [ bench "blaze-html"   $ nf (renderHtml . blazeBigPage)     (fromString "TEST")
@@ -90,23 +89,39 @@ blazeBigPage x =
 
 blazeAttrShort :: B.Html -> B.Html
 blazeAttrShort x
-  = B.i ! BA.accept (fromString "a")
-  $ B.i ! BA.acceptCharset (fromString "b")
-  $ B.i ! BA.accesskey (fromString "c")
-  $ B.i ! BA.action (fromString "d")
-  $ B.i ! BA.alt (fromString "f")
-  $ B.i ! BA.async (fromString "g")
+  = B.i ! BA.accesskey       (fromString "a")
+  $ B.i ! BA.class_          (fromString "b")
+  $ B.i ! BA.contenteditable (fromString "c")
+  $ B.i ! BA.contextmenu     (fromString "d")
+  $ B.i ! BA.dir             (fromString "e")
+  $ B.i ! BA.draggable       (fromString "f")
+  $ B.i ! BA.hidden          (fromString "g")
+  $ B.i ! BA.id              (fromString "h")
+  $ B.i ! BA.itemprop        (fromString "i")
+  $ B.i ! BA.lang            (fromString "j")
+  $ B.i ! BA.spellcheck      (fromString "k")
+  $ B.i ! BA.style           (fromString "l")
+  $ B.i ! BA.tabindex        (fromString "m")
+  $ B.i ! BA.title           (fromString "n")
   $ x
 
 blazeAttrLong :: B.Html -> B.Html
 blazeAttrLong x
-  = B.i ! BA.accept (fromString "a")
-        ! BA.acceptCharset (fromString "b")
-        ! BA.accesskey (fromString "c")
-        ! BA.action (fromString "d")
-        ! BA.alt (fromString "f")
-        ! BA.async (fromString "g")
-  $ x
+  = B.i ! BA.accesskey       (fromString "a")
+        ! BA.class_          (fromString "b")
+        ! BA.contenteditable (fromString "c")
+        ! BA.contextmenu     (fromString "d")
+        ! BA.dir             (fromString "e")
+        ! BA.draggable       (fromString "f")
+        ! BA.hidden          (fromString "g")
+        ! BA.id              (fromString "h")
+        ! BA.itemprop        (fromString "i")
+        ! BA.lang            (fromString "j")
+        ! BA.spellcheck      (fromString "k")
+        ! BA.style           (fromString "l")
+        ! BA.tabindex        (fromString "m")
+        ! BA.title           (fromString "n")
+        $ x
 
 blazeBigPageA :: B.Html -> B.Html
 blazeBigPageA x =
@@ -182,22 +197,39 @@ bigPage x =
       )
     )
 
-attrLong x =
-  i_A ( A.accept_ "a"
-     <> A.acceptcharset_ "b"
-     <> A.accesskey_ "c"
-     <> A.action_ "d"
-     <> A.alt_ "f"
-     <> A.async_ "g") x
-
 attrShort x
-  = i_A (A.accept_ "a")
-  . i_A (A.acceptcharset_ "b")
-  . i_A (A.accesskey_ "c")
-  . i_A (A.action_ "d")
-  . i_A (A.alt_ "f")
-  $ i_A (A.async_ "g") x
+  = i_A (A.accesskey_       "a")
+  . i_A (A.class_           "b")
+  . i_A (A.contenteditable_ "c")
+  . i_A (A.contextmenu_     "d")
+  . i_A (A.dir_             "e")
+  . i_A (A.draggable_       "f")
+  . i_A (A.hidden_          "g")
+  . i_A (A.id_              "h")
+  . i_A (A.itemprop_        "i")
+  . i_A (A.lang_            "j")
+  . i_A (A.spellcheck_      "k")
+  . i_A (A.style_           "l")
+  . i_A (A.tabindex_        "m")
+  . i_A (A.title_           "n")
+  $ x
 
+attrLong x =
+  i_A ( A.accesskey_       "a"
+      # A.class_           "b"
+      # A.contenteditable_ "c"
+      # A.contextmenu_     "d"
+      # A.dir_             "e"
+      # A.draggable_       "f"
+      # A.hidden_          "g"
+      # A.id_              "h"
+      # A.itemprop_        "i"
+      # A.lang_            "j"
+      # A.spellcheck_      "k"
+      # A.style_           "l"
+      # A.tabindex_        "m"
+      # A.title_           "n"
+      ) x
 
 bigPageA x =
   html_
