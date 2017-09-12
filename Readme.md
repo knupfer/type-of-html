@@ -1,6 +1,6 @@
 # Type of html
 
-`Type of html` is a library for generating html in a highly
+`type-of-html` is a library for generating html in a highly
 performant, modular and type safe manner.
 
 Please look at the documentation of the module for an overview of the api:
@@ -137,15 +137,15 @@ into type-of-html.
 
 ## Performance
 
-`Type of html` is a lot faster than `blaze html` or than `lucid`.
+`type-of-html` is a lot faster than `blaze-html` or than `lucid`.
 
 Look at the following benchmarks:
 
-Remember this benchmark from blaze?
+Remember this benchmark from `blaze-html`?
 
 ![blaze](https://jaspervdj.be/blaze/images/benchmarks-bigtable.png)
 
-This is comparing blaze with type of html:
+This is comparing blaze with `type-of-html`:
 
 ![bench-324712b](https://user-images.githubusercontent.com/5609565/30344227-b4547230-9800-11e7-8c9d-6a8b8b5ab64d.png)
 
@@ -198,7 +198,7 @@ compilation times.
 
 ## Comparision to lucid and blaze-html
 
-Advantages of 'type-of-html':
+Advantages of `type-of-html`:
 - more or less 5 times faster
 - a lot higher type safety: a lot of invalid documents are not inhabited
 - fewer dependencies
@@ -206,12 +206,12 @@ Advantages of 'type-of-html':
 Disadvantages of 'type-of-html':
 - a bit noisy syntax (don't write types!)
 - sometimes unusual type error messages
-- compile times (1 min for a medium sized page, with -O0 only ~4sec)
+- compile times (1 min for a medium sized page, with `-O0` only ~4sec)
 - needs at least ghc 8.2
 
 I'd generally recommend that you put your documents into an extra
 module to avoid frequent recompilations.  Additionally you can use
-type-of-html within an blaze-html document and vice versa.  This
+`type-of-html` within an `blaze-html` document and vice versa.  This
 allows you to gradually migrate, or only write the hotpath in a more
 efficient representation.
 
