@@ -1,11 +1,11 @@
 { mkDerivation, base, blaze-html, bytestring, criterion, hspec
-, QuickCheck, stdenv, text
+, QuickCheck, stdenv, text, ghc-prim
 }:
 mkDerivation {
   pname = "type-of-html";
-  version = "0.5.0.0";
+  version = "0.5.1.0";
   src = ./.;
-  libraryHaskellDepends = [ base bytestring text ];
+  libraryHaskellDepends = [ base bytestring text ghc-prim ];
   testHaskellDepends = [ base hspec QuickCheck text ];
   benchmarkHaskellDepends = [
     base blaze-html bytestring criterion text

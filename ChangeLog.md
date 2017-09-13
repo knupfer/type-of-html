@@ -1,5 +1,10 @@
 # Revision history for type-of-html
 
+## 0.5.1.0  -- 2017-09-13
+
+* perf increase
+* better compile times
+
 ## 0.5.0.0  -- 2017-09-12
 
 * type attributes

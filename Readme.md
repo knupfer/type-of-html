@@ -110,10 +110,10 @@ page tds =
     )
 ```
 
-Please note that the type of 'page' is inferable, so ask ghc-mod or
+Please note that the type of `page` is inferable, so ask ghc-mod or
 whatever you use to write it for you.  If you choose not to write the
 types, you don't need the language extensions.  I strongly suggest
-that you don't write signatures for bigger documents.
+that you don't write type signatures for `type-of-html`.
 
 All text will be automatically html escaped:
 
@@ -147,7 +147,7 @@ Remember this benchmark from `blaze-html`?
 
 This is comparing blaze with `type-of-html`:
 
-![bench-324712b](https://user-images.githubusercontent.com/5609565/30344227-b4547230-9800-11e7-8c9d-6a8b8b5ab64d.png)
+![type-of-html](https://user-images.githubusercontent.com/5609565/30388159-2281182c-98af-11e7-8b29-aac26b7fbb57.png)
 
 To look at the exact code of this benchmark look [here](bench/Main.hs)
 in the repo.  The big table benchmark here is only a 4x4 table. Using
@@ -157,9 +157,9 @@ unreadable.
 
 How is this possible? We supercompile lots of parts of the generation
 process. This is possible thanks to the new features of GHC 8.2:
-AppendSymbol. We represent tags as kinds and map these tags to (a ::
-[Symbol]) and then fold all neighbouring Proxies with
-AppendSymbol. Afterwards we retrieve the Proxies with symbolVal which
+AppendSymbol. We represent tags and attributes as kinds and map these
+to (a :: [Symbol]) and then fold all neighbouring Symbols with
+AppendSymbol. Afterwards we reify the Symbols with symbolVal which
 will be embedded in the executable as Addr#. All this happens at
 compile time. At runtime we do only generate the content and append
 Builders.
@@ -176,7 +176,26 @@ doesn't exist for Builder, so it's slightly more complicated):
 ```haskell
 decodeUtf8 $ toLazyByteString
   (  Data.ByteString.Builder.unpackCString# "<tr><td>"#
-  <> escape (Data.Text.unpackCString# "test"#)
+  <> builderCString# "test"#
+  <> Data.ByteString.Builder.unpackCString# "</tr>"#
+  )
+```
+
+Note that the compiler automatically sees that your string literal
+doesn't need utf8 and converts directly the `"test"# :: Addr#` to an
+escaped Builder without any intermediate structure, not even an
+allocated bytestring.
+
+```haskell
+renderByteString $ tr_ (td_ "teſt")
+```
+
+Results in
+
+```haskell
+toLazyByteString
+  (  Data.ByteString.Builder.unpackCString# "<tr><td>"#
+  <> encodeUtf8BuilderEscaped prim (Data.Text.unpackCString# "te\\197\\191t"#)
   <> Data.ByteString.Builder.unpackCString# "</tr>"#
   )
 ```
@@ -199,14 +218,14 @@ compilation times.
 ## Comparision to lucid and blaze-html
 
 Advantages of `type-of-html`:
-- more or less 5 times faster
-- a lot higher type safety: a lot of invalid documents are not inhabited
+- more or less 7 times faster
+- a lot higher type safety: nearly no invalid document is inhabited
 - fewer dependencies
 
 Disadvantages of 'type-of-html':
 - a bit noisy syntax (don't write types!)
 - sometimes unusual type error messages
-- compile times (1 min for a medium sized page, with `-O0` only ~4sec)
+- compile times (30sec for a medium sized page, with `-O0` only ~3sec)
 - needs at least ghc 8.2
 
 I'd generally recommend that you put your documents into an extra
