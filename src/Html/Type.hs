@@ -667,84 +667,56 @@ type family CountContent c where
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a where
-  ToTypeList (() # b)       = ToTypeList b
   ToTypeList (a # ())       = ToTypeList a
+  ToTypeList (() # b)       = ToTypeList b
   ToTypeList (a # b)        = Append (ToTypeList a) (ToTypeList b)
-  ToTypeList (a > ())       = If (HasContent (GetInfo a)) '[Just (AppendSymbol (OpenTag a) (CloseTag a))] '[Just (OpenTag a)]
-  ToTypeList ((a :@: b) ()) = Append (Just (AppendSymbol "<" (ShowElement a)) ': ToTypeList b) (If (HasContent (GetInfo a)) '[Just (AppendSymbol ">" (CloseTag a))] '[Just ">"])
-  ToTypeList (a > b)        = Append (Just (OpenTag a) ': ToTypeList b) '[Just (CloseTag a)]
-  ToTypeList ((a :@: b) c)  = Append (Just (AppendSymbol "<" (ShowElement a)) ': ToTypeList b) (Append (Just ">" ': ToTypeList c) '[Just (CloseTag a)])
-  ToTypeList (a := b)       = '[Just (AppendSymbol (AppendSymbol " " (ShowAttribute a)) "=\""), Nothing, Just "\""]
-  ToTypeList (Proxy x)      = '[Just x]
-  ToTypeList ()             = '[]
-  ToTypeList x              = '[Nothing]
+  ToTypeList (a > ())       = If (HasContent (GetInfo a)) '[AppendSymbol (OpenTag a) (CloseTag a)] '[OpenTag a]
+  ToTypeList ((a :@: b) ()) = Append (Append '[AppendSymbol "<" (ShowElement a)] (ToTypeList b)) (If (HasContent (GetInfo a)) '[AppendSymbol ">" (CloseTag a)] '[">"])
+  ToTypeList (a > b)        = Append (Append '[OpenTag a] (ToTypeList b)) '[CloseTag a]
+  ToTypeList ((a :@: b) c)  = Append (Append '[AppendSymbol "<" (ShowElement a)] (ToTypeList b)) (Append (Append '[">"] (ToTypeList c)) '[CloseTag a])
+  ToTypeList (a := b)       = '[AppendSymbol (AppendSymbol " " (ShowAttribute a)) "=\"", "\""]
+  ToTypeList (Proxy x)      = '[x]
+  ToTypeList x              = '["", ""]
 
 -- | Append two type lists.
 --
 -- Note that this definition is that ugly to reduce compiletimes.
 -- Please check whether the context reduction stack or compiletimes of
 -- a big html page get bigger if you try to refactor.
-type family Append xs ys :: [k] where
-  Append xs '[]
-        = xs
+type family Append xs ys :: [Symbol] where
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': Append xs ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': Append (x64 ': xs) ys
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': Append xs ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': Append (x32 ': xs) ys
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': Append xs ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': Append (x16 ': xs) ys
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': Append xs ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': Append (x8 ': xs) ys
 
   Append (x1 ': x2 ': x3 ': x4 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': Append xs ys
+        = x1 ': x2 ': x3 ': Append (x4 ': xs) ys
 
-  Append (x1 ': x2 ': xs) ys
-        = x1 ': x2 ': Append xs ys
+  Append '[x1, x2, x3, x4] (y1 ': ys)
+        = x1 ': x2 ': x3 ': AppendSymbol x4 y1 ': ys
 
-  Append (x1 ': xs) ys
-        = x1 ': Append xs ys
+  Append '[x1, x2, x3] (y1 ': ys)
+        = x1 ': x2 ': AppendSymbol x3 y1 ': ys
 
-  Append '[] ys
-        = ys
+  Append '[x1, x2] (y1 ': ys)
+        = x1 ': AppendSymbol x2 y1 ': ys
+
+  Append '[x1] (y1 ': ys)
+        = AppendSymbol x1 y1 ': ys
+
 
 -- | Check whether an element may have content.
 type family HasContent a where
   HasContent (ElementInfo _ NoContent) = False
   HasContent _                         = True
-
--- | Fuse neighbouring non empty type level strings.
---
--- Note that this definition is that ugly to reduce compiletimes.
--- Please check whether the context reduction stack or compiletimes of
--- a big html page get bigger if you try to refactor.
-type family Fuse a where
-  Fuse '[Just a, Nothing] = '[a, ""]
-  Fuse (Just x1 ': Nothing ': Just x2 ': Nothing ': x ': xs) = x1 ': x2 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': x3 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 x3 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Just x3 ': Nothing ': Just x4 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 x3) ': x4 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Just x4 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': AppendSymbol x3 x4 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Just x4 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 (AppendSymbol x3 x4) ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Nothing ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 x4)) ': x5 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Just x3 ': Nothing ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 x3) ': AppendSymbol x4 x5 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': AppendSymbol x3 (AppendSymbol x4 x5) ': Fuse (x ': xs)
-  Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 (AppendSymbol x3 (AppendSymbol x4 x5)) ': Fuse (x ': xs)
-
-  Fuse (Just x1 ': Nothing ': xs) = x1 ': Fuse xs
-  Fuse (Just x1 ': Just x2 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Just x3 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 x3) ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 x4)) ': Fuse (x ': xs)
-  Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 (AppendSymbol x4 x5))) ': Fuse (x ': xs)
-
-  Fuse (Just x1 ': Just x2 ': xs)  = Fuse (Just (AppendSymbol x1 x2) ': xs)
-  Fuse (Just a ': xs) = '[a]
-  Fuse (Nothing ': xs) = "" ': Fuse xs
-  Fuse '[] = '[]
 
 -- | Type level drop.
 --
@@ -783,7 +755,6 @@ type family Last (xs :: [Symbol]) where
   Last (_ ': _ ': x ': xs) = Last (x ': xs)
   Last (_ ': x ': xs) = Last (x ': xs)
   Last (x ': xs) = x
-  Last _         = ""
 
 -- | Type of type level information about tags.
 data ElementInfo
@@ -839,7 +810,7 @@ type family Elem (a :: k) (xs :: [k]) where
 
 newtype Tagged (proxies :: [Symbol]) target = Tagged target
 
-type Symbols a = Fuse (ToTypeList a)
+type Symbols a = ToTypeList a
 
 -- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
 type family GetAttributeInfo a where
