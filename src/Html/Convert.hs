@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
-
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE TypeOperators              #-}
