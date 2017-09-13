@@ -101,7 +101,7 @@ instance Convert b => Convert (a := b) where
   convert (AT x) = convert x
 instance Convert (Raw String) where
   {-# INLINE convert #-}
-  convert (Raw x) = Converted (fromString x)
+  convert (Raw x) = convert (Raw $ T.pack x)
 instance Convert (Raw T.Text) where
   {-# INLINE convert #-}
   convert (Raw x) = Converted (T.encodeUtf8Builder x)
