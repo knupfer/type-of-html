@@ -331,7 +331,7 @@ type family (a :: Element) ?> b :: Constraint where
   a ?> f (b # c)       = a ?> (b # c)
   a ?> ()              = ()
   a ?> (b -> c)        = TypeError (Text "Html elements can't contain functions")
-  a ?> b               = CheckString a
+  a ?> b               = CheckString a b
 
 type family Null xs where
   Null '[] = True
@@ -680,8 +680,13 @@ type family ToTypeList a where
   ToTypeList x              = '[Nothing]
 
 -- | Append two type lists.
+--
+-- Note that this definition is that ugly to reduce compiletimes.
+-- Please check whether the context reduction stack or compiletimes of
+-- a big html page get bigger if you try to refactor.
 type family Append xs ys :: [k] where
-  Append xs '[]       = xs
+  Append xs '[]
+        = xs
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': xs) ys
         = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': Append xs ys
@@ -704,8 +709,8 @@ type family Append xs ys :: [k] where
   Append (x1 ': xs) ys
         = x1 ': Append xs ys
 
-  Append '[] ys       = ys
-
+  Append '[] ys
+        = ys
 
 -- | Check whether an element may have content.
 type family HasContent a where
@@ -713,8 +718,12 @@ type family HasContent a where
   HasContent _                         = True
 
 -- | Fuse neighbouring non empty type level strings.
+--
+-- Note that this definition is that ugly to reduce compiletimes.
+-- Please check whether the context reduction stack or compiletimes of
+-- a big html page get bigger if you try to refactor.
 type family Fuse a where
-  Fuse '[Just a, Nothing]        = '[a, ""]
+  Fuse '[Just a, Nothing] = '[a, ""]
   Fuse (Just x1 ': Nothing ': Just x2 ': Nothing ': x ': xs) = x1 ': x2 ': Fuse (x ': xs)
   Fuse (Just x1 ': Just x2 ': Nothing ': Just x3 ': Nothing ': x ': xs) = AppendSymbol x1 x2 ': x3 ': Fuse (x ': xs)
   Fuse (Just x1 ': Nothing ': Just x2 ': Just x3 ': Nothing ': x ': xs) = x1 ': AppendSymbol x2 x3 ': Fuse (x ': xs)
@@ -733,10 +742,15 @@ type family Fuse a where
   Fuse (Just x1 ': Just x2 ': Just x3 ': Just x4 ': Just x5 ': Nothing ': x ': xs) = AppendSymbol x1 (AppendSymbol x2 (AppendSymbol x3 (AppendSymbol x4 x5))) ': Fuse (x ': xs)
 
   Fuse (Just x1 ': Just x2 ': xs)  = Fuse (Just (AppendSymbol x1 x2) ': xs)
-  Fuse (Just a ': xs)       = '[a]
+  Fuse (Just a ': xs) = '[a]
   Fuse (Nothing ': xs) = "" ': Fuse xs
-  Fuse '[]             = '[]
+  Fuse '[] = '[]
 
+-- | Type level drop.
+--
+-- Note that this definition is that ugly to reduce compiletimes.
+-- Please check whether the context reduction stack or compiletimes of
+-- a big html page get bigger if you try to refactor.
 type family Drop n xs :: [Symbol] where
   Drop 0 xs = xs
   Drop 1 (_ ': xs) = xs
@@ -745,6 +759,11 @@ type family Drop n xs :: [Symbol] where
   Drop 4 (_ ': _ ': _ ': _ ': xs) = xs
   Drop n (_ ': _ ': _ ': _ ': _ ': xs) = Drop (n-5) xs
 
+-- | Type level take.
+--
+-- Note that this definition is that ugly to reduce compiletimes.
+-- Please check whether the context reduction stack or compiletimes of
+-- a big html page get bigger if you try to refactor.
 type family Take n xs :: [Symbol] where
   Take 0 _ = '[]
   Take 1 (x1 ': _) = '[x1]
@@ -754,6 +773,10 @@ type family Take n xs :: [Symbol] where
   Take n (x1 ': x2 ': x3 ': x4 ': x5 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': Take (n-5) xs
 
 -- | Last for type level lists.
+--
+-- Note that this definition is that ugly to reduce compiletimes.
+-- Please check whether the context reduction stack or compiletimes of
+-- a big html page get bigger if you try to refactor.
 type family Last (xs :: [Symbol]) where
   Last (_ ': _ ': _ ': _ ': _ ': _ ': _ ': _ ': x ': xs) = Last (x ': xs)
   Last (_ ': _ ': _ ': _ ': x ': xs) = Last (x ': xs)
@@ -777,10 +800,10 @@ type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory])
   CheckContentCategory a c         = Elem a c
 
 -- | Check whether a given element may contain a string.
-type family CheckString (a :: Element) where
-  CheckString a = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent))
-                     (() :: Constraint)
-                     (TypeError (ShowType a :<>: Text " can't contain a string"))
+type family CheckString (a :: Element) b where
+  CheckString a b = If (TestPaternity OnlyText (GetInfo a) (ElementInfo '[FlowContent, PhrasingContent] NoContent))
+                       (() :: Constraint)
+                       (TypeError (ShowType a :<>: Text " can't contain a " :<>: ShowType b))
 
 -- | Content categories according to the html spec.
 data ContentCategory
@@ -818,6 +841,7 @@ newtype Tagged (proxies :: [Symbol]) target = Tagged target
 
 type Symbols a = Fuse (ToTypeList a)
 
+-- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
 type family GetAttributeInfo a where
   GetAttributeInfo AcceptA          = '[Form, Input]
   GetAttributeInfo AcceptCharsetA   = '[Form]
