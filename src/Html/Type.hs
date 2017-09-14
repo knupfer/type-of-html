@@ -665,18 +665,37 @@ type family CountContent c where
   CountContent ()            = 0
   CountContent _             = 1
 
+-- | We need efficient cons, snoc and append.  This API has cons(O1)
+-- and snoc(O1) but append(On).  Optimal would be a real 2-3
+-- FingerTree.
+data FingerTree = FingerTree [Symbol] Symbol
+
+type family (<|) (s :: Symbol) (t :: FingerTree) :: FingerTree where
+  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (AppendSymbol l s ': ss) r
+  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (AppendSymbol l r)
+
+type family (|>) (t :: FingerTree) (s :: Symbol) :: FingerTree where
+  (|>) ('FingerTree ss r) rr = 'FingerTree ss (AppendSymbol r rr)
+
+type family (><) (t1 :: FingerTree) (t2 :: FingerTree) :: FingerTree where
+  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppendSymbol r s ': ss2)) r2
+  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppendSymbol r r2)
+
+type family ToList (t :: FingerTree) where
+  ToList ('FingerTree ss r) = Append ss '[r]
+
 -- | Flatten a html tree of elements into a type list of tags.
-type family ToTypeList a where
+type family ToTypeList a :: FingerTree where
   ToTypeList (a # ())       = ToTypeList a
   ToTypeList (() # b)       = ToTypeList b
-  ToTypeList (a # b)        = Append (ToTypeList a) (ToTypeList b)
-  ToTypeList (a > ())       = If (HasContent (GetInfo a)) '[AppendSymbol (OpenTag a) (CloseTag a)] '[OpenTag a]
-  ToTypeList ((a :@: b) ()) = Append (Append '[AppendSymbol "<" (ShowElement a)] (ToTypeList b)) (If (HasContent (GetInfo a)) '[AppendSymbol ">" (CloseTag a)] '[">"])
-  ToTypeList (a > b)        = Append (Append '[OpenTag a] (ToTypeList b)) '[CloseTag a]
-  ToTypeList ((a :@: b) c)  = Append (Append '[AppendSymbol "<" (ShowElement a)] (ToTypeList b)) (Append (Append '[">"] (ToTypeList c)) '[CloseTag a])
-  ToTypeList (a := b)       = '[AppendSymbol (AppendSymbol " " (ShowAttribute a)) "=\"", "\""]
-  ToTypeList (Proxy x)      = '[x]
-  ToTypeList x              = '["", ""]
+  ToTypeList (a # b)        = ToTypeList a >< ToTypeList b
+  ToTypeList (a > ())       = 'FingerTree '[] (If (HasContent (GetInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
+  ToTypeList ((a :@: b) ()) = AppendSymbol "<" (ShowElement a) <| ToTypeList b |> If (HasContent (GetInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
+  ToTypeList (a > b)        = OpenTag a <| ToTypeList b |> CloseTag a
+  ToTypeList ((a :@: b) c)  = (AppendSymbol "<" (ShowElement a) <| ToTypeList b) >< (">" <| ToTypeList c |> CloseTag a)
+  ToTypeList (a := b)       = 'FingerTree '[AppendSymbol (AppendSymbol " " (ShowAttribute a)) "=\""] "\""
+  ToTypeList (Proxy x)      = 'FingerTree '[] x
+  ToTypeList x              = 'FingerTree '[""] ""
 
 -- | Append two type lists.
 --
@@ -686,32 +705,28 @@ type family ToTypeList a where
 type family Append xs ys :: [Symbol] where
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': Append (x64 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': Append xs ys
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': Append (x32 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': Append xs ys
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': Append (x16 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': Append xs ys
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': xs) ys
-        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': Append (x8 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': Append xs ys
 
   Append (x1 ': x2 ': x3 ': x4 ': xs) ys
-        = x1 ': x2 ': x3 ': Append (x4 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': Append xs ys
 
-  Append '[x1, x2, x3, x4] (y1 ': ys)
-        = x1 ': x2 ': x3 ': AppendSymbol x4 y1 ': ys
+  Append (x1 ': x2 ': xs) ys
+        = x1 ': x2 ': Append xs ys
 
-  Append '[x1, x2, x3] (y1 ': ys)
-        = x1 ': x2 ': AppendSymbol x3 y1 ': ys
+  Append (x1 ': xs) ys
+        = x1 ': Append xs ys
 
-  Append '[x1, x2] (y1 ': ys)
-        = x1 ': AppendSymbol x2 y1 ': ys
-
-  Append '[x1] (y1 ': ys)
-        = AppendSymbol x1 y1 ': ys
-
+  Append '[] ys
+        = ys
 
 -- | Check whether an element may have content.
 type family HasContent a where
@@ -810,7 +825,7 @@ type family Elem (a :: k) (xs :: [k]) where
 
 newtype Tagged (proxies :: [Symbol]) target = Tagged target
 
-type Symbols a = ToTypeList a
+type Symbols a = ToList (ToTypeList a)
 
 -- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
 type family GetAttributeInfo a where
