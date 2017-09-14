@@ -225,7 +225,7 @@ Advantages of `type-of-html`:
 Disadvantages of 'type-of-html':
 - a bit noisy syntax (don't write types!)
 - sometimes unusual type error messages
-- compile times (30sec for a medium sized page, with `-O0` only ~3sec)
+- compile times (30sec for a medium sized page, with `-O0` only ~2sec)
 - needs at least ghc 8.2
 
 I'd generally recommend that you put your documents into an extra
