@@ -1,10 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-{-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE UndecidableInstances      #-}
 {-# LANGUAGE ExplicitNamespaces        #-}
 {-# LANGUAGE FlexibleInstances         #-}
-{-# LANGUAGE FlexibleContexts          #-}
 {-# LANGUAGE MonoLocalBinds            #-}
 {-# LANGUAGE TypeOperators             #-}
 

@@ -1,12 +1,11 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE UndecidableInstances       #-}
-{-# LANGUAGE TypeOperators              #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE PolyKinds                  #-}
-{-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE PolyKinds            #-}
+{-# LANGUAGE GADTs                #-}
 
 module Html.Type where
 
@@ -228,7 +227,6 @@ data Attribute
   | CoordsA
   | CrossoriginA
   | DataA
-  | Data'A
   | DatetimeA
   | DefaultA
   | DeferA
@@ -534,123 +532,122 @@ type family ShowElement e where
   ShowElement Xmp        = "xmp"
 
 type family ShowAttribute (x :: Attribute) where
-  ShowAttribute AcceptA          = "accept"
-  ShowAttribute AcceptCharsetA   = "accept-charset"
-  ShowAttribute AccesskeyA       = "accesskey"
-  ShowAttribute ActionA          = "action"
-  ShowAttribute AlignA           = "align"
-  ShowAttribute AltA             = "alt"
-  ShowAttribute AsyncA           = "async"
-  ShowAttribute AutocompleteA    = "autocomplete"
-  ShowAttribute AutofocusA       = "autofocus"
-  ShowAttribute AutoplayA        = "autoplay"
-  ShowAttribute AutosaveA        = "autosave"
-  ShowAttribute BgcolorA         = "bgcolor"
-  ShowAttribute BorderA          = "border"
-  ShowAttribute BufferedA        = "buffered"
-  ShowAttribute ChallengeA       = "challenge"
-  ShowAttribute CharsetA         = "charset"
-  ShowAttribute CheckedA         = "checked"
-  ShowAttribute CiteA            = "cite"
-  ShowAttribute ClassA           = "class"
-  ShowAttribute CodeA            = "code"
-  ShowAttribute CodebaseA        = "codebase"
-  ShowAttribute ColorA           = "color"
-  ShowAttribute ColsA            = "cols"
-  ShowAttribute ColspanA         = "colspan"
-  ShowAttribute ContentA         = "content"
-  ShowAttribute ContenteditableA = "contenteditable"
-  ShowAttribute ContextmenuA     = "contextmenu"
-  ShowAttribute ControlsA        = "controls"
-  ShowAttribute CoordsA          = "coords"
-  ShowAttribute CrossoriginA     = "crossorigin"
-  ShowAttribute DataA            = "data"
-  ShowAttribute Data'A           = "data'"
-  ShowAttribute DatetimeA        = "datetime"
-  ShowAttribute DefaultA         = "default"
-  ShowAttribute DeferA           = "defer"
-  ShowAttribute DirA             = "dir"
-  ShowAttribute DirnameA         = "dirname"
-  ShowAttribute DisabledA        = "disabled"
-  ShowAttribute DownloadA        = "download"
-  ShowAttribute DraggableA       = "draggable"
-  ShowAttribute DropzoneA        = "dropzone"
-  ShowAttribute EnctypeA         = "enctype"
-  ShowAttribute ForA             = "for"
-  ShowAttribute FormA            = "form"
-  ShowAttribute FormactionA      = "formaction"
-  ShowAttribute HeadersA         = "headers"
-  ShowAttribute HeightA          = "height"
-  ShowAttribute HiddenA          = "hidden"
-  ShowAttribute HighA            = "high"
-  ShowAttribute HrefA            = "href"
-  ShowAttribute HreflangA        = "hreflang"
-  ShowAttribute HttpEquivA       = "httpequiv"
-  ShowAttribute IconA            = "icon"
-  ShowAttribute IdA              = "id"
-  ShowAttribute IntegrityA       = "integrity"
-  ShowAttribute IsmapA           = "ismap"
-  ShowAttribute ItempropA        = "itemprop"
-  ShowAttribute KeytypeA         = "keytype"
-  ShowAttribute KindA            = "kind"
-  ShowAttribute LabelA           = "label"
-  ShowAttribute LangA            = "lang"
-  ShowAttribute LanguageA        = "language"
-  ShowAttribute ListA            = "list"
-  ShowAttribute LoopA            = "loop"
-  ShowAttribute LowA             = "low"
-  ShowAttribute ManifestA        = "manifest"
-  ShowAttribute MaxA             = "max"
-  ShowAttribute MaxlengthA       = "maxlength"
-  ShowAttribute MinlengthA       = "minlength"
-  ShowAttribute MediaA           = "media"
-  ShowAttribute MethodA          = "method"
-  ShowAttribute MinA             = "min"
-  ShowAttribute MultipleA        = "multiple"
-  ShowAttribute MutedA           = "muted"
-  ShowAttribute NameA            = "name"
-  ShowAttribute NovalidateA      = "novalidate"
-  ShowAttribute OpenA            = "open"
-  ShowAttribute OptimumA         = "optimum"
-  ShowAttribute PatternA         = "pattern"
-  ShowAttribute PingA            = "ping"
-  ShowAttribute PlaceholderA     = "placeholder"
-  ShowAttribute PosterA          = "poster"
-  ShowAttribute PreloadA         = "preload"
-  ShowAttribute RadiogroupA      = "radiogroup"
-  ShowAttribute ReadonlyA        = "readonly"
-  ShowAttribute RelA             = "rel"
-  ShowAttribute RequiredA        = "required"
-  ShowAttribute ReversedA        = "reversed"
-  ShowAttribute RowsA            = "rows"
-  ShowAttribute RowspanA         = "rowspan"
-  ShowAttribute SandboxA         = "sandbox"
-  ShowAttribute ScopeA           = "scope"
-  ShowAttribute ScopedA          = "scoped"
-  ShowAttribute SeamlessA        = "seamless"
-  ShowAttribute SelectedA        = "selected"
-  ShowAttribute ShapeA           = "shape"
-  ShowAttribute SizeA            = "size"
-  ShowAttribute SizesA           = "sizes"
-  ShowAttribute SlotA            = "slot"
-  ShowAttribute SpanA            = "span"
-  ShowAttribute SpellcheckA      = "spellcheck"
-  ShowAttribute SrcA             = "src"
-  ShowAttribute SrcdocA          = "srcdoc"
-  ShowAttribute SrclangA         = "srclang"
-  ShowAttribute SrcsetA          = "srcset"
-  ShowAttribute StartA           = "start"
-  ShowAttribute StepA            = "step"
-  ShowAttribute StyleA           = "style"
-  ShowAttribute SummaryA         = "summary"
-  ShowAttribute TabindexA        = "tabindex"
-  ShowAttribute TargetA          = "target"
-  ShowAttribute TitleA           = "title"
-  ShowAttribute TypeA            = "type"
-  ShowAttribute UsemapA          = "usemap"
-  ShowAttribute ValueA           = "value"
-  ShowAttribute WidthA           = "width"
-  ShowAttribute WrapA            = "wrap"
+  ShowAttribute AcceptA          = " accept=\""
+  ShowAttribute AcceptCharsetA   = " accept-charset=\""
+  ShowAttribute AccesskeyA       = " accesskey=\""
+  ShowAttribute ActionA          = " action=\""
+  ShowAttribute AlignA           = " align=\""
+  ShowAttribute AltA             = " alt=\""
+  ShowAttribute AsyncA           = " async=\""
+  ShowAttribute AutocompleteA    = " autocomplete=\""
+  ShowAttribute AutofocusA       = " autofocus=\""
+  ShowAttribute AutoplayA        = " autoplay=\""
+  ShowAttribute AutosaveA        = " autosave=\""
+  ShowAttribute BgcolorA         = " bgcolor=\""
+  ShowAttribute BorderA          = " border=\""
+  ShowAttribute BufferedA        = " buffered=\""
+  ShowAttribute ChallengeA       = " challenge=\""
+  ShowAttribute CharsetA         = " charset=\""
+  ShowAttribute CheckedA         = " checked=\""
+  ShowAttribute CiteA            = " cite=\""
+  ShowAttribute ClassA           = " class=\""
+  ShowAttribute CodeA            = " code=\""
+  ShowAttribute CodebaseA        = " codebase=\""
+  ShowAttribute ColorA           = " color=\""
+  ShowAttribute ColsA            = " cols=\""
+  ShowAttribute ColspanA         = " colspan=\""
+  ShowAttribute ContentA         = " content=\""
+  ShowAttribute ContenteditableA = " contenteditable=\""
+  ShowAttribute ContextmenuA     = " contextmenu=\""
+  ShowAttribute ControlsA        = " controls=\""
+  ShowAttribute CoordsA          = " coords=\""
+  ShowAttribute CrossoriginA     = " crossorigin=\""
+  ShowAttribute DataA            = " data=\""
+  ShowAttribute DatetimeA        = " datetime=\""
+  ShowAttribute DefaultA         = " default=\""
+  ShowAttribute DeferA           = " defer=\""
+  ShowAttribute DirA             = " dir=\""
+  ShowAttribute DirnameA         = " dirname=\""
+  ShowAttribute DisabledA        = " disabled=\""
+  ShowAttribute DownloadA        = " download=\""
+  ShowAttribute DraggableA       = " draggable=\""
+  ShowAttribute DropzoneA        = " dropzone=\""
+  ShowAttribute EnctypeA         = " enctype=\""
+  ShowAttribute ForA             = " for=\""
+  ShowAttribute FormA            = " form=\""
+  ShowAttribute FormactionA      = " formaction=\""
+  ShowAttribute HeadersA         = " headers=\""
+  ShowAttribute HeightA          = " height=\""
+  ShowAttribute HiddenA          = " hidden=\""
+  ShowAttribute HighA            = " high=\""
+  ShowAttribute HrefA            = " href=\""
+  ShowAttribute HreflangA        = " hreflang=\""
+  ShowAttribute HttpEquivA       = " httpequiv=\""
+  ShowAttribute IconA            = " icon=\""
+  ShowAttribute IdA              = " id=\""
+  ShowAttribute IntegrityA       = " integrity=\""
+  ShowAttribute IsmapA           = " ismap=\""
+  ShowAttribute ItempropA        = " itemprop=\""
+  ShowAttribute KeytypeA         = " keytype=\""
+  ShowAttribute KindA            = " kind=\""
+  ShowAttribute LabelA           = " label=\""
+  ShowAttribute LangA            = " lang=\""
+  ShowAttribute LanguageA        = " language=\""
+  ShowAttribute ListA            = " list=\""
+  ShowAttribute LoopA            = " loop=\""
+  ShowAttribute LowA             = " low=\""
+  ShowAttribute ManifestA        = " manifest=\""
+  ShowAttribute MaxA             = " max=\""
+  ShowAttribute MaxlengthA       = " maxlength=\""
+  ShowAttribute MinlengthA       = " minlength=\""
+  ShowAttribute MediaA           = " media=\""
+  ShowAttribute MethodA          = " method=\""
+  ShowAttribute MinA             = " min=\""
+  ShowAttribute MultipleA        = " multiple=\""
+  ShowAttribute MutedA           = " muted=\""
+  ShowAttribute NameA            = " name=\""
+  ShowAttribute NovalidateA      = " novalidate=\""
+  ShowAttribute OpenA            = " open=\""
+  ShowAttribute OptimumA         = " optimum=\""
+  ShowAttribute PatternA         = " pattern=\""
+  ShowAttribute PingA            = " ping=\""
+  ShowAttribute PlaceholderA     = " placeholder=\""
+  ShowAttribute PosterA          = " poster=\""
+  ShowAttribute PreloadA         = " preload=\""
+  ShowAttribute RadiogroupA      = " radiogroup=\""
+  ShowAttribute ReadonlyA        = " readonly=\""
+  ShowAttribute RelA             = " rel=\""
+  ShowAttribute RequiredA        = " required=\""
+  ShowAttribute ReversedA        = " reversed=\""
+  ShowAttribute RowsA            = " rows=\""
+  ShowAttribute RowspanA         = " rowspan=\""
+  ShowAttribute SandboxA         = " sandbox=\""
+  ShowAttribute ScopeA           = " scope=\""
+  ShowAttribute ScopedA          = " scoped=\""
+  ShowAttribute SeamlessA        = " seamless=\""
+  ShowAttribute SelectedA        = " selected=\""
+  ShowAttribute ShapeA           = " shape=\""
+  ShowAttribute SizeA            = " size=\""
+  ShowAttribute SizesA           = " sizes=\""
+  ShowAttribute SlotA            = " slot=\""
+  ShowAttribute SpanA            = " span=\""
+  ShowAttribute SpellcheckA      = " spellcheck=\""
+  ShowAttribute SrcA             = " src=\""
+  ShowAttribute SrcdocA          = " srcdoc=\""
+  ShowAttribute SrclangA         = " srclang=\""
+  ShowAttribute SrcsetA          = " srcset=\""
+  ShowAttribute StartA           = " start=\""
+  ShowAttribute StepA            = " step=\""
+  ShowAttribute StyleA           = " style=\""
+  ShowAttribute SummaryA         = " summary=\""
+  ShowAttribute TabindexA        = " tabindex=\""
+  ShowAttribute TargetA          = " target=\""
+  ShowAttribute TitleA           = " title=\""
+  ShowAttribute TypeA            = " type=\""
+  ShowAttribute UsemapA          = " usemap=\""
+  ShowAttribute ValueA           = " value=\""
+  ShowAttribute WidthA           = " width=\""
+  ShowAttribute WrapA            = " wrap=\""
 
 type family OpenTag e where
   OpenTag e = AppendSymbol (AppendSymbol "<" (ShowElement e)) ">"
@@ -681,9 +678,6 @@ type family (><) (t1 :: FingerTree) (t2 :: FingerTree) :: FingerTree where
   (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppendSymbol r s ': ss2)) r2
   (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppendSymbol r r2)
 
-type family ToList (t :: FingerTree) where
-  ToList ('FingerTree ss r) = Append ss '[r]
-
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a :: FingerTree where
   ToTypeList (a # ())       = ToTypeList a
@@ -693,7 +687,7 @@ type family ToTypeList a :: FingerTree where
   ToTypeList ((a :@: b) ()) = AppendSymbol "<" (ShowElement a) <| ToTypeList b |> If (HasContent (GetInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
   ToTypeList (a > b)        = OpenTag a <| ToTypeList b |> CloseTag a
   ToTypeList ((a :@: b) c)  = (AppendSymbol "<" (ShowElement a) <| ToTypeList b) >< (">" <| ToTypeList c |> CloseTag a)
-  ToTypeList (a := b)       = 'FingerTree '[AppendSymbol (AppendSymbol " " (ShowAttribute a)) "=\""] "\""
+  ToTypeList (a := b)       = 'FingerTree '[ShowAttribute a] "\""
   ToTypeList (Proxy x)      = 'FingerTree '[] x
   ToTypeList x              = 'FingerTree '[""] ""
 
@@ -759,18 +753,6 @@ type family Take n xs :: [Symbol] where
   Take 4 (x1 ': x2 ': x3 ': x4 ': _) = '[x1, x2, x3, x4]
   Take n (x1 ': x2 ': x3 ': x4 ': x5 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': Take (n-5) xs
 
--- | Last for type level lists.
---
--- Note that this definition is that ugly to reduce compiletimes.
--- Please check whether the context reduction stack or compiletimes of
--- a big html page get bigger if you try to refactor.
-type family Last (xs :: [Symbol]) where
-  Last (_ ': _ ': _ ': _ ': _ ': _ ': _ ': _ ': x ': xs) = Last (x ': xs)
-  Last (_ ': _ ': _ ': _ ': x ': xs) = Last (x ': xs)
-  Last (_ ': _ ': x ': xs) = Last (x ': xs)
-  Last (_ ': x ': xs) = Last (x ': xs)
-  Last (x ': xs) = x
-
 -- | Type of type level information about tags.
 data ElementInfo
   (contentCategories :: [ContentCategory])
@@ -823,9 +805,7 @@ type family Elem (a :: k) (xs :: [k]) where
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
-newtype Tagged (proxies :: [Symbol]) target = Tagged target
-
-type Symbols a = ToList (ToTypeList a)
+newtype Tagged (proxies :: k) target = Tagged target
 
 -- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
 type family GetAttributeInfo a where

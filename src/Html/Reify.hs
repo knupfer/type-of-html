@@ -1,13 +1,12 @@
-{-# LANGUAGE UndecidableInstances  #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE FlexibleContexts      #-}
-{-# LANGUAGE TypeApplications      #-}
-{-# LANGUAGE ConstraintKinds       #-}
-{-# LANGUAGE TypeOperators         #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE PolyKinds             #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE MonoLocalBinds       #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE PolyKinds            #-}
 
 module Html.Reify where
 
@@ -25,9 +24,12 @@ import qualified Data.ByteString.Builder as B
 
 -- | Render a html document to a Builder.
 {-# INLINE renderBuilder #-}
-renderBuilder :: forall a. Document a => a -> B.Builder
-renderBuilder x = renderchunks (Tagged x :: Tagged (Symbols a) a)
-                   <> unConv (convert (Proxy @ (Last (Symbols a))))
+renderBuilder :: Document a => a -> B.Builder
+renderBuilder = renderchunks . tag
+
+{-# INLINE tag #-}
+tag :: a -> Tagged (ToTypeList a) a
+tag = Tagged
 
 -- | Render a html document to a String.
 {-# INLINE renderString #-}
@@ -44,18 +46,16 @@ renderText = T.decodeUtf8 . renderByteString
 renderByteString :: Document a => a -> B.ByteString
 renderByteString = B.toLazyByteString . renderBuilder
 
-type Document a =
-  ( Renderchunks (Tagged (Symbols a) a)
-  , KnownSymbol (Last (Symbols a))
-  )
+class Renderchunks (Tagged (ToTypeList a) a) => Document a where
+instance Renderchunks (Tagged (ToTypeList a) a) => Document a
 
 class Renderchunks a where
   renderchunks :: a -> B.Builder
 
-instance KnownSymbol a => Renderchunks (Tagged prox (Proxy a)) where
+instance KnownSymbol a => Renderchunks (Tagged (prox :: [Symbol]) (Proxy a)) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
-instance Renderchunks (Tagged prox ()) where
+instance Renderchunks (Tagged (prox :: [Symbol]) ()) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
 
@@ -74,6 +74,22 @@ instance {-# INCOHERENT #-}
   renderchunks (Tagged x)
     = unConv (convert (Proxy @ s))
     <> unConv (convert x)
+
+instance {-# INCOHERENT #-}
+  ( Renderchunks (Tagged xs val)
+  ) => Renderchunks (Tagged ('FingerTree xs "") val) where
+  {-# INLINE renderchunks #-}
+  renderchunks (Tagged t)
+    = renderchunks (Tagged t :: Tagged xs val)
+
+instance {-# INCOHERENT #-}
+  ( Renderchunks (Tagged xs val)
+  , KnownSymbol x
+  ) => Renderchunks (Tagged ('FingerTree xs x) val) where
+  {-# INLINE renderchunks #-}
+  renderchunks (Tagged t)
+    = renderchunks (Tagged t :: Tagged xs val)
+    <> unConv (convert (Proxy @ x))
 
 instance
   ( Renderchunks (Tagged prox b)
@@ -100,13 +116,10 @@ instance
    <> renderchunks (Tagged b :: Tagged (Drop (CountContent a) prox) b)
 
 instance
-  ( Renderchunks (Tagged (Symbols (a `f` b)) (a `f` b))
-  , KnownSymbol (Last (Symbols (a `f` b)))
+  ( Renderchunks (Tagged (ToTypeList (a `f` b)) (a `f` b))
   , KnownSymbol s
   ) => Renderchunks (Tagged (s ': ss) [a `f` b]) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)
     = unConv (convert (Proxy @ s))
-    <> foldMap (\x -> renderchunks (Tagged x :: Tagged (Symbols (a `f` b)) (a `f` b)) <> closing) xs
-    where closing = unConv (convert (Proxy @ (Last (Symbols (a `f` b)))))
-
+    <> foldMap (renderchunks . tag) xs
