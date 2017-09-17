@@ -147,7 +147,7 @@ Remember this benchmark from `blaze-html`?
 
 This is comparing blaze with `type-of-html`:
 
-![type-of-html](https://user-images.githubusercontent.com/5609565/30388159-2281182c-98af-11e7-8b29-aac26b7fbb57.png)
+![type-of-html](https://user-images.githubusercontent.com/5609565/30524978-229dd21c-9bfe-11e7-8404-1f69b93cec22.png)
 
 To look at the exact code of this benchmark look [here](bench/Main.hs)
 in the repo.  The big table benchmark here is only a 4x4 table. Using
@@ -215,10 +215,16 @@ Data.ByteString.Builder.unpackCString# "<div><div></div></div>"#
 This sort of compiletime optimization isn't for free, it'll increase
 compilation times.
 
+Note that compiling with `-O2` results in a ~25% faster binary than
+with `-O` and compiling with `-O0` compiles about 15 times faster, so
+be sure that you develop with `-O0` and benchmark or deploy with
+`-O2`.  Be aware, that cabal compiles only with `-O` if you don't
+specify explicitly otherwise.
+
 ## Comparision to lucid and blaze-html
 
 Advantages of `type-of-html`:
-- more or less 7 times faster
+- more or less 10 times faster on a medium sized page
 - a lot higher type safety: nearly no invalid document is inhabited
 - fewer dependencies
 
