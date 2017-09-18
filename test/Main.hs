@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators    #-}
 {-# LANGUAGE DataKinds        #-}
@@ -169,3 +170,37 @@ spec = let allT a b c = b (renderString a, T.unpack $ renderText a, T.unpack . d
       allT (img_A (A.id_ "a ä € 𝄞"))
         shouldBe
         "<img id=\"a ä € 𝄞\">"
+
+    it "handles complex compile time documents" $ do
+
+      allT (div_ () # i_ ())
+        shouldBe
+        "<div></div><i></i>"
+
+      allT (div_ () # "a")
+        shouldBe
+        "<div></div>a"
+
+      allT ("a" # i_ ())
+        shouldBe
+        "a<i></i>"
+
+      allT (div_ () # i_ (Proxy @"a"))
+        shouldBe
+        "<div></div><i>a</i>"
+
+      allT (div_ (Proxy @"a") # i_ ())
+        shouldBe
+        "<div>a</div><i></i>"
+
+      allT (Proxy @"1" # "2")
+        shouldBe
+        "12"
+
+      allT ("1" # Proxy @"2")
+        shouldBe
+        "12"
+
+      allT (div_ () # td_ (Proxy @"1" # "2" # div_ () # i_A (A.id_ (Proxy @"3")) "4"))
+        shouldBe
+        "<div></div><td>12<div></div><i id=\"3\">4</i></td>"
