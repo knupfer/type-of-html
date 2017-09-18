@@ -221,6 +221,60 @@ be sure that you develop with `-O0` and benchmark or deploy with
 `-O2`.  Be aware, that cabal compiles only with `-O` if you don't
 specify explicitly otherwise.
 
+### Even faster
+
+Need for speed?  Consider following advise, which is sorted in
+ascending order of perf gains:
+
+- If you've got attributes or contents of length 1, use a Char
+
+This allows for a more efficient conversion to builder, because we know the length at compile time
+
+```haskell
+div_ 'a'
+```
+
+- If you know for sure that you don't need escaping, use `Raw`
+
+This allows for a more efficient conversion builder, because we don't need to escape
+
+```haskell
+div_ (Raw "a")
+```
+
+- If you've got numeric attributes or contents, don't convert it to a string
+
+This allows for a more efficient conversion to builder, because we don't need to escape and don't need to handle utf8
+
+```haskell
+div_ (42 :: Int)
+```
+
+- If you know that an attribute or content is empty, use `()`
+
+This allows for more compile time appending and avoids two runtime appends
+
+```haskell
+div_ ()
+```
+
+- If you know for sure a string at compile time which doesn't need
+  escaping, use a `Proxy Symbol`
+
+This allows for more compile time appending and avoids two runtime appends, escaping and conversion to a builder
+
+```haskell
+div_ (Proxy @"hello")
+```
+
+These techniques can have dramatic performance implications,
+especially the last two. If you replace for example in the `big page
+with attributes` benchmark every string with a Proxy Symbol, it'll run
+in 10 ns which is 500 times faster than `blaze-html`.  Looking at core
+shows that this is equivalent of directly embedding the entire
+resulting html as bytestring in the binary and is therefore the
+fastest possible output.
+
 ## Comparision to lucid and blaze-html
 
 Advantages of `type-of-html`:
