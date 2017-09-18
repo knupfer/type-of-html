@@ -1,5 +1,12 @@
 # Revision history for type-of-html
 
+## 1.0.0.0  -- 2017-09-18
+
+* perf increase
+* more compile time optimizations
+* more test cases
+* more Convert instances
+
 ## 0.5.1.0  -- 2017-09-13
 
 * perf increase
