@@ -61,15 +61,20 @@ instance Renderchunks (Tagged (prox :: [Symbol]) ()) where
 
 instance {-# INCOHERENT #-}
   ( Convert val
-  ) => Renderchunks (Tagged ("" ': ss) val) where
+  ) => Renderchunks (Tagged '[""] val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
     = unConv (convert x)
 
 instance {-# INCOHERENT #-}
+  Renderchunks (Tagged '[] val) where
+  {-# INLINE renderchunks #-}
+  renderchunks _ = mempty
+
+instance {-# INCOHERENT #-}
   ( Convert val
   , KnownSymbol s
-  ) => Renderchunks (Tagged (s ': ss) val) where
+  ) => Renderchunks (Tagged '[s] val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
     = unConv (convert (Proxy @ s))

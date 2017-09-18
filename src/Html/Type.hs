@@ -659,7 +659,9 @@ type family CountContent c where
   CountContent (a # b)       = CountContent a + CountContent b
   CountContent (_ > b)       = CountContent b
   CountContent ((_ :@: b) c) = CountContent b + CountContent c
+  CountContent (a := b)      = CountContent b
   CountContent ()            = 0
+  CountContent (Proxy _)     = 0
   CountContent _             = 1
 
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
@@ -680,14 +682,13 @@ type family (><) (t1 :: FingerTree) (t2 :: FingerTree) :: FingerTree where
 
 -- | Flatten a html tree of elements into a type list of tags.
 type family ToTypeList a :: FingerTree where
-  ToTypeList (a # ())       = ToTypeList a
-  ToTypeList (() # b)       = ToTypeList b
   ToTypeList (a # b)        = ToTypeList a >< ToTypeList b
   ToTypeList (a > ())       = 'FingerTree '[] (If (HasContent (GetInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
   ToTypeList ((a :@: b) ()) = AppendSymbol "<" (ShowElement a) <| ToTypeList b |> If (HasContent (GetInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
   ToTypeList (a > b)        = OpenTag a <| ToTypeList b |> CloseTag a
   ToTypeList ((a :@: b) c)  = (AppendSymbol "<" (ShowElement a) <| ToTypeList b) >< (">" <| ToTypeList c |> CloseTag a)
-  ToTypeList (a := b)       = 'FingerTree '[ShowAttribute a] "\""
+  ToTypeList (a := b)       = ShowAttribute a <| ToTypeList b |> "\""
+  ToTypeList ()             = 'FingerTree '[] ""
   ToTypeList (Proxy x)      = 'FingerTree '[] x
   ToTypeList x              = 'FingerTree '[""] ""
 
