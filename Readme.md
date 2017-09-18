@@ -226,42 +226,48 @@ specify explicitly otherwise.
 Need for speed?  Consider following advise, which is sorted in
 ascending order of perf gains:
 
-- If you've got attributes or contents of length 1, use a Char
+If you've got attributes or contents of length 1, use a Char.
 
-This allows for a more efficient conversion to builder, because we know the length at compile time
+This allows for a more efficient conversion to builder, because we
+know the length at compile time.
 
 ```haskell
 div_ 'a'
 ```
 
-- If you know for sure that you don't need escaping, use `Raw`
+If you know for sure that you don't need escaping, use `Raw`.
 
-This allows for a more efficient conversion builder, because we don't need to escape
+This allows for a more efficient conversion to builder, because we
+don't need to escape.
 
 ```haskell
 div_ (Raw "a")
 ```
 
-- If you've got numeric attributes or contents, don't convert it to a string
+If you've got numeric attributes or contents, don't convert it to a
+string.
 
-This allows for a more efficient conversion to builder, because we don't need to escape and don't need to handle utf8
+This allows for a more efficient conversion to builder, because we
+don't need to escape and don't need to handle utf8.
 
 ```haskell
 div_ (42 :: Int)
 ```
 
-- If you know that an attribute or content is empty, use `()`
+If you know that an attribute or content is empty, use `()`.
 
-This allows for more compile time appending and avoids two runtime appends
+This allows for more compile time appending and avoids two runtime
+appends.
 
 ```haskell
 div_ ()
 ```
 
-- If you know for sure a string at compile time which doesn't need
-  escaping, use a `Proxy Symbol`
+If you know for sure a string at compile time which doesn't need
+escaping, use a `Proxy Symbol`.
 
-This allows for more compile time appending and avoids two runtime appends, escaping and conversion to a builder
+This allows for more compile time appending and avoids two runtime
+appends, escaping and conversion to a builder.
 
 ```haskell
 div_ (Proxy @"hello")
