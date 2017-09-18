@@ -118,6 +118,9 @@ class Convert a where
 instance Convert b => Convert (a := b) where
   {-# INLINE convert #-}
   convert (AT x) = convert x
+instance Convert (Raw Char) where
+  {-# INLINE convert #-}
+  convert (Raw c) = Converted (B.charUtf8 c)
 instance Convert (Raw String) where
   {-# INLINE convert #-}
   convert (Raw x) = stringConvRaw x
@@ -127,6 +130,12 @@ instance Convert (Raw T.Text) where
 instance Convert (Raw TL.Text) where
   {-# INLINE convert #-}
   convert (Raw x) = Converted (TL.encodeUtf8Builder x)
+instance Convert (Raw B.Builder) where
+  {-# INLINE convert #-}
+  convert (Raw x) = Converted x
+instance Convert Char where
+  {-# INLINE convert #-}
+  convert = Converted . BP.primBounded escapeUtf8
 instance Convert String where
   {-# INLINE convert #-}
   convert = stringConv
