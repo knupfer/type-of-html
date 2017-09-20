@@ -43,7 +43,6 @@ test-suite test
                     , type-of-html
                     , QuickCheck
                     , hspec
-                    , text
 
 benchmark bench
   type:               exitcode-stdio-1.0
