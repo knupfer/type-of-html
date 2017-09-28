@@ -368,8 +368,12 @@ data (>) (a :: Element) b where
 infixr 8 >
 
 -- | Decorate an element with attributes and descend to a valid child.
+-- It is recommended to use the predefined elements.
 --
--- >>> WithAttributes (A.class_ "bar") "a" :: 'Div :> String
+-- >>> WithAttributes (A.class_ "bar") "a" :: ('Div :@: ('ClassA := String)) String
+-- <div class="bar">a</div>
+--
+-- >>> div_A (A.class_ "bar") "a"
 -- <div class="bar">a</div>
 data (:@:) (a :: Element) b c where
   WithAttributes :: (a ??> b, a ?> c) => b -> c -> (a :@: b) c
