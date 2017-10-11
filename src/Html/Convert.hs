@@ -17,6 +17,8 @@ import GHC.Types
 
 import Data.Char (ord)
 
+import Data.Double.Conversion.ByteString
+
 import qualified GHC.CString    as GHC
 import qualified Data.Monoid    as M
 import qualified Data.Semigroup as S
@@ -153,10 +155,10 @@ instance Convert Integer where
   convert = Converted . B.integerDec
 instance Convert Float where
   {-# INLINE convert #-}
-  convert = Converted . B.floatDec
+  convert = Converted . U.byteStringCopy . toShortest . realToFrac
 instance Convert Double where
   {-# INLINE convert #-}
-  convert = Converted . B.doubleDec
+  convert = Converted . U.byteStringCopy . toShortest
 instance Convert Word where
   {-# INLINE convert #-}
   convert = Converted . B.wordDec

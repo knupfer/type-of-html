@@ -32,6 +32,7 @@ library
                     , text
                     , bytestring
                     , ghc-prim
+                    , double-conversion
 
 test-suite test
   type:               exitcode-stdio-1.0
