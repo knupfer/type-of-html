@@ -48,6 +48,10 @@ test-suite test
 benchmark bench
   type:               exitcode-stdio-1.0
   main-is:            Main.hs
+  other-modules:      Small
+                    , Medium
+                    , Big
+                    , Blaze
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
@@ -57,3 +61,4 @@ benchmark bench
                     , bytestring
                     , blaze-html
                     , criterion
+                    , QuickCheck
