@@ -33,7 +33,6 @@ import qualified Data.Text.Encoding          as T
 import qualified Data.Text.Lazy              as TL
 import qualified Data.Text.Lazy.Encoding     as TL
 
-{-# INLINE escapeUtf8 #-}
 escapeUtf8 :: BP.BoundedPrim Char
 escapeUtf8 =
     BP.condB (>  '>' ) BP.charUtf8 $
@@ -52,7 +51,6 @@ escapeUtf8 =
     fixed5 x = BP.liftFixedToBounded $ const x BP.>$<
       BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7
 
-{-# INLINE escape #-}
 escape :: BP.BoundedPrim Word8
 escape =
     BP.condB (>  c2w '>' ) (BP.liftFixedToBounded BP.word8) $
@@ -65,9 +63,11 @@ escape =
   where
     c2w = fromIntegral . ord
 
+    {-# INLINE fixed4 #-}
     fixed4 x = BP.liftFixedToBounded $ const x BP.>$<
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
 
+    {-# INLINE fixed5 #-}
     fixed5 x = BP.liftFixedToBounded $ const x BP.>$<
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
 
@@ -167,8 +167,8 @@ instance KnownSymbol a => Convert (Proxy a) where
   convert = Converted . U.byteStringCopy . fromString . symbolVal
 
 {-# INLINE builderCString# #-}
-builderCString# :: Addr# -> Converted
-builderCString# addr = Converted $ BP.primUnfoldrBounded escape go 0
+builderCString# :: BP.BoundedPrim Word8 -> Addr# -> Converted
+builderCString# bp addr = Converted $ BP.primUnfoldrBounded bp go 0
   where
     go !i | b /= 0 = Just (fromIntegral b, i+1)
           | otherwise = Nothing
@@ -186,11 +186,11 @@ stringConvRaw = Converted . B.stringUtf8
 
 {-# RULES "CONVERTED literal" forall a.
     stringConv (GHC.unpackCString# a)
-      = builderCString# a #-}
+      = builderCString# escape a #-}
 
 {-# RULES "CONVERTED literal raw" forall a.
     stringConvRaw (GHC.unpackCString# a)
-      = Converted (U.byteStringCopy (fromString (GHC.unpackCString# a))) #-}
+      = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
 
 {-# RULES "CONVERTED literal utf8" forall a.
     stringConv (GHC.unpackCStringUtf8# a)
