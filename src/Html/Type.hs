@@ -654,16 +654,16 @@ type family ShowAttribute (x :: Attribute) where
   ShowAttribute WrapA            = " wrap=\""
 
 type family OpenTag e where
-  OpenTag e = AppendSymbol (AppendSymbol "<" (ShowElement e)) ">"
+  OpenTag e = AppendSymbol "<" (AppendSymbol (ShowElement e) ">")
 
 type family CloseTag e where
-  CloseTag e = AppendSymbol (AppendSymbol "</" (ShowElement e)) ">"
+  CloseTag e = AppendSymbol "</" (AppendSymbol (ShowElement e) ">")
 
 type family CountContent c where
   CountContent (a # b)       = CountContent a + CountContent b
   CountContent (_ > b)       = CountContent b
   CountContent ((_ :@: b) c) = CountContent b + CountContent c
-  CountContent (a := b)      = CountContent b
+  CountContent (_ := b)      = CountContent b
   CountContent ()            = 0
   CountContent (Proxy _)     = 0
   CountContent _             = 1
@@ -785,12 +785,6 @@ data ContentCategory
   | SectioningContent
   | HeadingContent
   | PhrasingContent
-  | EmbeddedContent
-  | InteractiveContent
-  | FormAssociatedContent
-  | TransparentContent
-  | PalpableContent
-  | SectioningRoot
   | (:|:) ContentCategory ContentCategory
   | (:&:) ContentCategory ContentCategory
   | NOT ContentCategory
@@ -939,35 +933,35 @@ type family GetInfo a where
     NoContent
 
   GetInfo A = ElementInfo
-    [ FlowContent, PhrasingContent, InteractiveContent, PalpableContent ]
-    (TransparentContent :|: FlowContent :&: NOT InteractiveContent :|: PhrasingContent)
+    '[ FlowContent, PhrasingContent ]
+    (FlowContent :&: NOT (SingleElement Details) :|: PhrasingContent)
 
   GetInfo Abbr = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Address = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (FlowContent :&: NOT (HeadingContent :|: SectioningContent :|: SingleElement Address :|: SingleElement Header :|: SingleElement Footer))
 
   GetInfo Area = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     NoContent
 
   GetInfo Article = ElementInfo
-    [ FlowContent, SectioningContent, PalpableContent ]
+    '[ FlowContent, SectioningContent ]
     FlowContent
 
   GetInfo Aside = ElementInfo
-    [ FlowContent, SectioningContent, PalpableContent ]
+    '[ FlowContent, SectioningContent ]
     FlowContent
 
   GetInfo Audio = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
-    (SingleElement Source :|: SingleElement Track :|: TransparentContent :&: NOT (SingleElement Audio :|: SingleElement Video))
+    '[ FlowContent, PhrasingContent ]
+    (SingleElement Source :|: SingleElement Track)
 
   GetInfo B = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Base = ElementInfo
@@ -975,43 +969,43 @@ type family GetInfo a where
     NoContent
 
   GetInfo Bdi = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Bdo = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Blockquote = ElementInfo
-    [ FlowContent, SectioningRoot, PalpableContent ]
+    '[ FlowContent ]
     FlowContent
 
   GetInfo Body = ElementInfo
-    '[ SectioningRoot ]
+    '[]
     FlowContent
 
   GetInfo Br = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     NoContent
 
   GetInfo Button = ElementInfo
-    [ FlowContent, PhrasingContent, InteractiveContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Canvas = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent ]
-    (TransparentContent :&: NOT InteractiveContent :|: SingleElement A :|: SingleElement Button :|: SingleElement Input)
+    '[ FlowContent, PhrasingContent ]
+    (SingleElement A :|: SingleElement Button :|: SingleElement Input)
 
   GetInfo Caption = ElementInfo
     '[]
     FlowContent
 
   GetInfo Cite = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Code = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Col = ElementInfo
@@ -1023,11 +1017,11 @@ type family GetInfo a where
     (SingleElement Col)
 
   GetInfo Data = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Datalist = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     (PhrasingContent :|: SingleElement Option)
 
   GetInfo Dd = ElementInfo
@@ -1035,27 +1029,27 @@ type family GetInfo a where
     FlowContent
 
   GetInfo Del = ElementInfo
-    [ FlowContent, PhrasingContent ]
-    TransparentContent
+    '[ FlowContent, PhrasingContent ]
+    OnlyText
 
   GetInfo Details = ElementInfo
-    [ FlowContent, SectioningRoot, InteractiveContent, PalpableContent ]
-    ( SingleElement Summary :|: FlowContent)
+    '[ FlowContent ]
+    ( FlowContent :|: SingleElement Summary)
 
   GetInfo Dfn = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     (PhrasingContent :&: NOT (SingleElement Dfn))
 
   GetInfo Dialog = ElementInfo
-    [ FlowContent, SectioningRoot ]
+    '[ FlowContent ]
     FlowContent
 
   GetInfo Div = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (FlowContent :|: SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template)
 
   GetInfo Dl = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template :|: SingleElement Div)
 
   GetInfo Dt = ElementInfo
@@ -1063,67 +1057,67 @@ type family GetInfo a where
     (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
 
   GetInfo Em = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Embed = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     NoContent
 
   GetInfo Fieldset = ElementInfo
-    [ FlowContent, SectioningRoot, FormAssociatedContent, PalpableContent ]
-    (SingleElement Legend :|: FlowContent)
+    '[ FlowContent ]
+    (FlowContent :|: SingleElement Legend)
 
   GetInfo Figcaption = ElementInfo
     '[]
     FlowContent
 
   GetInfo Figure = ElementInfo
-    [ FlowContent, SectioningRoot, PalpableContent ]
-    (SingleElement Figcaption :|: FlowContent)
+    '[ FlowContent ]
+    (FlowContent :|: SingleElement Figcaption)
 
   GetInfo Footer = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (FlowContent :&: NOT (SingleElement Footer :|: SingleElement Header))
 
   GetInfo Form = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (FlowContent :&: NOT (SingleElement Form))
 
   GetInfo H1 = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     PhrasingContent
 
   GetInfo H2 = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     PhrasingContent
 
   GetInfo H3 = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     PhrasingContent
 
   GetInfo H4 = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     PhrasingContent
 
   GetInfo H5 = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     PhrasingContent
 
   GetInfo H6 = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     PhrasingContent
 
   GetInfo Head = ElementInfo
     '[]
-    (MetadataContent :|: SingleElement Title)
+    MetadataContent
 
   GetInfo Header = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer))
 
   GetInfo Hgroup = ElementInfo
-    [ FlowContent, HeadingContent, PalpableContent ]
+    '[ FlowContent, HeadingContent ]
     (SingleElement H1 :|: SingleElement H2 :|: SingleElement H3 :|: SingleElement H4 :|: SingleElement H5 :|: SingleElement H6)
 
   GetInfo Hr = ElementInfo
@@ -1135,27 +1129,27 @@ type family GetInfo a where
     (SingleElement Head :|: SingleElement Body)
 
   GetInfo I = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Iframe = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     NoContent
 
   GetInfo Img = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent, InteractiveContent ]
+    '[ FlowContent, PhrasingContent ]
     NoContent
 
   GetInfo Ins = ElementInfo
-    [ FlowContent, PhrasingContent ]
-    TransparentContent
+    '[ FlowContent, PhrasingContent ]
+    OnlyText
 
   GetInfo Kbd = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Label = ElementInfo
-    [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     (PhrasingContent :&: NOT (SingleElement Label))
 
   GetInfo Legend = ElementInfo
@@ -1167,23 +1161,23 @@ type family GetInfo a where
     FlowContent
 
   GetInfo Link = ElementInfo
-    [ MetadataContent, FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent, MetadataContent ]
     NoContent
 
   GetInfo Main = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     FlowContent
 
   GetInfo Map = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
-    TransparentContent
+    '[ FlowContent, PhrasingContent ]
+    OnlyText
 
   GetInfo Mark = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Menu = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (FlowContent :|: SingleElement Li :|: SingleElement Script :|: SingleElement Template :|: SingleElement Menu :|: SingleElement Menuitem :|: SingleElement Hr)
 
   GetInfo Menuitem = ElementInfo
@@ -1191,27 +1185,27 @@ type family GetInfo a where
     NoContent
 
   GetInfo Meta = ElementInfo
-    [ MetadataContent, FlowContent, PhrasingContent ]
+    '[ FlowContent, MetadataContent, PhrasingContent ]
     NoContent
 
   GetInfo Meter = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     (PhrasingContent :&: NOT (SingleElement Meter))
 
   GetInfo Nav = ElementInfo
-    [ FlowContent, SectioningContent, PalpableContent ]
+    '[ FlowContent, SectioningContent ]
     FlowContent
 
   GetInfo Noscript = ElementInfo
-    [ MetadataContent, FlowContent, PhrasingContent ]
-    (SingleElement Link :|: SingleElement Style :|: SingleElement Meta :|: TransparentContent :&: NOT (SingleElement Noscript) :|: FlowContent :|: PhrasingContent)
+    '[ FlowContent, MetadataContent, PhrasingContent ]
+    (FlowContent :|: PhrasingContent :|: SingleElement Link :|: SingleElement Style :|: SingleElement Meta)
 
   GetInfo Object = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, PalpableContent, InteractiveContent, FormAssociatedContent ]
-    (SingleElement Param :|: TransparentContent)
+    '[ FlowContent, PhrasingContent ]
+    (SingleElement Param)
 
   GetInfo Ol = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (SingleElement Li)
 
   GetInfo Optgroup = ElementInfo
@@ -1223,11 +1217,11 @@ type family GetInfo a where
     OnlyText
 
   GetInfo Output = ElementInfo
-    [ FlowContent, PhrasingContent, FormAssociatedContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo P = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     PhrasingContent
 
   GetInfo Param = ElementInfo
@@ -1235,19 +1229,19 @@ type family GetInfo a where
     NoContent
 
   GetInfo Picture = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent ]
+    '[ FlowContent, PhrasingContent ]
     (SingleElement Source :|: SingleElement Img)
 
   GetInfo Pre = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     PhrasingContent
 
   GetInfo Progress = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     (PhrasingContent :&: NOT (SingleElement Progress))
 
   GetInfo Q = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Rp = ElementInfo
@@ -1263,35 +1257,35 @@ type family GetInfo a where
     (PhrasingContent :|: SingleElement Rt)
 
   GetInfo Ruby = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo S = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Samp = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Script = ElementInfo
-    [ MetadataContent, FlowContent, PhrasingContent ]
+    '[ FlowContent, MetadataContent, PhrasingContent ]
     OnlyText
 
   GetInfo Section = ElementInfo
-    [ FlowContent, SectioningContent, PalpableContent ]
+    '[ FlowContent, SectioningContent ]
     FlowContent
 
   GetInfo Select = ElementInfo
-    [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent ]
+    '[ FlowContent, PhrasingContent ]
     (SingleElement Option :|: SingleElement Optgroup)
 
   GetInfo Slot = ElementInfo
-    [ FlowContent, PhrasingContent ]
-    TransparentContent
+    '[ FlowContent, PhrasingContent ]
+    OnlyText
 
   GetInfo Small = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Source = ElementInfo
@@ -1299,19 +1293,19 @@ type family GetInfo a where
     NoContent
 
   GetInfo Span = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Strong = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Style = ElementInfo
-    [ MetadataContent, FlowContent ]
+    '[ FlowContent, MetadataContent ]
     OnlyText
 
   GetInfo Sub = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Summary = ElementInfo
@@ -1319,7 +1313,7 @@ type family GetInfo a where
     (PhrasingContent :|: HeadingContent)
 
   GetInfo Sup = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Table = ElementInfo
@@ -1335,11 +1329,11 @@ type family GetInfo a where
     FlowContent
 
   GetInfo Template = ElementInfo
-    [ MetadataContent, FlowContent, PhrasingContent ]
-    (MetadataContent :|: FlowContent)
+    '[ FlowContent, MetadataContent, PhrasingContent ]
+    (FlowContent :|: MetadataContent)
 
   GetInfo Textarea = ElementInfo
-    [ FlowContent, PhrasingContent, InteractiveContent, FormAssociatedContent ]
+    '[ FlowContent, PhrasingContent ]
     OnlyText
 
   GetInfo Tfoot = ElementInfo
@@ -1355,7 +1349,7 @@ type family GetInfo a where
     (SingleElement Tr)
 
   GetInfo Time = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Title = ElementInfo
@@ -1371,25 +1365,25 @@ type family GetInfo a where
     NoContent
 
   GetInfo U = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Ul = ElementInfo
-    [ FlowContent, PalpableContent ]
+    '[ FlowContent ]
     (SingleElement Li)
 
   GetInfo Var = ElementInfo
-    [ FlowContent, PhrasingContent, PalpableContent ]
+    '[ FlowContent, PhrasingContent ]
     PhrasingContent
 
   GetInfo Video = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
-    (SingleElement Track :|: TransparentContent :&: NOT (SingleElement Audio :|: SingleElement Video) :|: SingleElement Source)
+    '[ FlowContent, PhrasingContent ]
+    (SingleElement Track :|: SingleElement Source)
 
   GetInfo Wbr = ElementInfo
-    [ FlowContent, PhrasingContent ]
+    '[ FlowContent, PhrasingContent ]
     NoContent
 
   GetInfo _ = ElementInfo
-    [ FlowContent, PhrasingContent, EmbeddedContent, InteractiveContent, PalpableContent ]
-    (FlowContent :|: PhrasingContent :|: EmbeddedContent :|: InteractiveContent :|: PalpableContent)
+    '[ FlowContent, PhrasingContent ]
+    (FlowContent :|: PhrasingContent)
