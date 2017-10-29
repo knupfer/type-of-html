@@ -106,7 +106,7 @@ instance Convert Person where
     <> if vegetarian then "oranges." else "meat."
 
 john :: Person
-john = Person {name = "John", age = 52, vegetarian = True}
+john = Person {name = \"John\", age = 52, vegetarian = True}
 
 main :: IO ()
 main = print (div_ john)
