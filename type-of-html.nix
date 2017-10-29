@@ -10,7 +10,7 @@ mkDerivation {
   ];
   testHaskellDepends = [ base hspec QuickCheck ];
   benchmarkHaskellDepends = [
-    base blaze-html bytestring criterion text
+    base blaze-html bytestring criterion QuickCheck text
   ];
   homepage = "https://github.com/knupfer/type-of-html";
   description = "High performance type driven html generation";
