@@ -9,33 +9,27 @@ module Html.Convert
   , Convert(..)
   ) where
 
+import Html.Type.Internal
+
 import Data.Word
 import Data.Proxy
 import Data.String
-import GHC.TypeLits
-
-import Html.Type.Internal
-import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
-import GHC.Types
-
 import Data.Char (ord)
-
 import Data.Double.Conversion.ByteString
+import GHC.TypeLits
+import GHC.Types
+import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
+import GHC.CString (unpackCString#, unpackCStringUtf8#)
 
-import qualified GHC.CString    as GHC
-
-import qualified Data.Semigroup          as S
-import qualified Data.Monoid             as M
-
+import qualified Data.Semigroup                   as S
+import qualified Data.Monoid                      as M
 import qualified Data.ByteString.Builder          as B
 import qualified Data.ByteString.Builder.Prim     as BP
 import qualified Data.ByteString.Builder.Internal as U
-
-import qualified Data.Text                   as T
-import qualified Data.Text.Encoding          as T
-
-import qualified Data.Text.Lazy              as TL
-import qualified Data.Text.Lazy.Encoding     as TL
+import qualified Data.Text                        as T
+import qualified Data.Text.Encoding               as T
+import qualified Data.Text.Lazy                   as TL
+import qualified Data.Text.Lazy.Encoding          as TL
 
 escapeUtf8 :: BP.BoundedPrim Char
 escapeUtf8 =
@@ -84,8 +78,8 @@ instance IsString Converted where
   instances if you want use custom types in your document.
 
 @
-{\-\# LANGUAGE RecordWildCards \#-\}
 {\-\# LANGUAGE OverloadedStrings \#-\}
+{\-\# LANGUAGE RecordWildCards   \#-\}
 
 module Main where
 
@@ -189,17 +183,17 @@ stringConvRaw :: String -> Converted
 stringConvRaw = Converted . B.stringUtf8
 
 {-# RULES "CONVERTED literal" forall a.
-    stringConv (GHC.unpackCString# a)
+    stringConv (unpackCString# a)
       = builderCString# escape a #-}
 
 {-# RULES "CONVERTED literal raw" forall a.
-    stringConvRaw (GHC.unpackCString# a)
+    stringConvRaw (unpackCString# a)
       = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
 
 {-# RULES "CONVERTED literal utf8" forall a.
-    stringConv (GHC.unpackCStringUtf8# a)
-      = convert (T.pack (GHC.unpackCStringUtf8# a)) #-}
+    stringConv (unpackCStringUtf8# a)
+      = convert (T.pack (unpackCStringUtf8# a)) #-}
 
 {-# RULES "CONVERTED literal utf8 raw" forall a.
-    stringConvRaw (GHC.unpackCStringUtf8# a)
-      = convert (Raw (T.pack (GHC.unpackCStringUtf8# a))) #-}
+    stringConvRaw (unpackCStringUtf8# a)
+      = convert (Raw (T.pack (unpackCStringUtf8# a))) #-}

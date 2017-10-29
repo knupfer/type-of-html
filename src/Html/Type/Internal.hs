@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
-{-# LANGUAGE UndecidableInstances       #-}
-{-# LANGUAGE TypeOperators              #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE PolyKinds                  #-}
-{-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE PolyKinds            #-}
+{-# LANGUAGE GADTs                #-}
 
 module Html.Type.Internal where
 
