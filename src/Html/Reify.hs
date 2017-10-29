@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE ConstraintKinds      #-}
 {-# LANGUAGE MonoLocalBinds       #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE DataKinds            #-}
@@ -46,8 +47,10 @@ renderText = T.decodeUtf8 . renderByteString
 renderByteString :: Document a => a -> B.ByteString
 renderByteString = B.toLazyByteString . renderBuilder
 
-class Renderchunks (Tagged (ToTypeList a) a) => Document a where
-instance Renderchunks (Tagged (ToTypeList a) a) => Document a
+-- | Constraint synonym of html documents.
+type Document a = Document' a
+
+type Document' a = Renderchunks (Tagged (ToTypeList a) a)
 
 class Renderchunks a where
   renderchunks :: a -> B.Builder

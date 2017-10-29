@@ -18,6 +18,7 @@ module Html
   , type (?>)
   , type (??>)
   , type (:=)(..)
+  , Document
   , Raw(..)
   , Convert(..)
   , Converted
