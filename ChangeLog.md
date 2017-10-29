@@ -1,5 +1,10 @@
 # Revision history for type-of-html
 
+## 1.0.1.0  -- 2017-10-29
+
+* export Document
+* use double conversion
+
 ## 1.0.0.0  -- 2017-09-18
 
 * perf increase
