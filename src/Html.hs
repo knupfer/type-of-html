@@ -1,29 +1,18 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-{-# LANGUAGE UndecidableInstances      #-}
-{-# LANGUAGE ExplicitNamespaces        #-}
-{-# LANGUAGE FlexibleInstances         #-}
-{-# LANGUAGE MonoLocalBinds            #-}
-{-# LANGUAGE TypeOperators             #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE MonoLocalBinds       #-}
+{-# LANGUAGE TypeOperators        #-}
 
 module Html
   ( renderString
   , renderText
   , renderByteString
   , renderBuilder
-  , type (>)(..)
-  , type (:@:)(..)
-  , type (#)(..)
-  , (#)
-  , type (?>)
-  , type (??>)
-  , type (:=)(..)
   , Document
-  , Raw(..)
-  , Convert(..)
-  , Converted
-  , Attribute(..)
-  , Element(..)
+  , module Html.Type
+  , module Html.Convert
   , module Html.Element
   ) where
 

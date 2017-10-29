@@ -11,7 +11,7 @@
 
 module Html.Reify where
 
-import Html.Type
+import Html.Type.Internal
 import Html.Convert
 
 import GHC.TypeLits

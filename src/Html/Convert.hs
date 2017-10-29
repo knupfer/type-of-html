@@ -4,14 +4,17 @@
 {-# LANGUAGE BangPatterns               #-}
 {-# LANGUAGE MagicHash                  #-}
 
-module Html.Convert where
+module Html.Convert
+  ( Converted(..)
+  , Convert(..)
+  ) where
 
 import Data.Word
 import Data.Proxy
 import Data.String
 import GHC.TypeLits
 
-import Html.Type
+import Html.Type.Internal
 import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
 import GHC.Types
 
@@ -20,8 +23,9 @@ import Data.Char (ord)
 import Data.Double.Conversion.ByteString
 
 import qualified GHC.CString    as GHC
-import qualified Data.Monoid    as M
-import qualified Data.Semigroup as S
+
+import qualified Data.Semigroup          as S
+import qualified Data.Monoid             as M
 
 import qualified Data.ByteString.Builder          as B
 import qualified Data.ByteString.Builder.Prim     as BP
