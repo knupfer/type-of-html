@@ -331,10 +331,6 @@ type family (a :: Element) ?> b :: Constraint where
   a ?> (b -> c)        = TypeError (Text "Html elements can't contain functions")
   a ?> b               = CheckString a b
 
-type family Null xs where
-  Null '[] = True
-  Null _ = False
-
 type family (a :: Element) ??> b :: Constraint where
   a ??> (b # c)  = (a ??> b, a ??> c)
   a ??> (b := _) = If (Elem a (GetAttributeInfo b) || Null (GetAttributeInfo b))
@@ -385,6 +381,10 @@ newtype Raw a = Raw a
   -------------------
   -- internal code --
   -------------------
+
+type family Null xs where
+  Null '[] = True
+  Null _ = False
 
 type family ShowElement e where
   ShowElement DOCTYPE    = "!DOCTYPE html"
@@ -684,7 +684,7 @@ type family (><) (t1 :: FingerTree) (t2 :: FingerTree) :: FingerTree where
   (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppendSymbol r s ': ss2)) r2
   (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppendSymbol r r2)
 
--- | Flatten a html tree of elements into a type list of tags.
+-- | Flatten a document into a type list of tags.
 type family ToTypeList a :: FingerTree where
   ToTypeList (a # b)        = ToTypeList a >< ToTypeList b
   ToTypeList (a > ())       = 'FingerTree '[] (If (HasContent (GetInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
