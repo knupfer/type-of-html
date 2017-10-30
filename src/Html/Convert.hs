@@ -115,6 +115,9 @@ main = print (div_ john)
 class Convert a where
   convert :: a -> Converted
 
+instance Convert () where
+  {-# INLINE convert #-}
+  convert _ = mempty
 instance Convert b => Convert (a := b) where
   {-# INLINE convert #-}
   convert (AT x) = convert x
