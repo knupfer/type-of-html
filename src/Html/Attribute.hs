@@ -353,5 +353,5 @@ width_ = AT
 wrap_ :: a -> 'WrapA := a
 wrap_ = AT
 
-addAttributes :: (a ??> b, a ?> c) => b -> a > c -> (a :@: b) c
-addAttributes b (Child c) = WithAttributes b c
+addAttributes :: (a ??> (b # b'), a ?> c) => b' -> (a :@: b) c -> (a :@: (b # b')) c
+addAttributes b' (WithAttributes b c) = WithAttributes (b # b') c

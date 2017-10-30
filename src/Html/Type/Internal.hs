@@ -320,18 +320,17 @@ newtype (:=) (a :: Attribute) b = AT b
 -- every child is lawful.
 type family (a :: Element) ?> b :: Constraint where
   a ?> (b # c)         = (a ?> b, a ?> c)
-  a ?> (b > _)         = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
   a ?> (b :@: _) _     = MaybeTypeError a b (TestPaternity (SingleElement b) (GetInfo a) (GetInfo b))
   a ?> Maybe b         = a ?> b
   a ?> Either b c      = (a ?> b, a ?> c)
-  a ?> f (b > c)       = a ?> (b > c)
-  a ?> f ((b :@: c) d) = a ?> (b > d)
+  a ?> f ((b :@: c) d) = a ?> (b :@: c) d
   a ?> f (b # c)       = a ?> (b # c)
   a ?> ()              = ()
   a ?> (b -> c)        = TypeError (Text "Html elements can't contain functions")
   a ?> b               = CheckString a b
 
 type family (a :: Element) ??> b :: Constraint where
+  a ??> () = ()
   a ??> (b # c)  = (a ??> b, a ??> c)
   a ??> (b := _) = If (Elem a (GetAttributeInfo b) || Null (GetAttributeInfo b))
                    (() :: Constraint)
@@ -351,17 +350,8 @@ data (#) a b = (:#:) a b
 (#) = (:#:)
 infixr 5 #
 
--- | Descend to a valid child of an element.
--- It is recommended to use the predefined elements.
---
--- >>> Child "a" :: 'Div > String
--- <div>a</div>
---
--- >>> div_ "a"
--- <div>a</div>
-data (>) (a :: Element) b where
-  Child :: (a ?> b) => b -> a > b
-infixr 8 >
+-- | Type synonym for elements without attributes.
+type (>) a b = (:@:) a () b
 
 -- | Decorate an element with attributes and descend to a valid child.
 -- It is recommended to use the predefined elements.
@@ -371,6 +361,9 @@ infixr 8 >
 --
 -- >>> div_A (A.class_ "bar") "a"
 -- <div class="bar">a</div>
+--
+-- >>> div_ "a"
+-- <div>a</div>
 data (:@:) (a :: Element) b c where
   WithAttributes :: (a ??> b, a ?> c) => b -> c -> (a :@: b) c
 infixr 8 :@:
@@ -661,7 +654,6 @@ type family CloseTag e where
 
 type family CountContent c where
   CountContent (a # b)       = CountContent a + CountContent b
-  CountContent (_ > b)       = CountContent b
   CountContent ((_ :@: b) c) = CountContent b + CountContent c
   CountContent (_ := b)      = CountContent b
   CountContent ()            = 0
@@ -686,15 +678,15 @@ type family (><) (t1 :: FingerTree) (t2 :: FingerTree) :: FingerTree where
 
 -- | Flatten a document into a type list of tags.
 type family ToTypeList a :: FingerTree where
-  ToTypeList (a # b)        = ToTypeList a >< ToTypeList b
-  ToTypeList (a > ())       = 'FingerTree '[] (If (HasContent (GetInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
-  ToTypeList ((a :@: b) ()) = AppendSymbol "<" (ShowElement a) <| ToTypeList b |> If (HasContent (GetInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
-  ToTypeList (a > b)        = OpenTag a <| ToTypeList b |> CloseTag a
-  ToTypeList ((a :@: b) c)  = (AppendSymbol "<" (ShowElement a) <| ToTypeList b) >< (">" <| ToTypeList c |> CloseTag a)
-  ToTypeList (a := b)       = ShowAttribute a <| ToTypeList b |> "\""
-  ToTypeList ()             = 'FingerTree '[] ""
-  ToTypeList (Proxy x)      = 'FingerTree '[] x
-  ToTypeList x              = 'FingerTree '[""] ""
+  ToTypeList (a # b)         = ToTypeList a >< ToTypeList b
+  ToTypeList ((a :@: ()) ()) = 'FingerTree '[] (If (HasContent (GetInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
+  ToTypeList ((a :@: b) ())  = AppendSymbol "<" (ShowElement a) <| ToTypeList b |> If (HasContent (GetInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
+  ToTypeList ((a :@: ()) b)  = OpenTag a <| ToTypeList b |> CloseTag a
+  ToTypeList ((a :@: b) c)   = (AppendSymbol "<" (ShowElement a) <| ToTypeList b) >< (">" <| ToTypeList c |> CloseTag a)
+  ToTypeList (a := b)        = ShowAttribute a <| ToTypeList b |> "\""
+  ToTypeList ()              = 'FingerTree '[] ""
+  ToTypeList (Proxy x)       = 'FingerTree '[] x
+  ToTypeList x               = 'FingerTree '[""] ""
 
 -- | Append two type lists.
 --

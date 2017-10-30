@@ -58,6 +58,7 @@ class Renderchunks a where
 instance KnownSymbol a => Renderchunks (Tagged (prox :: [Symbol]) (Proxy a)) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
+
 instance Renderchunks (Tagged (prox :: [Symbol]) ()) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
@@ -98,12 +99,6 @@ instance {-# INCOHERENT #-}
   renderchunks (Tagged t)
     = renderchunks (Tagged t :: Tagged xs val)
     <> unConv (convert (Proxy @ x))
-
-instance
-  ( Renderchunks (Tagged prox b)
-  ) => Renderchunks (Tagged prox (a > b)) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged ~(Child b)) = renderchunks (Tagged b :: Tagged prox b)
 
 instance
   ( Renderchunks (Tagged (Take (CountContent b) prox) b)

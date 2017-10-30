@@ -1,7 +1,7 @@
 {-# LANGUAGE ExplicitNamespaces #-}
 
 module Html.Type
-  ( type (>)(..)
+  ( type (>)
   , type (:@:)(..)
   , type (#)(..)
   , (#)
