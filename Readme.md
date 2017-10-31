@@ -149,11 +149,10 @@ This is comparing blaze with `type-of-html`:
 
 ![type-of-html](https://user-images.githubusercontent.com/5609565/30524978-229dd21c-9bfe-11e7-8404-1f69b93cec22.png)
 
-To look at the exact code of this benchmark look [here](bench/Main.hs)
-in the repo.  The big table benchmark here is only a 4x4 table. Using
-a 1000x10 table like on the blaze homepage yields even better relative
-performance (~9 times faster), but would make the other benchmarks
-unreadable.
+To look at the exact code of this benchmark look into the repo.  The
+big table benchmark here is only a 4x4 table. Using a 1000x10 table
+like on the blaze homepage yields even better relative performance (~9
+times faster), but would make the other benchmarks unreadable.
 
 How is this possible? We supercompile lots of parts of the generation
 process. This is possible thanks to the new features of GHC 8.2:
@@ -319,28 +318,136 @@ example =
     ( body_
       ( h1_
         ( img_
-        # strong_ "0"
+        # strong_ "foo"
         )
       # div_
-        ( div_ "1"
+        ( div_ "bar"
         )
       # div_
         ( form_
           ( fieldset_
             ( div_
               ( div_
-                ( label_ "a"
+                ( label_ "zot"
                 # select_
-                  ( option_ "b"
-                  # option_ "c"
+                  ( option_ 'b'
+                  # option_ 'c'
                   )
-                # div_ "d"
+                # map div_ [1..5 :: Int]
                 )
               )
-            # button_ (i_ "e")
+            # button_ (i_ ())
             )
           )
         )
       )
     )
 ```
+
+## FAQ
+
+### Why don't you provide a pretty printer?
+
+It's sadly not possible to pretty print html source in a semantic preserving way.
+If you add before every tag a newline and indentation, the following happens:
+
+```html
+<i>a</i><em>b</em>
+```
+
+```html
+<i>
+  a
+</i>
+<em>
+  b
+</em>
+```
+
+This would add a space when rendering.  So perhaps we'll avoid all
+these text modifying tags, but now look at `<pre>`. Every whitespace
+and newline within is semantically important.  And even if we avoid
+modifying stuff within `<pre>`, there is the nasty css property
+`white-space: pre;`. With this, all bets are off to modify any
+indenting, because we can't know which css will apply to the document:
+- It may include a link, so it would be dynamic.
+- There might be meddling javascript.
+- The user of the browser is free to activate a custom css.
+
+If we go creative, there is still one option:
+
+```html
+<div
+  ><div
+    >Hello World!<
+  /div><
+/div>
+```
+
+Or
+
+```html
+<
+div
+  ><
+  div
+    >Hello World!<
+  /div
+  ><
+/div
+>
+```
+
+Or
+
+```html
+<
+div        ><
+  div      >Hello <
+    i      >World!<
+    /i     ><
+  /div     ><
+/div
+>
+```
+
+
+
+These styles would be semantically correct, but would they be pretty?
+Personally, I think the third style is quite interesting, it seperates
+structure from content with a table layout and indicates explicitly
+the lack of content.
+
+I recommend, that if you want to debug html, use mozilla fire bug, so
+you can as well fold trees and look at the rendering.
+
+### Why don't you keep track of appended tag lengths at compile time?
+Well, it's true that we could improve performance a miniscule by that:
+by knowing the length of the string, we could just use internal
+bytestring functions to copy over the addr#.  This would avoid a ccall
+to determine the length of the addr# more or less per tag.
+
+At the other hand, luckily ghc moves all these bytestrings to the
+toplevel in core, so we have this cost only the first time we use this
+bytestring.  Considering that most webpages have a lot more than one
+visitor, this dwarfs the cost (about 3 nanoseconds) a lot.
+
+The negative side of doing this would be a severe complication for the
+typechecker, which is already quite stressed with this library.
+
+Besides, there is a ghc ticket about replacing compile time strings
+(addr#) with bytearray#, which contains it's length. So in some
+future, we'll have this for free.
+
+### Wouldn't it be more efficient to append all compile time stuff to one huge Symbol and use '[(Nat,Nat)] to slice it?
+Cool idea, but no.  This would reduce memory fragmentation and avoid a
+terminating null more or less per tag at the cost of the lost of
+sharing. Being unable to inspect a Symbol, we would end up with a lot
+of repetitions, which are at the moment shared.  Even the bytestring,
+which is used for the Symbol, is shared of equal Symbols.
+
+### Isn't there any performance tweak left?
+At the moment, string literals are handled well, but not optimal.  The
+escaping of string literals is done everytime when rendering the html
+document, ideally we convince GHC to float the escaped string literal
+to top level.  I guess, that would make things a lot faster.
