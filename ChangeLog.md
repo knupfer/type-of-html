@@ -1,5 +1,11 @@
 # Revision history for type-of-html
 
+## 1.1.0.0  -- 2017-11-04
+
+* add support for ghc 802
+* simplify types
+* set up ci
+
 ## 1.0.1.0  -- 2017-10-29
 
 * export Document
