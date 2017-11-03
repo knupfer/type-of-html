@@ -646,12 +646,6 @@ type family ShowAttribute (x :: Attribute) where
   ShowAttribute WidthA           = " width=\""
   ShowAttribute WrapA            = " wrap=\""
 
-type family OpenTag e where
-  OpenTag e = AppendSymbol "<" (AppendSymbol (ShowElement e) ">")
-
-type family CloseTag e where
-  CloseTag e = AppendSymbol "</" (AppendSymbol (ShowElement e) ">")
-
 type family CountContent c where
   CountContent (a # b)       = CountContent a + CountContent b
   CountContent ((_ :@: b) c) = CountContent b + CountContent c
@@ -660,40 +654,17 @@ type family CountContent c where
   CountContent (Proxy _)     = 0
   CountContent _             = 1
 
--- | We need efficient cons, snoc and append.  This API has cons(O1)
--- and snoc(O1) but append(On).  Optimal would be a real 2-3
--- FingerTree.
-data FingerTree = FingerTree [Symbol] Symbol
-
-type family (<|) (s :: Symbol) (t :: FingerTree) :: FingerTree where
-  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (AppendSymbol l s ': ss) r
-  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (AppendSymbol l r)
-
-type family (|>) (t :: FingerTree) (s :: Symbol) :: FingerTree where
-  (|>) ('FingerTree ss r) rr = 'FingerTree ss (AppendSymbol r rr)
-
-type family (><) (t1 :: FingerTree) (t2 :: FingerTree) :: FingerTree where
-  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppendSymbol r s ': ss2)) r2
-  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppendSymbol r r2)
-
--- | Flatten a document into a type list of tags.
-type family ToTypeList a :: FingerTree where
-  ToTypeList (a # b)         = ToTypeList a >< ToTypeList b
-  ToTypeList ((a :@: ()) ()) = 'FingerTree '[] (If (HasContent (GetInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
-  ToTypeList ((a :@: b) ())  = AppendSymbol "<" (ShowElement a) <| ToTypeList b |> If (HasContent (GetInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
-  ToTypeList ((a :@: ()) b)  = OpenTag a <| ToTypeList b |> CloseTag a
-  ToTypeList ((a :@: b) c)   = (AppendSymbol "<" (ShowElement a) <| ToTypeList b) >< (">" <| ToTypeList c |> CloseTag a)
-  ToTypeList (a := b)        = ShowAttribute a <| ToTypeList b |> "\""
-  ToTypeList ()              = 'FingerTree '[] ""
-  ToTypeList (Proxy x)       = 'FingerTree '[] x
-  ToTypeList x               = 'FingerTree '[""] ""
+-- | Check whether an element may have content.
+type family HasContent a where
+  HasContent (ElementInfo _ NoContent) = False
+  HasContent _                         = True
 
 -- | Append two type lists.
 --
 -- Note that this definition is that ugly to reduce compiletimes.
 -- Please check whether the context reduction stack or compiletimes of
 -- a big html page get bigger if you try to refactor.
-type family Append xs ys :: [Symbol] where
+type family Append xs ys :: [k] where
 
   Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': xs) ys
         = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': x17 ': x18 ': x19 ': x20 ': x21 ': x22 ': x23 ': x24 ': x25 ': x26 ': x27 ': x28 ': x29 ': x30 ': x31 ': x32 ': x33 ': x34 ': x35 ': x36 ': x37 ': x38 ': x39 ': x40 ': x41 ': x42 ': x43 ': x44 ': x45 ': x46 ': x47 ': x48 ': x49 ': x50 ': x51 ': x52 ': x53 ': x54 ': x55 ': x56 ': x57 ': x58 ': x59 ': x60 ': x61 ': x62 ': x63 ': x64 ': Append xs ys
@@ -719,17 +690,12 @@ type family Append xs ys :: [Symbol] where
   Append '[] ys
         = ys
 
--- | Check whether an element may have content.
-type family HasContent a where
-  HasContent (ElementInfo _ NoContent) = False
-  HasContent _                         = True
-
 -- | Type level drop.
 --
 -- Note that this definition is that ugly to reduce compiletimes.
 -- Please check whether the context reduction stack or compiletimes of
 -- a big html page get bigger if you try to refactor.
-type family Drop n xs :: [Symbol] where
+type family Drop n xs :: [k] where
   Drop 0 xs = xs
   Drop 1 (_ ': xs) = xs
   Drop 2 (_ ': _ ': xs) = xs
@@ -742,7 +708,7 @@ type family Drop n xs :: [Symbol] where
 -- Note that this definition is that ugly to reduce compiletimes.
 -- Please check whether the context reduction stack or compiletimes of
 -- a big html page get bigger if you try to refactor.
-type family Take n xs :: [Symbol] where
+type family Take n xs :: [k] where
   Take 0 _ = '[]
   Take 1 (x1 ': _) = '[x1]
   Take 2 (x1 ': x2 ': _) = '[x1, x2]

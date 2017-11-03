@@ -1,8 +1,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE KindSignatures             #-}
 {-# LANGUAGE TypeOperators              #-}
 {-# LANGUAGE BangPatterns               #-}
 {-# LANGUAGE MagicHash                  #-}
+{-# LANGUAGE DataKinds                  #-}
 
 module Html.Convert
   ( Converted(..)
@@ -166,6 +170,20 @@ instance Convert Word where
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convert #-}
   convert = Converted . U.byteStringCopy . fromString . symbolVal
+instance ConcatSymbol xs => Convert (Proxy (xs :: [Symbol])) where
+  {-# INLINE convert #-}
+  convert = Converted . U.byteStringCopy . fromString . concatSymbol
+
+class ConcatSymbol (xs :: [Symbol]) where
+  concatSymbol :: Proxy xs -> String
+
+instance (KnownSymbol x, ConcatSymbol xs) => ConcatSymbol (x ': xs) where
+  {-# INLINE concatSymbol #-}
+  concatSymbol _ = symbolVal (Proxy :: Proxy x) ++ concatSymbol (Proxy :: Proxy xs)
+
+instance ConcatSymbol '[] where
+  {-# INLINE concatSymbol #-}
+  concatSymbol _ = mempty
 
 {-# INLINE builderCString# #-}
 builderCString# :: BP.BoundedPrim Word8 -> Addr# -> Converted

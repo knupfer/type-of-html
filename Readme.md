@@ -6,7 +6,7 @@ performant, modular and type safe manner.
 Please look at the documentation of the module for an overview of the api:
 [Html](https://hackage.haskell.org/package/type-of-html/docs/Html.html)
 
-Note that you need at least ghc 8.2.
+Note that you need at least ghc 8.0.
 
 ## Typesafety
 
@@ -153,6 +153,9 @@ To look at the exact code of this benchmark look into the repo.  The
 big table benchmark here is only a 4x4 table. Using a 1000x10 table
 like on the blaze homepage yields even better relative performance (~9
 times faster), but would make the other benchmarks unreadable.
+
+If you use ghc 802 performance will be about 20% slower compared to
+newer ghcs, but obviously still a lot faster than blaze.
 
 How is this possible? We supercompile lots of parts of the generation
 process. This is possible thanks to the new features of GHC 8.2:

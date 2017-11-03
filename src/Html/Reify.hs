@@ -12,6 +12,7 @@
 module Html.Reify where
 
 import Html.Type.Internal
+import Html.Type.Internal.GHC
 import Html.Convert
 
 import GHC.TypeLits
@@ -55,17 +56,17 @@ type Document' a = Renderchunks (Tagged (ToTypeList a) a)
 class Renderchunks a where
   renderchunks :: a -> B.Builder
 
-instance KnownSymbol a => Renderchunks (Tagged (prox :: [Symbol]) (Proxy a)) where
+instance KnownSymbol a => Renderchunks (Tagged (prox :: [k]) (Proxy a)) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
 
-instance Renderchunks (Tagged (prox :: [Symbol]) ()) where
+instance Renderchunks (Tagged prox ()) where
   {-# INLINE renderchunks #-}
   renderchunks _ = mempty
 
 instance {-# INCOHERENT #-}
   ( Convert val
-  ) => Renderchunks (Tagged '[""] val) where
+  ) => Renderchunks (Tagged '[ EmptySym ] val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
     = unConv (convert x)
@@ -77,7 +78,7 @@ instance {-# INCOHERENT #-}
 
 instance {-# INCOHERENT #-}
   ( Convert val
-  , KnownSymbol s
+  , Convert (Proxy s)
   ) => Renderchunks (Tagged '[s] val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged x)
@@ -86,14 +87,14 @@ instance {-# INCOHERENT #-}
 
 instance {-# INCOHERENT #-}
   ( Renderchunks (Tagged xs val)
-  ) => Renderchunks (Tagged ('FingerTree xs "") val) where
+  ) => Renderchunks (Tagged (NoTail xs) val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged t)
     = renderchunks (Tagged t :: Tagged xs val)
 
 instance {-# INCOHERENT #-}
   ( Renderchunks (Tagged xs val)
-  , KnownSymbol x
+  , Convert (Proxy x)
   ) => Renderchunks (Tagged ('FingerTree xs x) val) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged t)
@@ -120,7 +121,7 @@ instance
 
 instance
   ( Renderchunks (Tagged (ToTypeList (a `f` b)) (a `f` b))
-  , KnownSymbol s
+  , Convert (Proxy s)
   ) => Renderchunks (Tagged (s ': ss) [a `f` b]) where
   {-# INLINE renderchunks #-}
   renderchunks (Tagged xs)

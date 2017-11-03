@@ -8,6 +8,7 @@ author:               Florian Knupfer
 maintainer:           fknupfer@gmail.com
 homepage:             https://github.com/knupfer/type-of-html
 tested-with:          GHC == 8.2.1
+                    , GHC == 8.0.2
 copyright:            2017, Florian Knupfer
 category:             Language
 build-type:           Simple
@@ -25,11 +26,12 @@ library
                     , Html.Element
                     , Html.Attribute
   other-modules:      Html.Type.Internal
+                    , Html.Type.Internal.GHC
                     , Html.Reify
   hs-source-dirs:     src
   default-language:   Haskell2010
   ghc-options:        -Wall
-  build-depends:      base >= 4.10 && < 4.11
+  build-depends:      base >= 4.9 && < 4.11
                     , text
                     , bytestring
                     , ghc-prim
@@ -41,7 +43,7 @@ test-suite test
   hs-source-dirs:     test
   ghc-options:        -Wall -O0
   default-language:   Haskell2010
-  build-depends:      base >= 4.10 && < 4.11
+  build-depends:      base >= 4.9 && < 4.11
                     , type-of-html
                     , QuickCheck
                     , hspec
@@ -56,7 +58,7 @@ benchmark bench
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
-  build-depends:      base >= 4.10 && < 4.11
+  build-depends:      base >= 4.9 && < 4.11
                     , type-of-html
                     , text
                     , bytestring
