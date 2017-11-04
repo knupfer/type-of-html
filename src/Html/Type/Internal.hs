@@ -9,6 +9,8 @@
 
 module Html.Type.Internal where
 
+import Html.CPP
+
 import GHC.TypeLits
 import GHC.Exts
 import Data.Proxy
@@ -312,6 +314,44 @@ data Attribute
   | ValueA
   | WidthA
   | WrapA
+
+-- | We need efficient cons, snoc and append.  This API has cons(O1)
+-- and snoc(O1) but append(On).  Optimal would be a real 2-3
+-- FingerTree.
+data FingerTree = FingerTree [Sym] Sym
+type Empty = 'FingerTree '[] EmptySym
+type Split = 'FingerTree '[EmptySym] EmptySym
+type NoTail xs = 'FingerTree xs EmptySym
+type Singleton = 'FingerTree '[]
+
+type family (<|) s t :: FingerTree where
+  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (AppSymbols (Append (List l) (List s)) ': ss) r
+  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (AppSymbols (Append (List l) (List r)))
+
+type family (|>) t s :: FingerTree where
+  (|>) ('FingerTree ss r) rr = 'FingerTree ss (AppSymbols (Append (List r) (List rr)))
+
+type family (><) t1 t2 :: FingerTree where
+  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppSymbols (Append (List r) (List s)) ': ss2)) r2
+  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppSymbols (Append (List r) (List r2)))
+
+type family OpenTag e where
+  OpenTag e = ["<", ShowElement e, ">"]
+
+type family CloseTag e where
+  CloseTag e = ["</", ShowElement e, ">"]
+
+-- | Flatten a document into a type list of tags.
+type family ToTypeList a :: FingerTree where
+  ToTypeList (a # b)         = ToTypeList a >< ToTypeList b
+  ToTypeList ((a :@: ()) ()) = Singleton (If (HasContent (GetInfo a)) (AppSymbols (Append (OpenTag a) (CloseTag a))) (AppSymbols (OpenTag a)))
+  ToTypeList ((a :@: b) ())  = AppSymbols '["<", ShowElement a] <| ToTypeList b |> If (HasContent (GetInfo a)) (AppSymbols (">" ': CloseTag a)) (AppSymbols '[">"])
+  ToTypeList ((a :@: ()) b)  = AppSymbols (OpenTag a) <| ToTypeList b |> AppSymbols (CloseTag a)
+  ToTypeList ((a :@: b) c)   = (AppSymbols '["<", ShowElement a] <| ToTypeList b) >< (AppSymbols '[">"] <| ToTypeList c |> AppSymbols (CloseTag a))
+  ToTypeList (a := b)        = AppSymbols '[ShowAttribute a] <| ToTypeList b |> AppSymbols '["\""]
+  ToTypeList ()              = Empty
+  ToTypeList (Proxy x)       = Singleton (AppSymbols '[x])
+  ToTypeList x               = Split
 
 newtype (:=) (a :: Attribute) b = AT b
 

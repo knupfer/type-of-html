@@ -12,8 +12,8 @@
 module Html.Reify where
 
 import Html.Type.Internal
-import Html.Type.Internal.GHC
 import Html.Convert
+import Html.CPP
 
 import GHC.TypeLits
 import Data.Proxy
