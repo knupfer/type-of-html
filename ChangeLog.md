@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.1.0.1  -- 2017-11-17
+
+* factor out CPP
+
 ## 1.1.0.0  -- 2017-11-04
 
 * add support for ghc 802
