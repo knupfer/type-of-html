@@ -177,6 +177,32 @@ spec = parallel $ do
         ===
         renderString (div_ x)
 
+    it "handles attributes" $ do
+
+      renderString (div_A (A.id_ "a") "b" # "c")
+       `shouldBe`
+        "<div id=\"a\">b</div>c"
+
+      renderString (div_A (A.id_ ()) "a")
+       `shouldBe`
+        "<div id=\"\">a</div>"
+
+      renderString (div_A A.hidden_ "a")
+       `shouldBe`
+        "<div hidden=\"\">a</div>"
+
+      renderString (div_A A.hidden_ ())
+       `shouldBe`
+        "<div hidden=\"\"></div>"
+
+      renderString (div_A A.hidden_ () # "a")
+       `shouldBe`
+        "<div hidden=\"\"></div>a"
+
+      renderString (div_A A.hidden_ () # img_)
+       `shouldBe`
+        "<div hidden=\"\"></div><img>"
+
     it "handles Ints" $ do
 
       property $ \x ->

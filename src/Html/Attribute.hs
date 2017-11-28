@@ -17,23 +17,29 @@ accesskey_ = AT
 action_ :: a -> 'ActionA := a
 action_ = AT
 
+allowfullscreen_ :: 'AllowfullscreenA := ()
+allowfullscreen_ = AT ()
+
+allowpaymentrequest_ :: 'AllowpaymentrequestA := ()
+allowpaymentrequest_ = AT ()
+
 align_ :: a -> 'AlignA := a
 align_ = AT
 
 alt_ :: a -> 'AltA := a
 alt_ = AT
 
-async_ :: a -> 'AsyncA := a
-async_ = AT
+async_ :: 'AsyncA := ()
+async_ = AT ()
 
 autocomplete_ :: a -> 'AutocompleteA := a
 autocomplete_ = AT
 
-autofocus_ :: a -> 'AutofocusA := a
-autofocus_ = AT
+autofocus_ :: 'AutofocusA := ()
+autofocus_ = AT ()
 
-autoplay_ :: a -> 'AutoplayA := a
-autoplay_ = AT
+autoplay_ :: 'AutoplayA := ()
+autoplay_ = AT ()
 
 autosave_ :: a -> 'AutosaveA := a
 autosave_ = AT
@@ -53,8 +59,8 @@ challenge_ = AT
 charset_ :: a -> 'CharsetA := a
 charset_ = AT
 
-checked_ :: a -> 'CheckedA := a
-checked_ = AT
+checked_ :: 'CheckedA := ()
+checked_ = AT ()
 
 cite_ :: a -> 'CiteA := a
 cite_ = AT
@@ -86,8 +92,8 @@ contenteditable_ = AT
 contextmenu_ :: a -> 'ContextmenuA := a
 contextmenu_ = AT
 
-controls_ :: a -> 'ControlsA := a
-controls_ = AT
+controls_ :: 'ControlsA := ()
+controls_ = AT ()
 
 coords_ :: a -> 'CoordsA := a
 coords_ = AT
@@ -101,11 +107,11 @@ data_ = AT
 datetime_ :: a -> 'DatetimeA := a
 datetime_ = AT
 
-default_ :: a -> 'DefaultA := a
-default_ = AT
+default_ :: 'DefaultA := ()
+default_ = AT ()
 
-defer_ :: a -> 'DeferA := a
-defer_ = AT
+defer_ :: 'DeferA := ()
+defer_ = AT ()
 
 dir_ :: a -> 'DirA := a
 dir_ = AT
@@ -113,8 +119,8 @@ dir_ = AT
 dirname_ :: a -> 'DirnameA := a
 dirname_ = AT
 
-disabled_ :: a -> 'DisabledA := a
-disabled_ = AT
+disabled_ :: 'DisabledA := ()
+disabled_ = AT ()
 
 download_ :: a -> 'DownloadA := a
 download_ = AT
@@ -137,14 +143,26 @@ form_ = AT
 formaction_ :: a -> 'FormactionA := a
 formaction_ = AT
 
+formenctype_ :: a -> 'FormenctypeA := a
+formenctype_ = AT
+
+formmethod_ :: a -> 'FormmethodA := a
+formmethod_ = AT
+
+formnovalidate_ :: 'FormnovalidateA := ()
+formnovalidate_ = AT ()
+
+formtarget_ :: a -> 'FormtargetA := a
+formtarget_ = AT
+
 headers_ :: a -> 'HeadersA := a
 headers_ = AT
 
 height_ :: a -> 'HeightA := a
 height_ = AT
 
-hidden_ :: a -> 'HiddenA := a
-hidden_ = AT
+hidden_ :: 'HiddenA := ()
+hidden_ = AT ()
 
 high_ :: a -> 'HighA := a
 high_ = AT
@@ -167,8 +185,8 @@ id_ = AT
 integrity_ :: a -> 'IntegrityA := a
 integrity_ = AT
 
-ismap_ :: a -> 'IsmapA := a
-ismap_ = AT
+ismap_ :: 'IsmapA := ()
+ismap_ = AT ()
 
 itemprop_ :: a -> 'ItempropA := a
 itemprop_ = AT
@@ -191,8 +209,11 @@ language_ = AT
 list_ :: a -> 'ListA := a
 list_ = AT
 
-loop_ :: a -> 'LoopA := a
-loop_ = AT
+longdesc_ :: a -> 'LongdescA := a
+longdesc_ = AT
+
+loop_ :: 'LoopA := ()
+loop_ = AT ()
 
 low_ :: a -> 'LowA := a
 low_ = AT
@@ -218,20 +239,23 @@ method_ = AT
 min_ :: a -> 'MinA := a
 min_ = AT
 
-multiple_ :: a -> 'MultipleA := a
-multiple_ = AT
+multiple_ :: 'MultipleA := ()
+multiple_ = AT ()
 
-muted_ :: a -> 'MutedA := a
-muted_ = AT
+muted_ :: 'MutedA := ()
+muted_ = AT ()
 
 name_ :: a -> 'NameA := a
 name_ = AT
 
-novalidate_ :: a -> 'NovalidateA := a
-novalidate_ = AT
+nonce_ :: a -> 'NonceA := a
+nonce_ = AT
 
-open_ :: a -> 'OpenA := a
-open_ = AT
+novalidate_ :: 'NovalidateA := ()
+novalidate_ = AT ()
+
+open_ :: 'OpenA := ()
+open_ = AT ()
 
 optimum_ :: a -> 'OptimumA := a
 optimum_ = AT
@@ -254,17 +278,23 @@ preload_ = AT
 radiogroup_ :: a -> 'RadiogroupA := a
 radiogroup_ = AT
 
-readonly_ :: a -> 'ReadonlyA := a
-readonly_ = AT
+readonly_ :: 'ReadonlyA := ()
+readonly_ = AT ()
+
+referrerpolicy_ :: a -> 'ReferrerpolicyA := a
+referrerpolicy_ = AT
 
 rel_ :: a -> 'RelA := a
 rel_ = AT
 
-required_ :: a -> 'RequiredA := a
-required_ = AT
+required_ :: 'RequiredA := ()
+required_ = AT ()
 
-reversed_ :: a -> 'ReversedA := a
-reversed_ = AT
+rev_ :: a -> 'RevA := a
+rev_ = AT
+
+reversed_ :: 'ReversedA := ()
+reversed_ = AT ()
 
 rows_ :: a -> 'RowsA := a
 rows_ = AT
@@ -284,8 +314,8 @@ scoped_ = AT
 seamless_ :: a -> 'SeamlessA := a
 seamless_ = AT
 
-selected_ :: a -> 'SelectedA := a
-selected_ = AT
+selected_ :: 'SelectedA := ()
+selected_ = AT ()
 
 shape_ :: a -> 'ShapeA := a
 shape_ = AT
@@ -338,8 +368,14 @@ target_ = AT
 title_ :: a -> 'TitleA := a
 title_ = AT
 
+translate_ :: a -> 'TranslateA := a
+translate_ = AT
+
 type_ :: a -> 'TypeA := a
 type_ = AT
+
+typemustmatch_ :: 'TypemustmatchA := ()
+typemustmatch_ = AT ()
 
 usemap_ :: a -> 'UsemapA := a
 usemap_ = AT
