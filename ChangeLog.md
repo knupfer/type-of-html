@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.2.0.0  -- 2017-11-28
+
+* remove argument from boolean attributes
+
 ## 1.1.0.1  -- 2017-11-17
 
 * factor out CPP
