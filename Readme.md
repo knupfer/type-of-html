@@ -243,7 +243,7 @@ This allows for a more efficient conversion to builder, because we
 don't need to escape.
 
 ```haskell
-div_ (Raw "a")
+div_ (Raw "abc")
 ```
 
 If you've got numeric attributes or contents, don't convert it to a
@@ -294,7 +294,7 @@ Disadvantages of 'type-of-html':
 - a bit noisy syntax (don't write types!)
 - sometimes unusual type error messages
 - compile times (30sec for a medium sized page, with `-O0` only ~2sec)
-- needs at least ghc 8.2
+- needs at least ghc 8
 
 I'd generally recommend that you put your documents into an extra
 module to avoid frequent recompilations.  Additionally you can use
@@ -382,44 +382,12 @@ If we go creative, there is still one option:
 ```html
 <div
   ><div
-    >Hello World!<
-  /div><
-/div>
-```
-
-Or
-
-```html
-<
-div
-  ><
-  div
-    >Hello World!<
-  /div
-  ><
-/div
+    >Hello World!</div
+  ></div
 >
 ```
 
-Or
-
-```html
-<
-div        ><
-  div      >Hello <
-    i      >World!<
-    /i     ><
-  /div     ><
-/div
->
-```
-
-
-
-These styles would be semantically correct, but would they be pretty?
-Personally, I think the third style is quite interesting, it seperates
-structure from content with a table layout and indicates explicitly
-the lack of content.
+This would be semantically correct, but would this be pretty?
 
 I recommend, that if you want to debug html, use mozilla fire bug, so
 you can as well fold trees and look at the rendering.
@@ -453,4 +421,4 @@ which is used for the Symbol, is shared of equal Symbols.
 At the moment, string literals are handled well, but not optimal.  The
 escaping of string literals is done everytime when rendering the html
 document, ideally we convince GHC to float the escaped string literal
-to top level.  I guess, that would make things a lot faster.
+to top level.  I guess, that would make things a bit faster.
