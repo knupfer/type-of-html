@@ -77,10 +77,10 @@ codebase_ = AT
 color_ :: a -> 'ColorA := a
 color_ = AT
 
-cols_ :: a -> 'ColsA := a
+cols_ :: Integral a => a -> 'ColsA := a
 cols_ = AT
 
-colspan_ :: a -> 'ColspanA := a
+colspan_ :: Integral a => a -> 'ColspanA := a
 colspan_ = AT
 
 content_ :: a -> 'ContentA := a
@@ -158,13 +158,13 @@ formtarget_ = AT
 headers_ :: a -> 'HeadersA := a
 headers_ = AT
 
-height_ :: a -> 'HeightA := a
+height_ :: Integral a => a -> 'HeightA := a
 height_ = AT
 
 hidden_ :: 'HiddenA := ()
 hidden_ = AT ()
 
-high_ :: a -> 'HighA := a
+high_ :: Num a => a -> 'HighA := a
 high_ = AT
 
 href_ :: a -> 'HrefA := a
@@ -215,28 +215,28 @@ longdesc_ = AT
 loop_ :: 'LoopA := ()
 loop_ = AT ()
 
-low_ :: a -> 'LowA := a
+low_ :: Num a => a -> 'LowA := a
 low_ = AT
 
 manifest_ :: a -> 'ManifestA := a
 manifest_ = AT
 
-max_ :: a -> 'MaxA := a
+max_ :: Num a => a -> 'MaxA := a
 max_ = AT
 
-maxlength_ :: a -> 'MaxlengthA := a
+maxlength_ :: Integral a => a -> 'MaxlengthA := a
 maxlength_ = AT
 
 minlength_ :: a -> 'MinlengthA := a
 minlength_ = AT
 
-media_ :: a -> 'MediaA := a
+media_ :: Integral a => a -> 'MediaA := a
 media_ = AT
 
 method_ :: a -> 'MethodA := a
 method_ = AT
 
-min_ :: a -> 'MinA := a
+min_ :: Num a => a -> 'MinA := a
 min_ = AT
 
 multiple_ :: 'MultipleA := ()
@@ -257,7 +257,7 @@ novalidate_ = AT ()
 open_ :: 'OpenA := ()
 open_ = AT ()
 
-optimum_ :: a -> 'OptimumA := a
+optimum_ :: Num => a -> 'OptimumA := a
 optimum_ = AT
 
 pattern_ :: a -> 'PatternA := a
@@ -296,10 +296,10 @@ rev_ = AT
 reversed_ :: 'ReversedA := ()
 reversed_ = AT ()
 
-rows_ :: a -> 'RowsA := a
+rows_ :: Integral a => a -> 'RowsA := a
 rows_ = AT
 
-rowspan_ :: a -> 'RowspanA := a
+rowspan_ :: Integral a => a -> 'RowspanA := a
 rowspan_ = AT
 
 sandbox_ :: a -> 'SandboxA := a
@@ -320,7 +320,7 @@ selected_ = AT ()
 shape_ :: a -> 'ShapeA := a
 shape_ = AT
 
-size_ :: a -> 'SizeA := a
+size_ :: Integral a => a -> 'SizeA := a
 size_ = AT
 
 sizes_ :: a -> 'SizesA := a
@@ -329,7 +329,7 @@ sizes_ = AT
 slot_ :: a -> 'SlotA := a
 slot_ = AT
 
-span_ :: a -> 'SpanA := a
+span_ :: Integral a => a -> 'SpanA := a
 span_ = AT
 
 spellcheck_ :: a -> 'SpellcheckA := a
@@ -347,10 +347,10 @@ srclang_ = AT
 srcset_ :: a -> 'SrcsetA := a
 srcset_ = AT
 
-start_ :: a -> 'StartA := a
+start_ :: Integral a => a -> 'StartA := a
 start_ = AT
 
-step_ :: a -> 'StepA := a
+step_ :: Num a => a -> 'StepA := a
 step_ = AT
 
 style_ :: a -> 'StyleA := a
@@ -359,7 +359,7 @@ style_ = AT
 summary_ :: a -> 'SummaryA := a
 summary_ = AT
 
-tabindex_ :: a -> 'TabindexA := a
+tabindex_ :: Integral a => a -> 'TabindexA := a
 tabindex_ = AT
 
 target_ :: a -> 'TargetA := a
@@ -383,7 +383,7 @@ usemap_ = AT
 value_ :: a -> 'ValueA := a
 value_ = AT
 
-width_ :: a -> 'WidthA := a
+width_ :: Integral a => a -> 'WidthA := a
 width_ = AT
 
 wrap_ :: a -> 'WrapA := a
