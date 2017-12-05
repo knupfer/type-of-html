@@ -257,7 +257,7 @@ novalidate_ = AT ()
 open_ :: 'OpenA := ()
 open_ = AT ()
 
-optimum_ :: Num => a -> 'OptimumA := a
+optimum_ :: Num a => a -> 'OptimumA := a
 optimum_ = AT
 
 pattern_ :: a -> 'PatternA := a
