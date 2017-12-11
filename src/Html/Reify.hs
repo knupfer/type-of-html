@@ -19,111 +19,76 @@ import GHC.TypeLits
 import Data.Proxy
 import Data.Semigroup ((<>))
 
-import qualified Data.Text.Lazy          as T
-import qualified Data.Text.Lazy.Encoding as T
-import qualified Data.ByteString.Lazy    as B
-import qualified Data.ByteString.Builder as B
-
--- | Render a html document to a Builder.
-{-# INLINE renderBuilder #-}
-renderBuilder :: Document a => a -> B.Builder
-renderBuilder = renderchunks . tag
-
-{-# INLINE tag #-}
-tag :: a -> Tagged (ToTypeList a) a
-tag = Tagged
-
--- | Render a html document to a String.
-{-# INLINE renderString #-}
-renderString :: Document a => a -> String
-renderString = T.unpack . renderText
-
--- | Render a html document to a lazy Text.
-{-# INLINE renderText #-}
-renderText :: Document a => a -> T.Text
-renderText = T.decodeUtf8 . renderByteString
-
--- | Render a html document to a lazy ByteString.
-{-# INLINE renderByteString #-}
-renderByteString :: Document a => a -> B.ByteString
-renderByteString = B.toLazyByteString . renderBuilder
-
 -- | Constraint synonym of html documents.
 type Document a = Document' a
 
-type Document' a = Renderchunks (Tagged (ToTypeList a) a)
+type Document' a = R (T (ToList a) a)
 
-class Renderchunks a where
-  renderchunks :: a -> B.Builder
+class R a where
+  render :: a -> Converted
 
-instance KnownSymbol a => Renderchunks (Tagged (prox :: [k]) (Proxy a)) where
-  {-# INLINE renderchunks #-}
-  renderchunks _ = mempty
+instance KnownSymbol a => R (T (prox :: [k]) (Proxy a)) where
+  {-# INLINE render #-}
+  render _ = mempty
 
-instance Renderchunks (Tagged prox ()) where
-  {-# INLINE renderchunks #-}
-  renderchunks _ = mempty
+instance R (T prox ()) where
+  {-# INLINE render #-}
+  render _ = mempty
+
+instance {-# INCOHERENT #-}
+  R (T '[] val) where
+  {-# INLINE render #-}
+  render _ = mempty
 
 instance {-# INCOHERENT #-}
   ( Convert val
-  ) => Renderchunks (Tagged '[ EmptySym ] val) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged x)
-    = unConv (convert x)
-
-instance {-# INCOHERENT #-}
-  Renderchunks (Tagged '[] val) where
-  {-# INLINE renderchunks #-}
-  renderchunks _ = mempty
+  ) => R (T '[ EmptySym ] val) where
+  {-# INLINE render #-}
+  render (T x) = convert x
 
 instance {-# INCOHERENT #-}
   ( Convert val
   , Convert (Proxy s)
-  ) => Renderchunks (Tagged '[s] val) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged x)
-    = unConv (convert (Proxy @ s))
-    <> unConv (convert x)
+  ) => R (T '[s] val) where
+  {-# INLINE render #-}
+  render (T x) = convert (Proxy @ s) <> convert x
 
 instance {-# INCOHERENT #-}
-  ( Renderchunks (Tagged xs val)
-  ) => Renderchunks (Tagged (NoTail xs) val) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged t)
-    = renderchunks (Tagged t :: Tagged xs val)
+  ( R (T xs val)
+  ) => R (T (NoTail xs) val) where
+  {-# INLINE render #-}
+  render (T t) = render (T t :: T xs val)
 
 instance {-# INCOHERENT #-}
-  ( Renderchunks (Tagged xs val)
+  ( R (T xs val)
   , Convert (Proxy x)
-  ) => Renderchunks (Tagged ('FingerTree xs x) val) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged t)
-    = renderchunks (Tagged t :: Tagged xs val)
-    <> unConv (convert (Proxy @ x))
+  ) => R (T ('FingerTree xs x) val) where
+  {-# INLINE render #-}
+  render (T t) = render (T t :: T xs val) <> convert (Proxy @ x)
 
 instance
-  ( Renderchunks (Tagged (Take (CountContent b) prox) b)
-  , Renderchunks (Tagged (Drop (CountContent b) prox) c)
-  ) => Renderchunks (Tagged prox ((a :@: b) c)) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged ~(WithAttributes b c))
-    = renderchunks (Tagged b :: Tagged (Take (CountContent b) prox) b)
-   <> renderchunks (Tagged c :: Tagged (Drop (CountContent b) prox) c)
+  ( R (T (Take (Length b) prox) b)
+  , R (T (Drop (Length b) prox) c)
+  ) => R (T prox ((a :@: b) c)) where
+  {-# INLINE render #-}
+  render (T ~(WithAttributes b c))
+    = render (T b :: T (Take (Length b) prox) b)
+   <> render (T c :: T (Drop (Length b) prox) c)
 
 instance
-  ( Renderchunks (Tagged (Take (CountContent a) prox) a)
-  , Renderchunks (Tagged (Drop (CountContent a) prox) b)
-  ) => Renderchunks (Tagged prox (a # b)) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged ~(a :#: b))
-    = renderchunks (Tagged a :: Tagged (Take (CountContent a) prox) a)
-   <> renderchunks (Tagged b :: Tagged (Drop (CountContent a) prox) b)
+  ( R (T (Take (Length a) prox) a)
+  , R (T (Drop (Length a) prox) b)
+  ) => R (T prox (a # b)) where
+  {-# INLINE render #-}
+  render (T ~(a :#: b))
+    = render (T a :: T (Take (Length a) prox) a)
+   <> render (T b :: T (Drop (Length a) prox) b)
 
 instance
-  ( Renderchunks (Tagged (ToTypeList (a `f` b)) (a `f` b))
+  ( R (T (ToList (a `f` b)) (a `f` b))
   , Convert (Proxy s)
-  ) => Renderchunks (Tagged (s ': ss) [a `f` b]) where
-  {-# INLINE renderchunks #-}
-  renderchunks (Tagged xs)
-    = unConv (convert (Proxy @ s))
-    <> foldMap (renderchunks . tag) xs
+  ) => R (T (s ': ss) [a `f` b]) where
+  {-# INLINE render #-}
+  render (T xs)
+    = convert (Proxy @ s)
+    <> foldMap (render . (T :: forall x. x -> T (ToList x) x)) xs

@@ -355,16 +355,16 @@ type family CloseTag e where
   CloseTag e = ["</", ShowElement e, ">"]
 
 -- | Flatten a document into a type list of tags.
-type family ToTypeList a :: FingerTree where
-  ToTypeList (a # b)         = ToTypeList a >< ToTypeList b
-  ToTypeList ((a :@: ()) ()) = Singleton (If (HasContent (GetEInfo a)) (AppSymbols (Append (OpenTag a) (CloseTag a))) (AppSymbols (OpenTag a)))
-  ToTypeList ((a :@: b) ())  = AppSymbols '["<", ShowElement a] <| ToTypeList b |> If (HasContent (GetEInfo a)) (AppSymbols (">" ': CloseTag a)) (AppSymbols '[">"])
-  ToTypeList ((a :@: ()) b)  = AppSymbols (OpenTag a) <| ToTypeList b |> AppSymbols (CloseTag a)
-  ToTypeList ((a :@: b) c)   = (AppSymbols '["<", ShowElement a] <| ToTypeList b) >< (AppSymbols '[">"] <| ToTypeList c |> AppSymbols (CloseTag a))
-  ToTypeList (a := b)        = AppSymbols '[" ", ShowAttribute a,"=\""] <| ToTypeList b |> AppSymbols '["\""]
-  ToTypeList ()              = Empty
-  ToTypeList (Proxy x)       = Singleton (AppSymbols '[x])
-  ToTypeList x               = Split
+type family ToList a :: FingerTree where
+  ToList (a # b)         = ToList a >< ToList b
+  ToList ((a :@: ()) ()) = Singleton (If (HasContent (GetEInfo a)) (AppSymbols (Append (OpenTag a) (CloseTag a))) (AppSymbols (OpenTag a)))
+  ToList ((a :@: b) ())  = AppSymbols '["<", ShowElement a] <| ToList b |> If (HasContent (GetEInfo a)) (AppSymbols (">" ': CloseTag a)) (AppSymbols '[">"])
+  ToList ((a :@: ()) b)  = AppSymbols (OpenTag a) <| ToList b |> AppSymbols (CloseTag a)
+  ToList ((a :@: b) c)   = (AppSymbols '["<", ShowElement a] <| ToList b) >< (AppSymbols '[">"] <| ToList c |> AppSymbols (CloseTag a))
+  ToList (a := b)        = AppSymbols '[" ", ShowAttribute a,"=\""] <| ToList b |> AppSymbols '["\""]
+  ToList ()              = Empty
+  ToList (Proxy x)       = Singleton (AppSymbols '[x])
+  ToList x               = Split
 
 newtype (:=) (a :: Attribute) b = AT b
 
@@ -432,13 +432,13 @@ type family Null xs where
   Null '[] = True
   Null _ = False
 
-type family CountContent c where
-  CountContent (a # b)       = CountContent a + CountContent b
-  CountContent ((_ :@: b) c) = CountContent b + CountContent c
-  CountContent (_ := b)      = CountContent b
-  CountContent ()            = 0
-  CountContent (Proxy _)     = 0
-  CountContent _             = 1
+type family Length c where
+  Length (a # b)       = Length a + Length b
+  Length ((_ :@: b) c) = Length b + Length c
+  Length (_ := b)      = Length b
+  Length ()            = 0
+  Length (Proxy _)     = 0
+  Length _             = 1
 
 -- | Check whether an element may have content.
 type family HasContent a where
@@ -552,7 +552,7 @@ type family Elem (a :: k) (xs :: [k]) where
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
-newtype Tagged (proxies :: k) target = Tagged target
+newtype T (proxies :: k) target = T target
 
 data AInfo (name :: Symbol) (elements :: [Element])
 type ShowAttribute (x :: Attribute) = AInfoName (GetAInfo x)
