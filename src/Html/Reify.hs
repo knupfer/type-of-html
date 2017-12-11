@@ -27,6 +27,21 @@ type Document' a = R (T (ToList a) a)
 class R a where
   render :: a -> Converted
 
+instance KnownSymbol s => R (Proxy (s :: Symbol)) where
+  {-# INLINE render #-}
+  render = convert
+
+instance
+  R (Proxy ('[] :: [Symbol])) where
+  {-# INLINE render #-}
+  render _ = mempty
+
+instance
+  ( KnownSymbol x, R (Proxy xs)
+  ) => R (Proxy ((x ': xs) :: [Symbol])) where
+  {-# INLINE render #-}
+  render _ = convert (Proxy @ x) <> render (Proxy @ xs)
+
 instance KnownSymbol a => R (T (prox :: [k]) (Proxy a)) where
   {-# INLINE render #-}
   render _ = mempty
@@ -47,11 +62,18 @@ instance {-# INCOHERENT #-}
   render (T x) = convert x
 
 instance {-# INCOHERENT #-}
+  ( Convert b
+  , R (Proxy s)
+  ) => R (T '[s] (a := b)) where
+  {-# INLINE render #-}
+  render (T (AT x)) = render (Proxy @ s) <> convert x
+
+instance {-# INCOHERENT #-}
   ( Convert val
-  , Convert (Proxy s)
+  , R (Proxy s)
   ) => R (T '[s] val) where
   {-# INLINE render #-}
-  render (T x) = convert (Proxy @ s) <> convert x
+  render (T x) = render (Proxy @ s) <> convert x
 
 instance {-# INCOHERENT #-}
   ( R (T xs val)
@@ -61,10 +83,10 @@ instance {-# INCOHERENT #-}
 
 instance {-# INCOHERENT #-}
   ( R (T xs val)
-  , Convert (Proxy x)
+  , R (Proxy x)
   ) => R (T ('FingerTree xs x) val) where
   {-# INLINE render #-}
-  render (T t) = render (T t :: T xs val) <> convert (Proxy @ x)
+  render (T t) = render (T t :: T xs val) <> render (Proxy @ x)
 
 instance
   ( R (T (Take (Length b) prox) b)
@@ -86,9 +108,9 @@ instance
 
 instance
   ( R (T (ToList (a `f` b)) (a `f` b))
-  , Convert (Proxy s)
+  , R (Proxy s)
   ) => R (T (s ': ss) [a `f` b]) where
   {-# INLINE render #-}
   render (T xs)
-    = convert (Proxy @ s)
+    = render (Proxy @ s)
     <> foldMap (render . (T :: forall x. x -> T (ToList x) x)) xs

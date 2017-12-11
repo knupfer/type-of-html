@@ -20,6 +20,7 @@ import Data.Proxy
 import Data.String
 import Data.Char (ord)
 import Data.Double.Conversion.ByteString
+import Numeric.Natural
 import GHC.TypeLits
 import GHC.Types
 import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
@@ -122,9 +123,6 @@ class Convert a where
 instance Convert () where
   {-# INLINE convert #-}
   convert _ = mempty
-instance Convert b => Convert (a := b) where
-  {-# INLINE convert #-}
-  convert (AT x) = convert x
 instance Convert (Raw Char) where
   {-# INLINE convert #-}
   convert (Raw c) = Converted (B.charUtf8 c)
@@ -158,6 +156,9 @@ instance Convert Int where
 instance Convert Integer where
   {-# INLINE convert #-}
   convert = Converted . B.integerDec
+instance Convert Natural where
+  {-# INLINE convert #-}
+  convert = Converted . B.integerDec . fromIntegral
 instance Convert Float where
   {-# INLINE convert #-}
   convert = Converted . U.byteStringCopy . toShortest . realToFrac
@@ -170,20 +171,6 @@ instance Convert Word where
 instance KnownSymbol a => Convert (Proxy a) where
   {-# INLINE convert #-}
   convert = Converted . U.byteStringCopy . fromString . symbolVal
-instance ConcatSymbol xs => Convert (Proxy (xs :: [Symbol])) where
-  {-# INLINE convert #-}
-  convert = Converted . U.byteStringCopy . fromString . concatSymbol
-
-class ConcatSymbol (xs :: [Symbol]) where
-  concatSymbol :: Proxy xs -> String
-
-instance (KnownSymbol x, ConcatSymbol xs) => ConcatSymbol (x ': xs) where
-  {-# INLINE concatSymbol #-}
-  concatSymbol _ = symbolVal (Proxy :: Proxy x) ++ concatSymbol (Proxy :: Proxy xs)
-
-instance ConcatSymbol '[] where
-  {-# INLINE concatSymbol #-}
-  concatSymbol _ = mempty
 
 {-# INLINE builderCString# #-}
 builderCString# :: BP.BoundedPrim Word8 -> Addr# -> Converted
