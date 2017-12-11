@@ -156,14 +156,13 @@ attrShort x
   . i_A (A.contextmenu_     "d")
   . i_A (A.dir_             "e")
   . i_A (A.draggable_       "f")
-  . i_A (A.hidden_          "g")
+  . i_A (A.hidden_             )
   . i_A (A.id_              "h")
   . i_A (A.itemprop_        "i")
   . i_A (A.lang_            "j")
   . i_A (A.spellcheck_      "k")
   . i_A (A.style_           "l")
-  . i_A (A.tabindex_        "m")
-  . i_A (A.title_           "n")
+  . i_A (A.title_           "m")
   $ x
 
 attrShort'
@@ -173,14 +172,13 @@ attrShort'
   . i_A (A.contextmenu_     "d")
   . i_A (A.dir_             "e")
   . i_A (A.draggable_       "f")
-  . i_A (A.hidden_          "g")
+  . i_A (A.hidden_             )
   . i_A (A.id_              "h")
   . i_A (A.itemprop_        "i")
   . i_A (A.lang_            "j")
   . i_A (A.spellcheck_      "k")
   . i_A (A.style_           "l")
-  . i_A (A.tabindex_        "m")
-  . i_A (A.title_           "n")
+  . i_A (A.title_           "m")
 
 attrShort''
   = \x ->
@@ -190,14 +188,13 @@ attrShort''
   . i_A (A.contextmenu_     "d")
   . i_A (A.dir_             "e")
   . i_A (A.draggable_       "f")
-  . i_A (A.hidden_          "g")
+  . i_A (A.hidden_             )
   . i_A (A.id_              "h")
   . i_A (A.itemprop_        "i")
   . i_A (A.lang_            "j")
   . i_A (A.spellcheck_      "k")
   . i_A (A.style_           "l")
-  . i_A (A.tabindex_        "m")
-  . i_A (A.title_           "n")
+  . i_A (A.title_           "m")
   $ x
 
 attrLong x =
@@ -207,13 +204,12 @@ attrLong x =
       # A.contextmenu_     "d"
       # A.dir_             "e"
       # A.draggable_       "f"
-      # A.hidden_          "g"
+      # A.hidden_
       # A.id_              "h"
       # A.itemprop_        "i"
       # A.lang_            "j"
       # A.spellcheck_      "k"
       # A.style_           "l"
-      # A.tabindex_        "m"
       # A.title_           "n"
       ) x
 
@@ -224,14 +220,13 @@ attrLong' =
       # A.contextmenu_     "d"
       # A.dir_             "e"
       # A.draggable_       "f"
-      # A.hidden_          "g"
+      # A.hidden_
       # A.id_              "h"
       # A.itemprop_        "i"
       # A.lang_            "j"
       # A.spellcheck_      "k"
       # A.style_           "l"
-      # A.tabindex_        "m"
-      # A.title_           "n"
+      # A.title_           "m"
       )
 
 attrLong'' = \x ->
@@ -241,14 +236,13 @@ attrLong'' = \x ->
       # A.contextmenu_     "d"
       # A.dir_             "e"
       # A.draggable_       "f"
-      # A.hidden_          "g"
+      # A.hidden_
       # A.id_              "h"
       # A.itemprop_        "i"
       # A.lang_            "j"
       # A.spellcheck_      "k"
       # A.style_           "l"
-      # A.tabindex_        "m"
-      # A.title_           "n"
+      # A.title_           "m"
       ) x
 
 pageA x =
