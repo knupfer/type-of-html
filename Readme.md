@@ -188,7 +188,8 @@ to (a :: [Symbol]) and then fold all neighbouring Symbols with
 AppendSymbol. Afterwards we reify the Symbols with symbolVal which
 will be embedded in the executable as Addr#. All this happens at
 compile time. At runtime we do only generate the content and append
-Builders.
+Builders. Because all functions from this library get inlined, we'll
+automatically profit from future optimizations in ByteString.Builder.
 
 For example, if you write:
 
