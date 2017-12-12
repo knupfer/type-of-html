@@ -99,4 +99,26 @@ instance
   {-# INLINE render #-}
   render (T xs)
     = render (Proxy @ s)
-    <> foldMap (render . (T :: forall x. x -> T (ToList x) x)) xs
+    <> foldMap (render . newT) xs
+
+instance
+  ( R (T (ToList a) a)
+  , R (Proxy s)
+  ) => R (T (s ': ss) (Maybe a)) where
+  {-# INLINE render #-}
+  render (T mx)
+    = render (Proxy @ s)
+    <> foldMap (render . newT) mx
+
+instance
+  ( R (T (ToList a) a)
+  , R (T (ToList b) b)
+  , R (Proxy s)
+  ) => R (T (s ': ss) (Either a b)) where
+  {-# INLINE render #-}
+  render (T eab)
+    = render (Proxy @ s)
+    <> either (render . newT) (render . newT) eab
+
+newT :: x -> T (ToList x) x
+newT = T

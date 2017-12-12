@@ -177,6 +177,34 @@ spec = parallel $ do
         ===
         renderString (div_ x)
 
+    it "handles maybes" $ do
+
+      renderString (div_ (Just (div_ "a")))
+       `shouldBe`
+        "<div><div>a</div></div>"
+
+      renderString (Just (42 :: Int))
+       `shouldBe`
+        "42"
+
+      renderString (div_A (Just (A.id_ "a")) "b")
+       `shouldBe`
+        "<div id=\"a\">b</div>"
+
+      renderString (div_ (if True then Nothing else Just (div_ "a")))
+       `shouldBe`
+        "<div></div>"
+
+    it "handles eithers" $ do
+
+      renderString (div_ (if True then Left (div_ "a") else Right "b"))
+       `shouldBe`
+        "<div><div>a</div></div>"
+
+      renderString (div_A (if True then Right (A.id_ "a") else Left (A.class_ "a")) "b")
+       `shouldBe`
+        "<div id=\"a\">b</div>"
+
     it "handles attributes" $ do
 
       renderString (div_A (A.id_ "a") "b" # "c")

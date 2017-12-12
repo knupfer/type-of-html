@@ -387,6 +387,8 @@ type family (a :: Element) ?> b :: Constraint where
 type family (a :: Element) ??> b :: Constraint where
   a ??> () = ()
   a ??> (b # c)  = (a ??> b, a ??> c)
+  a ??> Maybe b = a ??> b
+  a ??> Either b c = (a ??> b, a ??> c)
   a ??> (b := _) = If (Elem a (AInfoElements (GetAInfo b)) || Null (AInfoElements (GetAInfo b)))
                    (() :: Constraint)
                    (TypeError (ShowType b :<>: Text " is not a valid attribute of " :<>: ShowType a))

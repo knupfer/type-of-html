@@ -135,6 +135,30 @@ into type-of-html.
 <i></i><script></script><i></i>
 ```
 
+## Controlflow
+
+You can use Either and Maybe in your documents:
+
+```haskell
+>>> div_ (Just (div_ "a"))
+<div><div>a</div></div>
+
+>>> div_ (if True then Nothing else div_ "b")
+<div></div>
+
+>>> div_ (if True then Left (div_ "a") else Right "b")
+<div><div>a</div></div>
+
+>>> div_A (if True then Right (A.id_ "a") else Left (A.class_ "a")) "b"
+<div id="a">b</div>
+```
+
+If you use Either, both possible outcomes are typechecked if they are valid children.
+
+You can combine Either, Maybe and Lists in any way you want.  The
+types will get jolly complicated, but if you don't write the types,
+you'll be good.
+
 ## Performance
 
 `type-of-html` is a lot faster than `blaze-html` or than `lucid`.
