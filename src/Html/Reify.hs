@@ -1,10 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE TypeApplications     #-}
-{-# LANGUAGE ConstraintKinds      #-}
-{-# LANGUAGE MonoLocalBinds       #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE PolyKinds            #-}
@@ -19,15 +16,12 @@ import GHC.TypeLits
 import Data.Proxy
 import Data.Semigroup ((<>))
 
--- | Constraint synonym of html documents.
-type Document a = Document' a
-
-type Document' a = R (T (ToList a) a)
-
 class R a where
   render :: a -> Converted
 
-instance KnownSymbol s => R (Proxy (s :: Symbol)) where
+instance
+  KnownSymbol s
+  => R (Proxy (s :: Symbol)) where
   {-# INLINE render #-}
   render = convert
 
@@ -42,11 +36,14 @@ instance
   {-# INLINE render #-}
   render _ = convert (Proxy @ x) <> render (Proxy @ xs)
 
-instance KnownSymbol a => R (T (prox :: [k]) (Proxy a)) where
+instance
+  KnownSymbol a
+  => R (T (ps :: [k]) (Proxy a)) where
   {-# INLINE render #-}
   render _ = mempty
 
-instance R (T prox ()) where
+instance
+  R (T ps ()) where
   {-# INLINE render #-}
   render _ = mempty
 
@@ -61,7 +58,7 @@ instance {-# INCOHERENT #-}
   {-# INLINE render #-}
   render (T x) = convert x
 
-instance {-# INCOHERENT #-}
+instance
   ( Convert b
   , R (Proxy s)
   ) => R (T '[s] (a := b)) where
@@ -75,13 +72,13 @@ instance {-# INCOHERENT #-}
   {-# INLINE render #-}
   render (T x) = render (Proxy @ s) <> convert x
 
-instance {-# INCOHERENT #-}
+instance {-# OVERLAPPING #-}
   ( R (T xs val)
   ) => R (T (NoTail xs) val) where
   {-# INLINE render #-}
   render (T t) = render (T t :: T xs val)
 
-instance {-# INCOHERENT #-}
+instance
   ( R (T xs val)
   , R (Proxy x)
   ) => R (T ('FingerTree xs x) val) where
@@ -89,22 +86,22 @@ instance {-# INCOHERENT #-}
   render (T t) = render (T t :: T xs val) <> render (Proxy @ x)
 
 instance
-  ( R (T (Take (Length b) prox) b)
-  , R (T (Drop (Length b) prox) c)
-  ) => R (T prox ((a :@: b) c)) where
+  ( R (T (Take (Length b) ps) b)
+  , R (T (Drop (Length b) ps) c)
+  ) => R (T ps ((a :@: b) c)) where
   {-# INLINE render #-}
   render (T ~(WithAttributes b c))
-    = render (T b :: T (Take (Length b) prox) b)
-   <> render (T c :: T (Drop (Length b) prox) c)
+    = render (T b :: T (Take (Length b) ps) b)
+   <> render (T c :: T (Drop (Length b) ps) c)
 
 instance
-  ( R (T (Take (Length a) prox) a)
-  , R (T (Drop (Length a) prox) b)
-  ) => R (T prox (a # b)) where
+  ( R (T (Take (Length a) ps) a)
+  , R (T (Drop (Length a) ps) b)
+  ) => R (T ps (a # b)) where
   {-# INLINE render #-}
   render (T ~(a :#: b))
-    = render (T a :: T (Take (Length a) prox) a)
-   <> render (T b :: T (Drop (Length a) prox) b)
+    = render (T a :: T (Take (Length a) ps) a)
+   <> render (T b :: T (Drop (Length a) ps) b)
 
 instance
   ( R (T (ToList (a `f` b)) (a `f` b))

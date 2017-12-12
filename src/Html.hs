@@ -3,7 +3,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE MonoLocalBinds       #-}
+{-# LANGUAGE ConstraintKinds      #-}
 {-# LANGUAGE TypeOperators        #-}
 
 module Html
@@ -27,6 +27,10 @@ import qualified Data.ByteString.Lazy    as B
 import qualified Data.ByteString.Builder as B
 import qualified Data.Text.Lazy          as T
 import qualified Data.Text.Lazy.Encoding as T
+
+-- | Constraint synonym of html documents.
+type Document  a = Document' a
+type Document' a = R (T (ToList a) a)
 
 -- | Render a html document to a Builder.
 {-# INLINE renderBuilder #-}
