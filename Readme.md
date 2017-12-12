@@ -143,7 +143,7 @@ You can use Either and Maybe in your documents:
 >>> div_ (Just (div_ "a"))
 <div><div>a</div></div>
 
->>> div_ (if True then Nothing else div_ "b")
+>>> div_ (if True then Nothing else Just (div_ "b"))
 <div></div>
 
 >>> div_ (if True then Left (div_ "a") else Right "b")
