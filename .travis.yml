@@ -2,7 +2,7 @@ language: nix
 
 env:
 - GHC=ghc802
-- GHC=ghc821
+- GHC=ghc822
 
 before_install:
 - nix-channel --update
