@@ -337,16 +337,18 @@ type Split = 'FingerTree '[EmptySym] EmptySym
 type NoTail xs = 'FingerTree xs EmptySym
 type Singleton = 'FingerTree '[]
 
+type Both l r = AppSymbols (Append (List l) (List r))
+
 type family (<|) s t :: FingerTree where
-  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (AppSymbols (Append (List l) (List s)) ': ss) r
-  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (AppSymbols (Append (List l) (List r)))
+  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (Both l s ': ss) r
+  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (Both l r)
 
 type family (|>) t s :: FingerTree where
-  (|>) ('FingerTree ss r) rr = 'FingerTree ss (AppSymbols (Append (List r) (List rr)))
+  (|>) ('FingerTree ss r) rr = 'FingerTree ss (Both r rr)
 
 type family (><) t1 t2 :: FingerTree where
-  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppSymbols (Append (List r) (List s)) ': ss2)) r2
-  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppSymbols (Append (List r) (List r2)))
+  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (Both r s ': ss2)) r2
+  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (Both r r2)
 
 type family OpenTag e where
   OpenTag e = ["<", ShowElement e, ">"]
