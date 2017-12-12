@@ -1,5 +1,12 @@
 # Revision history for type-of-html
 
+## 1.3.0.0  -- 2017-12-12
+
+* add Either
+* add Maybe
+* internal refactor
+* cleaner api of the Convert class
+
 ## 1.2.0.0  -- 2017-11-28
 
 * remove argument from boolean attributes
