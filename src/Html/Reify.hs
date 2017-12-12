@@ -36,17 +36,6 @@ instance
   {-# INLINE render #-}
   render _ = convert (Proxy @ x) <> render (Proxy @ xs)
 
-instance
-  KnownSymbol a
-  => R (T (ps :: [k]) (Proxy a)) where
-  {-# INLINE render #-}
-  render _ = mempty
-
-instance
-  R (T ps ()) where
-  {-# INLINE render #-}
-  render _ = mempty
-
 instance {-# INCOHERENT #-}
   R (T '[] val) where
   {-# INLINE render #-}
