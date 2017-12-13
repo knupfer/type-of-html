@@ -34,7 +34,7 @@ import qualified Data.Text.Lazy.Encoding          as TL
 newtype Converted = Converted {unConv :: B.Builder} deriving (M.Monoid,S.Semigroup)
 instance IsString Converted where fromString = convert
 
-{-| Convert a type efficienctly to different string like types.  Add
+{-| Convert a type efficienctly to a renderable representation.  Add
   instances if you want use custom types in your document.
 
 @
