@@ -11,7 +11,7 @@ tested-with:          GHC == 8.0.2
                     , GHC == 8.2.1
                     , GHC == 8.2.2
 copyright:            2017, Florian Knupfer
-category:             Language
+category:             Language, Text, Web, HTML
 build-type:           Simple
 extra-source-files:   ChangeLog.md
                     , Readme.md
