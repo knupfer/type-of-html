@@ -75,57 +75,24 @@ main = print (div_ john)
 class Convert a where
   convert :: a -> Converted
 
-instance Convert () where
-  {-# INLINE convert #-}
-  convert _ = mempty
-instance Convert (Raw Char) where
-  {-# INLINE convert #-}
-  convert (Raw c) = Converted (B.charUtf8 c)
-instance Convert (Raw String) where
-  {-# INLINE convert #-}
-  convert (Raw x) = stringConvRaw x
-instance Convert (Raw T.Text) where
-  {-# INLINE convert #-}
-  convert (Raw x) = Converted (T.encodeUtf8Builder x)
-instance Convert (Raw TL.Text) where
-  {-# INLINE convert #-}
-  convert (Raw x) = Converted (TL.encodeUtf8Builder x)
-instance Convert (Raw B.Builder) where
-  {-# INLINE convert #-}
-  convert (Raw x) = Converted x
-instance Convert Char where
-  {-# INLINE convert #-}
-  convert = Converted . BP.primBounded escapeUtf8
-instance Convert String where
-  {-# INLINE convert #-}
-  convert = stringConv
-instance Convert T.Text where
-  {-# INLINE convert #-}
-  convert = Converted . T.encodeUtf8BuilderEscaped escape
-instance Convert TL.Text where
-  {-# INLINE convert #-}
-  convert = Converted . TL.encodeUtf8BuilderEscaped escape
-instance Convert Int where
-  {-# INLINE convert #-}
-  convert = Converted . B.intDec
-instance Convert Integer where
-  {-# INLINE convert #-}
-  convert = Converted . B.integerDec
-instance Convert Natural where
-  {-# INLINE convert #-}
-  convert = Converted . B.integerDec . fromIntegral
-instance Convert Float where
-  {-# INLINE convert #-}
-  convert = Converted . U.byteStringCopy . toShortest . realToFrac
-instance Convert Double where
-  {-# INLINE convert #-}
-  convert = Converted . U.byteStringCopy . toShortest
-instance Convert Word where
-  {-# INLINE convert #-}
-  convert = Converted . B.wordDec
-instance KnownSymbol a => Convert (Proxy a) where
-  {-# INLINE convert #-}
-  convert = Converted . U.byteStringCopy . fromString . symbolVal
+instance KnownSymbol a => Convert (Proxy a) where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . fromString . symbolVal
+
+instance Convert ()              where {-# INLINE convert #-}; convert = const mempty
+instance Convert (Raw Char)      where {-# INLINE convert #-}; convert = Converted . B.charUtf8 . fromRaw
+instance Convert (Raw String)    where {-# INLINE convert #-}; convert = stringConvRaw . fromRaw
+instance Convert (Raw T.Text)    where {-# INLINE convert #-}; convert = Converted . T.encodeUtf8Builder . fromRaw
+instance Convert (Raw TL.Text)   where {-# INLINE convert #-}; convert = Converted . TL.encodeUtf8Builder . fromRaw
+instance Convert (Raw B.Builder) where {-# INLINE convert #-}; convert = Converted . fromRaw
+instance Convert Char            where {-# INLINE convert #-}; convert = Converted . BP.primBounded escapeUtf8
+instance Convert String          where {-# INLINE convert #-}; convert = stringConv
+instance Convert T.Text          where {-# INLINE convert #-}; convert = Converted . T.encodeUtf8BuilderEscaped escape
+instance Convert TL.Text         where {-# INLINE convert #-}; convert = Converted . TL.encodeUtf8BuilderEscaped escape
+instance Convert Int             where {-# INLINE convert #-}; convert = Converted . B.intDec
+instance Convert Integer         where {-# INLINE convert #-}; convert = Converted . B.integerDec
+instance Convert Natural         where {-# INLINE convert #-}; convert = Converted . B.integerDec . fromIntegral
+instance Convert Float           where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . toShortest . realToFrac
+instance Convert Double          where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . toShortest
+instance Convert Word            where {-# INLINE convert #-}; convert = Converted . B.wordDec
 
 {-# INLINE builderCString# #-}
 builderCString# :: BP.BoundedPrim Word8 -> Addr# -> Converted
@@ -184,17 +151,13 @@ escape =
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
 
 {-# RULES "CONVERTED literal" forall a.
-    stringConv (unpackCString# a)
-      = builderCString# escape a #-}
+    stringConv (unpackCString# a) = builderCString# escape a #-}
 
 {-# RULES "CONVERTED literal raw" forall a.
-    stringConvRaw (unpackCString# a)
-      = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
+    stringConvRaw (unpackCString# a) = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
 
 {-# RULES "CONVERTED literal utf8" forall a.
-    stringConv (unpackCStringUtf8# a)
-      = convert (T.pack (unpackCStringUtf8# a)) #-}
+    stringConv (unpackCStringUtf8# a) = convert (T.pack (unpackCStringUtf8# a)) #-}
 
 {-# RULES "CONVERTED literal utf8 raw" forall a.
-    stringConvRaw (unpackCStringUtf8# a)
-      = convert (Raw (T.pack (unpackCStringUtf8# a))) #-}
+    stringConvRaw (unpackCStringUtf8# a) = convert (Raw (T.pack (unpackCStringUtf8# a))) #-}

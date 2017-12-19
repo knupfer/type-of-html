@@ -6,7 +6,9 @@
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE PolyKinds            #-}
 
-module Html.Reify where
+module Html.Reify
+  ( R(..)
+  ) where
 
 import Html.Type.Internal
 import Html.Convert

@@ -426,7 +426,7 @@ data (:@:) (a :: Element) b c where
 infixr 8 :@:
 
 -- | Wrapper for types which won't be escaped.
-newtype Raw a = Raw a
+newtype Raw a = Raw {fromRaw :: a}
 
   -------------------
   -- internal code --
@@ -512,9 +512,9 @@ data EInfo
   (contentCategories :: [ContentCategory])
   (permittedContent  :: ContentCategory)
 
-type family EInfoName x       where EInfoName       (EInfo n _ _)  = n
+type family EInfoName x       where EInfoName       (EInfo n _  _) = n
 type family EInfoCategories x where EInfoCategories (EInfo _ cs _) = cs
-type family EInfoContent x    where EInfoContent    (EInfo _ _ c)  = c
+type family EInfoContent x    where EInfoContent    (EInfo _ _  c) = c
 
 type ShowElement (x :: Element) = EInfoName (GetEInfo x)
 
@@ -524,7 +524,7 @@ type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory])
   CheckContentCategory (NOT a) c   = Not (CheckContentCategory a c)
   CheckContentCategory a c         = Elem a c
 
--- | Check whether a given element may contain a string.
+-- | Check whether a given element may contain a non document type.
 type family CheckString (a :: Element) b where
   CheckString a b = If (CheckContentCategory (EInfoContent (GetEInfo a)) '[OnlyText, FlowContent, PhrasingContent])
                        (() :: Constraint)
@@ -565,704 +565,249 @@ type family AInfoName x where AInfoName (AInfo s _) = s
 
 -- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
 type family GetAInfo a = r | r -> a where
-  GetAInfo AcceptA              = AInfo "accept" '[Form, Input]
-  GetAInfo AcceptCharsetA       = AInfo "accept-charset" '[Form]
-  GetAInfo AccesskeyA           = AInfo "accesskey" '[]
-  GetAInfo ActionA              = AInfo "action" '[Form]
-  GetAInfo AllowfullscreenA     = AInfo "allowfullscreen" '[Iframe]
+  GetAInfo AcceptA              = AInfo "accept"              '[Form, Input]
+  GetAInfo AcceptCharsetA       = AInfo "accept-charset"      '[Form]
+  GetAInfo AccesskeyA           = AInfo "accesskey"           '[]
+  GetAInfo ActionA              = AInfo "action"              '[Form]
+  GetAInfo AllowfullscreenA     = AInfo "allowfullscreen"     '[Iframe]
   GetAInfo AllowpaymentrequestA = AInfo "allowpaymentrequest" '[Iframe]
-  GetAInfo AlignA               = AInfo "align" '[Applet, Caption, Col, Colgroup, Hr, Iframe, Img, Table, Tbody, Td, Tfoot, Th, Thead, Tr]
-  GetAInfo AltA                 = AInfo "alt" '[Applet, Area, Img, Input]
-  GetAInfo AsyncA               = AInfo "async" '[Script]
-  GetAInfo AutocompleteA        = AInfo "autocomplete" '[Form, Input]
-  GetAInfo AutofocusA           = AInfo "autofocus" '[Button, Input, Keygen, Select, Textarea]
-  GetAInfo AutoplayA            = AInfo "autoplay" '[Audio, Video]
-  GetAInfo AutosaveA            = AInfo "autosave" '[Input]
-  GetAInfo BgcolorA             = AInfo "bgcolor" '[Body, Col, Colgroup, Marquee, Table, Tbody, Tfoot, Td, Th, Tr]
-  GetAInfo BorderA              = AInfo "border" '[Img, Object, Table]
-  GetAInfo BufferedA            = AInfo "buffered" '[Audio, Video]
-  GetAInfo ChallengeA           = AInfo "challenge" '[Keygen]
-  GetAInfo CharsetA             = AInfo "charset" '[Meta, Script]
-  GetAInfo CheckedA             = AInfo "checked" '[Command, Input]
-  GetAInfo CiteA                = AInfo "cite" '[Blockquote, Del, Ins, Q]
-  GetAInfo ClassA               = AInfo "class" '[]
-  GetAInfo CodeA                = AInfo "code" '[Applet]
-  GetAInfo CodebaseA            = AInfo "codebase" '[Applet]
-  GetAInfo ColorA               = AInfo "color" '[Basefont, Font, Hr]
-  GetAInfo ColsA                = AInfo "cols" '[Textarea]
-  GetAInfo ColspanA             = AInfo "colspan" '[Td, Th]
-  GetAInfo ContentA             = AInfo "content" '[Meta]
-  GetAInfo ContenteditableA     = AInfo "contenteditable" '[]
-  GetAInfo ContextmenuA         = AInfo "contextmenu" '[]
-  GetAInfo ControlsA            = AInfo "controls" '[Audio, Video]
-  GetAInfo CoordsA              = AInfo "coords" '[Area]
-  GetAInfo CrossoriginA         = AInfo "crossorigin" '[Audio, Img, Link, Script, Video]
-  GetAInfo DataA                = AInfo "data" '[Object]
-  GetAInfo DatetimeA            = AInfo "datetime" '[Del, Ins, Time]
-  GetAInfo DefaultA             = AInfo "default" '[Track]
-  GetAInfo DeferA               = AInfo "defer" '[Script]
-  GetAInfo DirA                 = AInfo "dir" '[]
-  GetAInfo DirnameA             = AInfo "dirname" '[Input, Textarea]
-  GetAInfo DisabledA            = AInfo "disabled" '[Button, Command, Fieldset, Input, Keygen, Optgroup, Option, Select, Textarea]
-  GetAInfo DownloadA            = AInfo "download" '[A, Area]
-  GetAInfo DraggableA           = AInfo "draggable" '[]
-  GetAInfo DropzoneA            = AInfo "dropzone" '[]
-  GetAInfo EnctypeA             = AInfo "enctype" '[Form]
-  GetAInfo ForA                 = AInfo "for" '[Label, Output]
-  GetAInfo FormA                = AInfo "form" '[Button, Fieldset, Input, Keygen, Label, Meter, Object, Output, Progress, Select, Textarea]
-  GetAInfo FormactionA          = AInfo "formaction" '[Input, Button]
-  GetAInfo FormenctypeA         = AInfo "formenctype" '[Button, Input]
-  GetAInfo FormmethodA          = AInfo "formmethod" '[Button, Input]
-  GetAInfo FormnovalidateA      = AInfo "formnovalidate" '[Button, Input]
-  GetAInfo FormtargetA          = AInfo "formtarget" '[Button, Input]
-  GetAInfo HeadersA             = AInfo "headers" '[Td, Th]
-  GetAInfo HeightA              = AInfo "height" '[Canvas, Embed, Iframe, Img, Input, Object, Video]
-  GetAInfo HiddenA              = AInfo "hidden" '[]
-  GetAInfo HighA                = AInfo "high" '[Meter]
-  GetAInfo HrefA                = AInfo "href" '[A, Area, Base, Link]
-  GetAInfo HreflangA            = AInfo "hreflang" '[A, Area, Link]
-  GetAInfo HttpEquivA           = AInfo "httpEquiv" '[Meta]
-  GetAInfo IconA                = AInfo "icon" '[Command]
-  GetAInfo IdA                  = AInfo "id" '[]
-  GetAInfo IntegrityA           = AInfo "integrity" '[Link, Script]
-  GetAInfo IsmapA               = AInfo "ismap" '[Img]
-  GetAInfo ItempropA            = AInfo "itemprop" '[]
-  GetAInfo KeytypeA             = AInfo "keytype" '[Keygen]
-  GetAInfo KindA                = AInfo "kind" '[Track]
-  GetAInfo LabelA               = AInfo "label" '[Track]
-  GetAInfo LangA                = AInfo "lang" '[]
-  GetAInfo LanguageA            = AInfo "language" '[Script]
-  GetAInfo ListA                = AInfo "list" '[Input]
-  GetAInfo LongdescA            = AInfo "longdesc" '[Img]
-  GetAInfo LoopA                = AInfo "loop" '[Audio, Bgsound, Marquee, Video]
-  GetAInfo LowA                 = AInfo "low" '[Meter]
-  GetAInfo ManifestA            = AInfo "manifest" '[Html]
-  GetAInfo MaxA                 = AInfo "max" '[Input, Meter, Progress]
-  GetAInfo MaxlengthA           = AInfo "maxlength" '[Input, Textarea]
-  GetAInfo MediaA               = AInfo "media" '[A, Area, Link, Source, Style]
-  GetAInfo MethodA              = AInfo "method" '[Form]
-  GetAInfo MinA                 = AInfo "min" '[Input, Meter]
-  GetAInfo MinlengthA           = AInfo "minlength" '[Input, Textarea]
-  GetAInfo MultipleA            = AInfo "multiple" '[Input, Select]
-  GetAInfo MutedA               = AInfo "muted" '[Video]
-  GetAInfo NameA                = AInfo "name" '[Button, Form, Fieldset, Iframe, Input, Keygen, Object, Output, Select, Textarea, Map, Meta, Param]
-  GetAInfo NonceA               = AInfo "nonce" '[Link, Script, Style]
-  GetAInfo NovalidateA          = AInfo "novalidate" '[Form]
-  GetAInfo OpenA                = AInfo "open" '[Details]
-  GetAInfo OptimumA             = AInfo "optimum" '[Meter]
-  GetAInfo PatternA             = AInfo "pattern" '[Input]
-  GetAInfo PingA                = AInfo "ping" '[A, Area]
-  GetAInfo PlaceholderA         = AInfo "placeholder" '[Input, Textarea]
-  GetAInfo PosterA              = AInfo "poster" '[Video]
-  GetAInfo PreloadA             = AInfo "preload" '[Audio, Video]
-  GetAInfo RadiogroupA          = AInfo "radiogroup" '[Command]
-  GetAInfo ReadonlyA            = AInfo "readonly" '[Input, Textarea]
-  GetAInfo ReferrerpolicyA      = AInfo "referrerpolicy" '[A, Area, Iframe, Img, Link]
-  GetAInfo RelA                 = AInfo "rel" '[A, Area, Link]
-  GetAInfo RequiredA            = AInfo "required" '[Input, Select, Textarea]
-  GetAInfo RevA                 = AInfo "rev" '[A, Link]
-  GetAInfo ReversedA            = AInfo "reversed" '[Ol]
-  GetAInfo RowsA                = AInfo "rows" '[Textarea]
-  GetAInfo RowspanA             = AInfo "rowspan" '[Td, Th]
-  GetAInfo SandboxA             = AInfo "sandbox" '[Iframe]
-  GetAInfo ScopeA               = AInfo "scope" '[Th]
-  GetAInfo ScopedA              = AInfo "scoped" '[Style]
-  GetAInfo SeamlessA            = AInfo "seamless" '[Iframe]
-  GetAInfo SelectedA            = AInfo "selected" '[Option]
-  GetAInfo ShapeA               = AInfo "shape" '[A, Area]
-  GetAInfo SizeA                = AInfo "size" '[Input, Select]
-  GetAInfo SizesA               = AInfo "sizes" '[Link, Img, Source]
-  GetAInfo SlotA                = AInfo "slot" '[]
-  GetAInfo SpanA                = AInfo "span" '[Col, Colgroup]
-  GetAInfo SpellcheckA          = AInfo "spellcheck" '[]
-  GetAInfo SrcA                 = AInfo "src" '[Audio, Embed, Iframe, Img, Input, Script, Source, Track, Video]
-  GetAInfo SrcdocA              = AInfo "srcdoc" '[Iframe]
-  GetAInfo SrclangA             = AInfo "srclang" '[Track]
-  GetAInfo SrcsetA              = AInfo "srcset" '[Img]
-  GetAInfo StartA               = AInfo "start" '[Ol]
-  GetAInfo StepA                = AInfo "step" '[Input]
-  GetAInfo StyleA               = AInfo "style" '[]
-  GetAInfo SummaryA             = AInfo "summary" '[Table]
-  GetAInfo TabindexA            = AInfo "tabindex" '[]
-  GetAInfo TargetA              = AInfo "target" '[A, Area, Base, Form]
-  GetAInfo TitleA               = AInfo "title" '[]
-  GetAInfo TranslateA           = AInfo "translate" '[]
-  GetAInfo TypeA                = AInfo "type" '[Button, Input, Command, Embed, Object, Script, Source, Style, Menu, Ol, A, Area, Link]
-  GetAInfo TypemustmatchA       = AInfo "typemustmatch" '[Object]
-  GetAInfo UsemapA              = AInfo "usemap" '[Img, Input, Object]
-  GetAInfo ValueA               = AInfo "value" '[Button, Option, Input, Li, Meter, Progress, Param, Data]
-  GetAInfo WidthA               = AInfo "width" '[Canvas, Embed, Iframe, Img, Input, Object, Video]
-  GetAInfo WrapA                = AInfo "wrap" '[Textarea]
+  GetAInfo AlignA               = AInfo "align"               '[Applet, Caption, Col, Colgroup, Hr, Iframe, Img, Table, Tbody, Td, Tfoot, Th, Thead, Tr]
+  GetAInfo AltA                 = AInfo "alt"                 '[Applet, Area, Img, Input]
+  GetAInfo AsyncA               = AInfo "async"               '[Script]
+  GetAInfo AutocompleteA        = AInfo "autocomplete"        '[Form, Input]
+  GetAInfo AutofocusA           = AInfo "autofocus"           '[Button, Input, Keygen, Select, Textarea]
+  GetAInfo AutoplayA            = AInfo "autoplay"            '[Audio, Video]
+  GetAInfo AutosaveA            = AInfo "autosave"            '[Input]
+  GetAInfo BgcolorA             = AInfo "bgcolor"             '[Body, Col, Colgroup, Marquee, Table, Tbody, Tfoot, Td, Th, Tr]
+  GetAInfo BorderA              = AInfo "border"              '[Img, Object, Table]
+  GetAInfo BufferedA            = AInfo "buffered"            '[Audio, Video]
+  GetAInfo ChallengeA           = AInfo "challenge"           '[Keygen]
+  GetAInfo CharsetA             = AInfo "charset"             '[Meta, Script]
+  GetAInfo CheckedA             = AInfo "checked"             '[Command, Input]
+  GetAInfo CiteA                = AInfo "cite"                '[Blockquote, Del, Ins, Q]
+  GetAInfo ClassA               = AInfo "class"               '[]
+  GetAInfo CodeA                = AInfo "code"                '[Applet]
+  GetAInfo CodebaseA            = AInfo "codebase"            '[Applet]
+  GetAInfo ColorA               = AInfo "color"               '[Basefont, Font, Hr]
+  GetAInfo ColsA                = AInfo "cols"                '[Textarea]
+  GetAInfo ColspanA             = AInfo "colspan"             '[Td, Th]
+  GetAInfo ContentA             = AInfo "content"             '[Meta]
+  GetAInfo ContenteditableA     = AInfo "contenteditable"     '[]
+  GetAInfo ContextmenuA         = AInfo "contextmenu"         '[]
+  GetAInfo ControlsA            = AInfo "controls"            '[Audio, Video]
+  GetAInfo CoordsA              = AInfo "coords"              '[Area]
+  GetAInfo CrossoriginA         = AInfo "crossorigin"         '[Audio, Img, Link, Script, Video]
+  GetAInfo DataA                = AInfo "data"                '[Object]
+  GetAInfo DatetimeA            = AInfo "datetime"            '[Del, Ins, Time]
+  GetAInfo DefaultA             = AInfo "default"             '[Track]
+  GetAInfo DeferA               = AInfo "defer"               '[Script]
+  GetAInfo DirA                 = AInfo "dir"                 '[]
+  GetAInfo DirnameA             = AInfo "dirname"             '[Input, Textarea]
+  GetAInfo DisabledA            = AInfo "disabled"            '[Button, Command, Fieldset, Input, Keygen, Optgroup, Option, Select, Textarea]
+  GetAInfo DownloadA            = AInfo "download"            '[A, Area]
+  GetAInfo DraggableA           = AInfo "draggable"           '[]
+  GetAInfo DropzoneA            = AInfo "dropzone"            '[]
+  GetAInfo EnctypeA             = AInfo "enctype"             '[Form]
+  GetAInfo ForA                 = AInfo "for"                 '[Label, Output]
+  GetAInfo FormA                = AInfo "form"                '[Button, Fieldset, Input, Keygen, Label, Meter, Object, Output, Progress, Select, Textarea]
+  GetAInfo FormactionA          = AInfo "formaction"          '[Input, Button]
+  GetAInfo FormenctypeA         = AInfo "formenctype"         '[Button, Input]
+  GetAInfo FormmethodA          = AInfo "formmethod"          '[Button, Input]
+  GetAInfo FormnovalidateA      = AInfo "formnovalidate"      '[Button, Input]
+  GetAInfo FormtargetA          = AInfo "formtarget"          '[Button, Input]
+  GetAInfo HeadersA             = AInfo "headers"             '[Td, Th]
+  GetAInfo HeightA              = AInfo "height"              '[Canvas, Embed, Iframe, Img, Input, Object, Video]
+  GetAInfo HiddenA              = AInfo "hidden"              '[]
+  GetAInfo HighA                = AInfo "high"                '[Meter]
+  GetAInfo HrefA                = AInfo "href"                '[A, Area, Base, Link]
+  GetAInfo HreflangA            = AInfo "hreflang"            '[A, Area, Link]
+  GetAInfo HttpEquivA           = AInfo "httpEquiv"           '[Meta]
+  GetAInfo IconA                = AInfo "icon"                '[Command]
+  GetAInfo IdA                  = AInfo "id"                  '[]
+  GetAInfo IntegrityA           = AInfo "integrity"           '[Link, Script]
+  GetAInfo IsmapA               = AInfo "ismap"               '[Img]
+  GetAInfo ItempropA            = AInfo "itemprop"            '[]
+  GetAInfo KeytypeA             = AInfo "keytype"             '[Keygen]
+  GetAInfo KindA                = AInfo "kind"                '[Track]
+  GetAInfo LabelA               = AInfo "label"               '[Track]
+  GetAInfo LangA                = AInfo "lang"                '[]
+  GetAInfo LanguageA            = AInfo "language"            '[Script]
+  GetAInfo ListA                = AInfo "list"                '[Input]
+  GetAInfo LongdescA            = AInfo "longdesc"            '[Img]
+  GetAInfo LoopA                = AInfo "loop"                '[Audio, Bgsound, Marquee, Video]
+  GetAInfo LowA                 = AInfo "low"                 '[Meter]
+  GetAInfo ManifestA            = AInfo "manifest"            '[Html]
+  GetAInfo MaxA                 = AInfo "max"                 '[Input, Meter, Progress]
+  GetAInfo MaxlengthA           = AInfo "maxlength"           '[Input, Textarea]
+  GetAInfo MediaA               = AInfo "media"               '[A, Area, Link, Source, Style]
+  GetAInfo MethodA              = AInfo "method"              '[Form]
+  GetAInfo MinA                 = AInfo "min"                 '[Input, Meter]
+  GetAInfo MinlengthA           = AInfo "minlength"           '[Input, Textarea]
+  GetAInfo MultipleA            = AInfo "multiple"            '[Input, Select]
+  GetAInfo MutedA               = AInfo "muted"               '[Video]
+  GetAInfo NameA                = AInfo "name"                '[Button, Form, Fieldset, Iframe, Input, Keygen, Object, Output, Select, Textarea, Map, Meta, Param]
+  GetAInfo NonceA               = AInfo "nonce"               '[Link, Script, Style]
+  GetAInfo NovalidateA          = AInfo "novalidate"          '[Form]
+  GetAInfo OpenA                = AInfo "open"                '[Details]
+  GetAInfo OptimumA             = AInfo "optimum"             '[Meter]
+  GetAInfo PatternA             = AInfo "pattern"             '[Input]
+  GetAInfo PingA                = AInfo "ping"                '[A, Area]
+  GetAInfo PlaceholderA         = AInfo "placeholder"         '[Input, Textarea]
+  GetAInfo PosterA              = AInfo "poster"              '[Video]
+  GetAInfo PreloadA             = AInfo "preload"             '[Audio, Video]
+  GetAInfo RadiogroupA          = AInfo "radiogroup"          '[Command]
+  GetAInfo ReadonlyA            = AInfo "readonly"            '[Input, Textarea]
+  GetAInfo ReferrerpolicyA      = AInfo "referrerpolicy"      '[A, Area, Iframe, Img, Link]
+  GetAInfo RelA                 = AInfo "rel"                 '[A, Area, Link]
+  GetAInfo RequiredA            = AInfo "required"            '[Input, Select, Textarea]
+  GetAInfo RevA                 = AInfo "rev"                 '[A, Link]
+  GetAInfo ReversedA            = AInfo "reversed"            '[Ol]
+  GetAInfo RowsA                = AInfo "rows"                '[Textarea]
+  GetAInfo RowspanA             = AInfo "rowspan"             '[Td, Th]
+  GetAInfo SandboxA             = AInfo "sandbox"             '[Iframe]
+  GetAInfo ScopeA               = AInfo "scope"               '[Th]
+  GetAInfo ScopedA              = AInfo "scoped"              '[Style]
+  GetAInfo SeamlessA            = AInfo "seamless"            '[Iframe]
+  GetAInfo SelectedA            = AInfo "selected"            '[Option]
+  GetAInfo ShapeA               = AInfo "shape"               '[A, Area]
+  GetAInfo SizeA                = AInfo "size"                '[Input, Select]
+  GetAInfo SizesA               = AInfo "sizes"               '[Link, Img, Source]
+  GetAInfo SlotA                = AInfo "slot"                '[]
+  GetAInfo SpanA                = AInfo "span"                '[Col, Colgroup]
+  GetAInfo SpellcheckA          = AInfo "spellcheck"          '[]
+  GetAInfo SrcA                 = AInfo "src"                 '[Audio, Embed, Iframe, Img, Input, Script, Source, Track, Video]
+  GetAInfo SrcdocA              = AInfo "srcdoc"              '[Iframe]
+  GetAInfo SrclangA             = AInfo "srclang"             '[Track]
+  GetAInfo SrcsetA              = AInfo "srcset"              '[Img]
+  GetAInfo StartA               = AInfo "start"               '[Ol]
+  GetAInfo StepA                = AInfo "step"                '[Input]
+  GetAInfo StyleA               = AInfo "style"               '[]
+  GetAInfo SummaryA             = AInfo "summary"             '[Table]
+  GetAInfo TabindexA            = AInfo "tabindex"            '[]
+  GetAInfo TargetA              = AInfo "target"              '[A, Area, Base, Form]
+  GetAInfo TitleA               = AInfo "title"               '[]
+  GetAInfo TranslateA           = AInfo "translate"           '[]
+  GetAInfo TypeA                = AInfo "type"                '[Button, Input, Command, Embed, Object, Script, Source, Style, Menu, Ol, A, Area, Link]
+  GetAInfo TypemustmatchA       = AInfo "typemustmatch"       '[Object]
+  GetAInfo UsemapA              = AInfo "usemap"              '[Img, Input, Object]
+  GetAInfo ValueA               = AInfo "value"               '[Button, Option, Input, Li, Meter, Progress, Param, Data]
+  GetAInfo WidthA               = AInfo "width"               '[Canvas, Embed, Iframe, Img, Input, Object, Video]
+  GetAInfo WrapA                = AInfo "wrap"                '[Textarea]
 
 -- | Retrieve type level meta data about elements.
 type family GetEInfo a = r | r -> a where
 
-  GetEInfo DOCTYPE = EInfo
-    "!DOCTYPE html"
-    '[]
-    NoContent
-
-  GetEInfo A = EInfo
-    "a"
-    '[ FlowContent, PhrasingContent ]
-    (FlowContent :&: NOT (SingleElement Details) :|: PhrasingContent)
-
-  GetEInfo Abbr = EInfo
-    "abbr"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Address = EInfo
-    "address"
-    '[ FlowContent ]
-    (FlowContent :&: NOT (HeadingContent :|: SectioningContent :|: SingleElement Address :|: SingleElement Header :|: SingleElement Footer))
-
-  GetEInfo Area = EInfo
-    "area"
-    '[ FlowContent, PhrasingContent ]
-    NoContent
-
-  GetEInfo Article = EInfo
-    "article"
-    '[ FlowContent, SectioningContent ]
-    FlowContent
-
-  GetEInfo Aside = EInfo
-    "aside"
-    '[ FlowContent, SectioningContent ]
-    FlowContent
-
-  GetEInfo Audio = EInfo
-    "audio"
-    '[ FlowContent, PhrasingContent ]
-    (SingleElement Source :|: SingleElement Track)
-
-  GetEInfo B = EInfo
-    "b"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Base = EInfo
-    "base"
-    '[ MetadataContent ]
-    NoContent
-
-  GetEInfo Bdi = EInfo
-    "bdi"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Bdo = EInfo
-    "bdo"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Blockquote = EInfo
-    "blockquote"
-    '[ FlowContent ]
-    FlowContent
-
-  GetEInfo Body = EInfo
-    "body"
-    '[]
-    FlowContent
-
-  GetEInfo Br = EInfo
-    "br"
-    '[ FlowContent, PhrasingContent ]
-    NoContent
-
-  GetEInfo Button = EInfo
-    "button"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Canvas = EInfo
-    "canvas"
-    '[ FlowContent, PhrasingContent ]
-    (SingleElement A :|: SingleElement Button :|: SingleElement Input)
-
-  GetEInfo Caption = EInfo
-    "caption"
-    '[]
-    FlowContent
-
-  GetEInfo Cite = EInfo
-    "cite"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Code = EInfo
-    "code"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Col = EInfo
-    "col"
-    '[]
-    NoContent
-
-  GetEInfo Colgroup = EInfo
-    "colgroup"
-    '[]
-    (SingleElement Col)
-
-  GetEInfo Data = EInfo
-    "data"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Datalist = EInfo
-    "datalist"
-    '[ FlowContent, PhrasingContent ]
-    (PhrasingContent :|: SingleElement Option)
-
-  GetEInfo Dd = EInfo
-    "dd"
-    '[]
-    FlowContent
-
-  GetEInfo Del = EInfo
-    "del"
-    '[ FlowContent, PhrasingContent ]
-    OnlyText
-
-  GetEInfo Details = EInfo
-    "details"
-    '[ FlowContent ]
-    ( FlowContent :|: SingleElement Summary)
-
-  GetEInfo Dfn = EInfo
-    "dfn"
-    '[ FlowContent, PhrasingContent ]
-    (PhrasingContent :&: NOT (SingleElement Dfn))
-
-  GetEInfo Dialog = EInfo
-    "dialog"
-    '[ FlowContent ]
-    FlowContent
-
-  GetEInfo Div = EInfo
-    "div"
-    '[ FlowContent ]
-    (FlowContent :|: SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template)
-
-  GetEInfo Dl = EInfo
-    "dl"
-    '[ FlowContent ]
-    (SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template :|: SingleElement Div)
-
-  GetEInfo Dt = EInfo
-    "dt"
-    '[]
-    (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
-
-  GetEInfo Em = EInfo
-    "em"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Embed = EInfo
-    "embed"
-    '[ FlowContent, PhrasingContent ]
-    NoContent
-
-  GetEInfo Fieldset = EInfo
-    "fieldset"
-    '[ FlowContent ]
-    (FlowContent :|: SingleElement Legend)
-
-  GetEInfo Figcaption = EInfo
-    "figcaption"
-    '[]
-    FlowContent
-
-  GetEInfo Figure = EInfo
-    "figure"
-    '[ FlowContent ]
-    (FlowContent :|: SingleElement Figcaption)
-
-  GetEInfo Footer = EInfo
-    "footer"
-    '[ FlowContent ]
-    (FlowContent :&: NOT (SingleElement Footer :|: SingleElement Header))
-
-  GetEInfo Form = EInfo
-    "form"
-    '[ FlowContent ]
-    (FlowContent :&: NOT (SingleElement Form))
-
-  GetEInfo H1 = EInfo
-    "h1"
-    '[ FlowContent, HeadingContent ]
-    PhrasingContent
-
-  GetEInfo H2 = EInfo
-    "h2"
-    '[ FlowContent, HeadingContent ]
-    PhrasingContent
-
-  GetEInfo H3 = EInfo
-    "h3"
-    '[ FlowContent, HeadingContent ]
-    PhrasingContent
-
-  GetEInfo H4 = EInfo
-    "h4"
-    '[ FlowContent, HeadingContent ]
-    PhrasingContent
-
-  GetEInfo H5 = EInfo
-    "h5"
-    '[ FlowContent, HeadingContent ]
-    PhrasingContent
-
-  GetEInfo H6 = EInfo
-    "h6"
-    '[ FlowContent, HeadingContent ]
-    PhrasingContent
-
-  GetEInfo Head = EInfo
-    "head"
-    '[]
-    MetadataContent
-
-  GetEInfo Header = EInfo
-    "header"
-    '[ FlowContent ]
-    (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer))
-
-  GetEInfo Hgroup = EInfo
-    "hgroup"
-    '[ FlowContent, HeadingContent ]
-    (SingleElement H1 :|: SingleElement H2 :|: SingleElement H3 :|: SingleElement H4 :|: SingleElement H5 :|: SingleElement H6)
-
-  GetEInfo Hr = EInfo
-    "hr"
-    '[ FlowContent ]
-    NoContent
-
-  GetEInfo Html = EInfo
-    "html"
-    '[]
-    (SingleElement Head :|: SingleElement Body)
-
-  GetEInfo I = EInfo
-    "i"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Iframe = EInfo
-    "iframe"
-    '[ FlowContent, PhrasingContent ]
-    NoContent
-
-  GetEInfo Img = EInfo
-    "img"
-    '[ FlowContent, PhrasingContent ]
-    NoContent
-
-  GetEInfo Ins = EInfo
-    "ins"
-    '[ FlowContent, PhrasingContent ]
-    OnlyText
-
-  GetEInfo Kbd = EInfo
-    "kbd"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Label = EInfo
-    "label"
-    '[ FlowContent, PhrasingContent ]
-    (PhrasingContent :&: NOT (SingleElement Label))
-
-  GetEInfo Legend = EInfo
-    "legend"
-    '[]
-    PhrasingContent
-
-  GetEInfo Li = EInfo
-    "li"
-    '[]
-    FlowContent
-
-  GetEInfo Link = EInfo
-    "link"
-    '[ FlowContent, PhrasingContent, MetadataContent ]
-    NoContent
-
-  GetEInfo Main = EInfo
-    "main"
-    '[ FlowContent ]
-    FlowContent
-
-  GetEInfo Map = EInfo
-    "map"
-    '[ FlowContent, PhrasingContent ]
-    OnlyText
-
-  GetEInfo Mark = EInfo
-    "mark"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Menu = EInfo
-    "menu"
-    '[ FlowContent ]
-    (FlowContent :|: SingleElement Li :|: SingleElement Script :|: SingleElement Template :|: SingleElement Menu :|: SingleElement Menuitem :|: SingleElement Hr)
-
-  GetEInfo Menuitem = EInfo
-    "menuitem"
-    '[]
-    NoContent
-
-  GetEInfo Meta = EInfo
-    "meta"
-    '[ FlowContent, MetadataContent, PhrasingContent ]
-    NoContent
-
-  GetEInfo Meter = EInfo
-    "meter"
-    '[ FlowContent, PhrasingContent ]
-    (PhrasingContent :&: NOT (SingleElement Meter))
-
-  GetEInfo Nav = EInfo
-    "nav"
-    '[ FlowContent, SectioningContent ]
-    FlowContent
-
-  GetEInfo Noscript = EInfo
-    "noscript"
-    '[ FlowContent, MetadataContent, PhrasingContent ]
-    (FlowContent :|: PhrasingContent :|: SingleElement Link :|: SingleElement Style :|: SingleElement Meta)
-
-  GetEInfo Object = EInfo
-    "object"
-    '[ FlowContent, PhrasingContent ]
-    (SingleElement Param)
-
-  GetEInfo Ol = EInfo
-    "ol"
-    '[ FlowContent ]
-    (SingleElement Li)
-
-  GetEInfo Optgroup = EInfo
-    "optgroup"
-    '[]
-    (SingleElement Option)
-
-  GetEInfo Option = EInfo
-    "option"
-    '[]
-    OnlyText
-
-  GetEInfo Output = EInfo
-    "output"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo P = EInfo
-    "p"
-    '[ FlowContent ]
-    PhrasingContent
-
-  GetEInfo Param = EInfo
-    "param"
-    '[]
-    NoContent
-
-  GetEInfo Picture = EInfo
-    "picture"
-    '[ FlowContent, PhrasingContent ]
-    (SingleElement Source :|: SingleElement Img)
-
-  GetEInfo Pre = EInfo
-    "pre"
-    '[ FlowContent ]
-    PhrasingContent
-
-  GetEInfo Progress = EInfo
-    "progress"
-    '[ FlowContent, PhrasingContent ]
-    (PhrasingContent :&: NOT (SingleElement Progress))
-
-  GetEInfo Q = EInfo
-    "q"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Rp = EInfo
-    "rp"
-    '[]
-    OnlyText
-
-  GetEInfo Rt = EInfo
-    "rt"
-    '[]
-    PhrasingContent
-
-  GetEInfo Rtc = EInfo
-    "rtc"
-    '[]
-    (PhrasingContent :|: SingleElement Rt)
-
-  GetEInfo Ruby = EInfo
-    "ruby"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo S = EInfo
-    "s"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Samp = EInfo
-    "samp"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Script = EInfo
-    "script"
-    '[ FlowContent, MetadataContent, PhrasingContent ]
-    OnlyText
-
-  GetEInfo Section = EInfo
-    "section"
-    '[ FlowContent, SectioningContent ]
-    FlowContent
-
-  GetEInfo Select = EInfo
-    "select"
-    '[ FlowContent, PhrasingContent ]
-    (SingleElement Option :|: SingleElement Optgroup)
-
-  GetEInfo Slot = EInfo
-    "slot"
-    '[ FlowContent, PhrasingContent ]
-    OnlyText
-
-  GetEInfo Small = EInfo
-    "small"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Source = EInfo
-    "source"
-    '[]
-    NoContent
-
-  GetEInfo Span = EInfo
-    "span"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Strong = EInfo
-    "strong"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Style = EInfo
-    "style"
-    '[ FlowContent, MetadataContent ]
-    OnlyText
-
-  GetEInfo Sub = EInfo
-    "sub"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Summary = EInfo
-    "summary"
-    '[]
-    (PhrasingContent :|: HeadingContent)
-
-  GetEInfo Sup = EInfo
-    "sup"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Table = EInfo
-    "table"
-    '[FlowContent]
-    (SingleElement Caption :|: SingleElement Colgroup :|: SingleElement Thead :|: SingleElement Tbody :|: SingleElement Tr :|: SingleElement Tfoot)
-
-  GetEInfo Tbody = EInfo
-    "tbody"
-    '[]
-    (SingleElement Tr)
-
-  GetEInfo Td = EInfo
-    "td"
-    '[]
-    FlowContent
-
-  GetEInfo Template = EInfo
-    "template"
-    '[ FlowContent, MetadataContent, PhrasingContent ]
-    (FlowContent :|: MetadataContent)
-
-  GetEInfo Textarea = EInfo
-    "textarea"
-    '[ FlowContent, PhrasingContent ]
-    OnlyText
-
-  GetEInfo Tfoot = EInfo
-    "tfoot"
-    '[]
-    (SingleElement Tr)
-
-  GetEInfo Th = EInfo
-    "th"
-    '[]
-    (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
-
-  GetEInfo Thead = EInfo
-    "thead"
-    '[]
-    (SingleElement Tr)
-
-  GetEInfo Time = EInfo
-    "time"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Title = EInfo
-    "title"
-    '[ MetadataContent ]
-    OnlyText
-
-  GetEInfo Tr = EInfo
-    "tr"
-    '[]
-    (SingleElement Td :|: SingleElement Th)
-
-  GetEInfo Track = EInfo
-    "track"
-    '[]
-    NoContent
-
-  GetEInfo U = EInfo
-    "u"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Ul = EInfo
-    "ul"
-    '[ FlowContent ]
-    (SingleElement Li)
-
-  GetEInfo Var = EInfo
-    "var"
-    '[ FlowContent, PhrasingContent ]
-    PhrasingContent
-
-  GetEInfo Video = EInfo
-    "video"
-    '[ FlowContent, PhrasingContent ]
-    (SingleElement Track :|: SingleElement Source)
-
-  GetEInfo Wbr = EInfo
-    "wbr"
-    '[ FlowContent, PhrasingContent ]
-    NoContent
+  GetEInfo DOCTYPE    = EInfo "!DOCTYPE html" '[]                                                NoContent
+  GetEInfo A          = EInfo "a"             '[ FlowContent, PhrasingContent ]                  (FlowContent :&: NOT (SingleElement Details) :|: PhrasingContent)
+  GetEInfo Abbr       = EInfo "abbr"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Address    = EInfo "address"       '[ FlowContent ]                                   (FlowContent :&: NOT (HeadingContent :|: SectioningContent :|: SingleElement Address :|: SingleElement Header :|: SingleElement Footer))
+  GetEInfo Area       = EInfo "area"          '[ FlowContent, PhrasingContent ]                  NoContent
+  GetEInfo Article    = EInfo "article"       '[ FlowContent, SectioningContent ]                FlowContent
+  GetEInfo Aside      = EInfo "aside"         '[ FlowContent, SectioningContent ]                FlowContent
+  GetEInfo Audio      = EInfo "audio"         '[ FlowContent, PhrasingContent ]                  (SingleElement Source :|: SingleElement Track)
+  GetEInfo B          = EInfo "b"             '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Base       = EInfo "base"          '[ MetadataContent ]                               NoContent
+  GetEInfo Bdi        = EInfo "bdi"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Bdo        = EInfo "bdo"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Blockquote = EInfo "blockquote"    '[ FlowContent ]                                   FlowContent
+  GetEInfo Body       = EInfo "body"          '[]                                                FlowContent
+  GetEInfo Br         = EInfo "br"            '[ FlowContent, PhrasingContent ]                  NoContent
+  GetEInfo Button     = EInfo "button"        '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Canvas     = EInfo "canvas"        '[ FlowContent, PhrasingContent ]                  (SingleElement A :|: SingleElement Button :|: SingleElement Input)
+  GetEInfo Caption    = EInfo "caption"       '[]                                                FlowContent
+  GetEInfo Cite       = EInfo "cite"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Code       = EInfo "code"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Col        = EInfo "col"           '[]                                                NoContent
+  GetEInfo Colgroup   = EInfo "colgroup"      '[]                                                (SingleElement Col)
+  GetEInfo Data       = EInfo "data"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Datalist   = EInfo "datalist"      '[ FlowContent, PhrasingContent ]                  (PhrasingContent :|: SingleElement Option)
+  GetEInfo Dd         = EInfo "dd"            '[]                                                FlowContent
+  GetEInfo Del        = EInfo "del"           '[ FlowContent, PhrasingContent ]                  OnlyText
+  GetEInfo Details    = EInfo "details"       '[ FlowContent ]                                   ( FlowContent :|: SingleElement Summary)
+  GetEInfo Dfn        = EInfo "dfn"           '[ FlowContent, PhrasingContent ]                  (PhrasingContent :&: NOT (SingleElement Dfn))
+  GetEInfo Dialog     = EInfo "dialog"        '[ FlowContent ]                                   FlowContent
+  GetEInfo Div        = EInfo "div"           '[ FlowContent ]                                   (FlowContent :|: SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template)
+  GetEInfo Dl         = EInfo "dl"            '[ FlowContent ]                                   (SingleElement Dt :|: SingleElement Dd :|: SingleElement Script :|: SingleElement Template :|: SingleElement Div)
+  GetEInfo Dt         = EInfo "dt"            '[]                                                (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
+  GetEInfo Em         = EInfo "em"            '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Embed      = EInfo "embed"         '[ FlowContent, PhrasingContent ]                  NoContent
+  GetEInfo Fieldset   = EInfo "fieldset"      '[ FlowContent ]                                   (FlowContent :|: SingleElement Legend)
+  GetEInfo Figcaption = EInfo "figcaption"    '[]                                                FlowContent
+  GetEInfo Figure     = EInfo "figure"        '[ FlowContent ]                                   (FlowContent :|: SingleElement Figcaption)
+  GetEInfo Footer     = EInfo "footer"        '[ FlowContent ]                                   (FlowContent :&: NOT (SingleElement Footer :|: SingleElement Header))
+  GetEInfo Form       = EInfo "form"          '[ FlowContent ]                                   (FlowContent :&: NOT (SingleElement Form))
+  GetEInfo H1         = EInfo "h1"            '[ FlowContent, HeadingContent ]                   PhrasingContent
+  GetEInfo H2         = EInfo "h2"            '[ FlowContent, HeadingContent ]                   PhrasingContent
+  GetEInfo H3         = EInfo "h3"            '[ FlowContent, HeadingContent ]                   PhrasingContent
+  GetEInfo H4         = EInfo "h4"            '[ FlowContent, HeadingContent ]                   PhrasingContent
+  GetEInfo H5         = EInfo "h5"            '[ FlowContent, HeadingContent ]                   PhrasingContent
+  GetEInfo H6         = EInfo "h6"            '[ FlowContent, HeadingContent ]                   PhrasingContent
+  GetEInfo Head       = EInfo "head"          '[]                                                MetadataContent
+  GetEInfo Header     = EInfo "header"        '[ FlowContent ]                                   (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer))
+  GetEInfo Hgroup     = EInfo "hgroup"        '[ FlowContent, HeadingContent ]                   (SingleElement H1 :|: SingleElement H2 :|: SingleElement H3 :|: SingleElement H4 :|: SingleElement H5 :|: SingleElement H6)
+  GetEInfo Hr         = EInfo "hr"            '[ FlowContent ]                                   NoContent
+  GetEInfo Html       = EInfo "html"          '[]                                                (SingleElement Head :|: SingleElement Body)
+  GetEInfo I          = EInfo "i"             '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Iframe     = EInfo "iframe"        '[ FlowContent, PhrasingContent ]                  NoContent
+  GetEInfo Img        = EInfo "img"           '[ FlowContent, PhrasingContent ]                  NoContent
+  GetEInfo Ins        = EInfo "ins"           '[ FlowContent, PhrasingContent ]                  OnlyText
+  GetEInfo Kbd        = EInfo "kbd"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Label      = EInfo "label"         '[ FlowContent, PhrasingContent ]                  (PhrasingContent :&: NOT (SingleElement Label))
+  GetEInfo Legend     = EInfo "legend"        '[]                                                PhrasingContent
+  GetEInfo Li         = EInfo "li"            '[]                                                FlowContent
+  GetEInfo Link       = EInfo "link"          '[ FlowContent, PhrasingContent, MetadataContent ] NoContent
+  GetEInfo Main       = EInfo "main"          '[ FlowContent ]                                   FlowContent
+  GetEInfo Map        = EInfo "map"           '[ FlowContent, PhrasingContent ]                  OnlyText
+  GetEInfo Mark       = EInfo "mark"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Menu       = EInfo "menu"          '[ FlowContent ]                                   (FlowContent :|: SingleElement Li :|: SingleElement Script :|: SingleElement Template :|: SingleElement Menu :|: SingleElement Menuitem :|: SingleElement Hr)
+  GetEInfo Menuitem   = EInfo "menuitem"      '[]                                                NoContent
+  GetEInfo Meta       = EInfo "meta"          '[ FlowContent, MetadataContent, PhrasingContent ] NoContent
+  GetEInfo Meter      = EInfo "meter"         '[ FlowContent, PhrasingContent ]                  (PhrasingContent :&: NOT (SingleElement Meter))
+  GetEInfo Nav        = EInfo "nav"           '[ FlowContent, SectioningContent ]                FlowContent
+  GetEInfo Noscript   = EInfo "noscript"      '[ FlowContent, MetadataContent, PhrasingContent ] (FlowContent :|: PhrasingContent :|: SingleElement Link :|: SingleElement Style :|: SingleElement Meta)
+  GetEInfo Object     = EInfo "object"        '[ FlowContent, PhrasingContent ]                  (SingleElement Param)
+  GetEInfo Ol         = EInfo "ol"            '[ FlowContent ]                                   (SingleElement Li)
+  GetEInfo Optgroup   = EInfo "optgroup"      '[]                                                (SingleElement Option)
+  GetEInfo Option     = EInfo "option"        '[]                                                OnlyText
+  GetEInfo Output     = EInfo "output"        '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo P          = EInfo "p"             '[ FlowContent ]                                   PhrasingContent
+  GetEInfo Param      = EInfo "param"         '[]                                                NoContent
+  GetEInfo Picture    = EInfo "picture"       '[ FlowContent, PhrasingContent ]                  (SingleElement Source :|: SingleElement Img)
+  GetEInfo Pre        = EInfo "pre"           '[ FlowContent ]                                   PhrasingContent
+  GetEInfo Progress   = EInfo "progress"      '[ FlowContent, PhrasingContent ]                  (PhrasingContent :&: NOT (SingleElement Progress))
+  GetEInfo Q          = EInfo "q"             '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Rp         = EInfo "rp"            '[]                                                OnlyText
+  GetEInfo Rt         = EInfo "rt"            '[]                                                PhrasingContent
+  GetEInfo Rtc        = EInfo "rtc"           '[]                                                (PhrasingContent :|: SingleElement Rt)
+  GetEInfo Ruby       = EInfo "ruby"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo S          = EInfo "s"             '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Samp       = EInfo "samp"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Script     = EInfo "script"        '[ FlowContent, MetadataContent, PhrasingContent ] OnlyText
+  GetEInfo Section    = EInfo "section"       '[ FlowContent, SectioningContent ]                FlowContent
+  GetEInfo Select     = EInfo "select"        '[ FlowContent, PhrasingContent ]                  (SingleElement Option :|: SingleElement Optgroup)
+  GetEInfo Slot       = EInfo "slot"          '[ FlowContent, PhrasingContent ]                  OnlyText
+  GetEInfo Small      = EInfo "small"         '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Source     = EInfo "source"        '[]                                                NoContent
+  GetEInfo Span       = EInfo "span"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Strong     = EInfo "strong"        '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Style      = EInfo "style"         '[ FlowContent, MetadataContent ]                  OnlyText
+  GetEInfo Sub        = EInfo "sub"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Summary    = EInfo "summary"       '[]                                                (PhrasingContent :|: HeadingContent)
+  GetEInfo Sup        = EInfo "sup"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Table      = EInfo "table"         '[ FlowContent ]                                   (SingleElement Caption :|: SingleElement Colgroup :|: SingleElement Thead :|: SingleElement Tbody :|: SingleElement Tr :|: SingleElement Tfoot)
+  GetEInfo Tbody      = EInfo "tbody"         '[]                                                (SingleElement Tr)
+  GetEInfo Td         = EInfo "td"            '[]                                                FlowContent
+  GetEInfo Template   = EInfo "template"      '[ FlowContent, MetadataContent, PhrasingContent ] (FlowContent :|: MetadataContent)
+  GetEInfo Textarea   = EInfo "textarea"      '[ FlowContent, PhrasingContent ]                  OnlyText
+  GetEInfo Tfoot      = EInfo "tfoot"         '[]                                                (SingleElement Tr)
+  GetEInfo Th         = EInfo "th"            '[]                                                (FlowContent :&: NOT (SingleElement Header :|: SingleElement Footer :|: SectioningContent :|: HeadingContent))
+  GetEInfo Thead      = EInfo "thead"         '[]                                                (SingleElement Tr)
+  GetEInfo Time       = EInfo "time"          '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Title      = EInfo "title"         '[ MetadataContent ]                               OnlyText
+  GetEInfo Tr         = EInfo "tr"            '[]                                                (SingleElement Td :|: SingleElement Th)
+  GetEInfo Track      = EInfo "track"         '[]                                                NoContent
+  GetEInfo U          = EInfo "u"             '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Ul         = EInfo "ul"            '[ FlowContent ]                                   (SingleElement Li)
+  GetEInfo Var        = EInfo "var"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
+  GetEInfo Video      = EInfo "video"         '[ FlowContent, PhrasingContent ]                  (SingleElement Track :|: SingleElement Source)
+  GetEInfo Wbr        = EInfo "wbr"           '[ FlowContent, PhrasingContent ]                  NoContent
