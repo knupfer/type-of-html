@@ -4,7 +4,6 @@ let
 in rec {
 
      ghc802  = eval "ghc802";
-     ghc821  = eval "ghc821";
      ghc822  = eval "ghc822";
      ghcHEAD = eval "ghcHEAD";
 
