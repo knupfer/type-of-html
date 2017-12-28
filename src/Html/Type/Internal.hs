@@ -377,7 +377,7 @@ type a ?> b = Check Element a b
 -- | Check whether `a` is a valid attribute and `b` is a valid child of `p`.
 type (<?>) p a b = (Check Attribute p a, Check Element p b)
 
-{-# DEPRECATED (??>) "This will be removed in a future release, use <?> instead" #-}
+{-# DEPRECATED (??>) "This will be removed in a future release, use `<?>` instead" #-}
 type a ??> b = Check Attribute a b
 
 type family Check f a b :: Constraint where
