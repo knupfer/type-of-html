@@ -1,4 +1,8 @@
 language: nix
 
+cache:
+  directories:
+  - /nix/store
+
 script:
 - nix-build release.nix
