@@ -1,6 +1,7 @@
 language: nix
 
 cache:
+  timeout: 1000
   directories:
   - /nix/store
 
