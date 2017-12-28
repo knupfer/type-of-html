@@ -1,5 +1,10 @@
 # Revision history for type-of-html
 
+## 1.3.1.0  -- 2017-12-28
+
+* internal cleanup
+* make constraints more concise
+
 ## 1.3.0.0  -- 2017-12-12
 
 * add Either
