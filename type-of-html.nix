@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "type-of-html";
-  version = "1.3.1.0";
+  version = "1.3.1.1";
   src = ./.;
   libraryHaskellDepends = [
     base bytestring double-conversion ghc-prim text
