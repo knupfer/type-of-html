@@ -1,12 +1,14 @@
 { nixpkgs ? import <nixpkgs> {} }:
+
+with nixpkgs.haskell.lib;
 let
-  eval = ghc: nixpkgs.haskell.lib.buildStrictly (import ./default.nix { compiler = ghc; });
+  eval = ghc: import ./default.nix { compiler = ghc; };
+  doBench = drv: overrideCabal drv (drv: { isExecutable = true; buildTarget = "test bench"; configureFlags = "--enable-benchmarks --enable-tests"; });
 in rec {
+     ghc802 = buildStrictly (eval "ghc802");
+     ghc822 = buildStrictly (eval "ghc822");
+     #ghcHEAD = eval "ghcHEAD";
 
-     ghc802  = eval "ghc802";
-     ghc822  = eval "ghc822";
-     ghcHEAD = eval "ghcHEAD";
-
-     sdist = nixpkgs.haskell.lib.sdistTarball ghc822;
-
+     bench = doBench (doBenchmark (eval "ghc822"));
+     sdist = sdistTarball ghc822;
 }
