@@ -1,11 +1,4 @@
 language: nix
 
-env:
-- GHC=ghc802
-- GHC=ghc822
-
-before_install:
-- nix-channel --update
-
 script:
-- nix-build --argstr compiler $GHC
+- nix-build release.nix
