@@ -428,10 +428,6 @@ infixr 8 :@:
 -- | Wrapper for types which won't be escaped.
 newtype Raw a = Raw {fromRaw :: a}
 
-  -------------------
-  -- internal code --
-  -------------------
-
 type family Null xs where
   Null '[] = True
   Null _ = False
