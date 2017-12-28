@@ -2,6 +2,7 @@
 
 {-# LANGUAGE TypeFamilyDependencies #-}
 {-# LANGUAGE UndecidableInstances   #-}
+{-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
 {-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE DataKinds              #-}
@@ -370,29 +371,25 @@ type family ToList a :: FingerTree where
 
 newtype (:=) (a :: Attribute) b = AT b
 
--- | Check whether `b` is a valid child of `a`.  You'll propably never
--- need to call this directly.  Through a GADT, it is enforced that
--- every child is lawful.
-type family (a :: Element) ?> b :: Constraint where
-  a ?> (b :@: _) _     = MaybeTypeError a b (CheckContentCategory (EInfoContent (GetEInfo a)) (SingleElement b ': EInfoCategories (GetEInfo b)))
-  a ?> (b # c)         = (a ?> b, a ?> c)
-  a ?> Maybe b         = a ?> b
-  a ?> Either b c      = (a ?> b, a ?> c)
-  a ?> f ((b :@: c) d) = a ?> (b :@: c) d
-  a ?> f (b # c)       = a ?> (b # c)
-  a ?> ()              = ()
-  a ?> (b -> c)        = TypeError (Text "Html elements can't contain functions")
-  a ?> b               = CheckString a b
+-- | Check whether `b` is a valid child of `a`.
+type a ?> b = Check Element a b
 
-type family (a :: Element) ??> b :: Constraint where
-  a ??> () = ()
-  a ??> (b # c)  = (a ??> b, a ??> c)
-  a ??> Maybe b = a ??> b
-  a ??> Either b c = (a ??> b, a ??> c)
-  a ??> (b := _) = If (Elem a (AInfoElements (GetAInfo b)) || Null (AInfoElements (GetAInfo b)))
-                   (() :: Constraint)
-                   (TypeError (ShowType b :<>: Text " is not a valid attribute of " :<>: ShowType a))
-  a ??> b        = TypeError (ShowType b :<>: Text " is not an attribute.")
+-- | Check whether `a` is a valid attribute and `b` is a valid child of `p`.
+type (<?>) p a b = (Check Attribute p a, Check Element p b)
+
+type family Check f a b :: Constraint where
+  Check _ _ ()                      = ()
+  Check f a (b # c)                 = (Check f a b, Check f a c)
+  Check f a (Maybe b)               = Check f a b
+  Check f a (Either b c)            = (Check f a b, Check f a c)
+  Check Element a (f ((b :@: c) d)) = Check Element a ((b :@: c) d)
+  Check Element a (f (b # c))       = Check Element a (b # c)
+  Check Element a ((b :@: _) _)     = MaybeTypeError a b (CheckContentCategory (EInfoContent (GetEInfo a)) (SingleElement b ': EInfoCategories (GetEInfo b)))
+  Check Element a b                 = CheckString a b
+  Check Attribute a (b := _)        = If (Elem a (AInfoElements (GetAInfo b)) || Null (AInfoElements (GetAInfo b)))
+                                        (() :: Constraint)
+                                        (TypeError (ShowType b :<>: Text " is not a valid attribute of " :<>: ShowType a))
+  Check Attribute _ b               = TypeError (ShowType b :<>: Text " is not an attribute.")
 
 -- | Combine two elements or attributes sequentially.
 --
@@ -422,7 +419,7 @@ type (>) a b = (:@:) a () b
 -- >>> div_ "a"
 -- <div>a</div>
 data (:@:) (a :: Element) b c where
-  WithAttributes :: (a ??> b, a ?> c) => b -> c -> (a :@: b) c
+  WithAttributes :: (a <?> b) c => b -> c -> (a :@: b) c
 infixr 8 :@:
 
 -- | Wrapper for types which won't be escaped.

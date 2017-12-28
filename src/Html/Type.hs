@@ -6,7 +6,7 @@ module Html.Type
   , type (#)(..)
   , (#)
   , type (?>)
-  , type (??>)
+  , type (<?>)
   , type (:=)(..)
   , Raw(..)
   , Attribute(..)
