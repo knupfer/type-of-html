@@ -52,9 +52,5 @@ renderText = T.decodeUtf8 . renderByteString
 renderByteString :: Document a => a -> B.ByteString
 renderByteString = B.toLazyByteString . renderBuilder
 
--- | Orphan show instances to faciliate ghci development.
-instance                     Document ((a :@: b) c) => Show ((a :@: b) c) where show = renderString
-instance {-# OVERLAPPING #-} Document ((a :@: b) c) => Show [(a :@: b) c] where show = renderString
-instance                     Document (a := b)      => Show (a := b)      where show = renderString
-instance                     Document (a # b)       => Show (a # b)       where show = renderString
-instance {-# OVERLAPPING #-} Document (a # b)       => Show [a # b]       where show = renderString
+-- | Orphan show instance to faciliate ghci development.
+instance {-# OVERLAPPABLE #-} Document a => Show a where show = renderString
