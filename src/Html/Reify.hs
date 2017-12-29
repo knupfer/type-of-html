@@ -49,6 +49,11 @@ instance {-# INCOHERENT #-}
   {-# INLINE render #-}
   render (T x) = convert x
 
+instance {-# OVERLAPPING #-}
+  R (T '[ EmptySym ] String) where
+  {-# INLINE render #-}
+  render (T x) = convert x
+
 instance
   ( Convert b
   , R (Proxy s)
@@ -60,6 +65,12 @@ instance {-# INCOHERENT #-}
   ( Convert val
   , R (Proxy s)
   ) => R (T '[s] val) where
+  {-# INLINE render #-}
+  render (T x) = render (Proxy @ s) <> convert x
+
+instance {-# OVERLAPPING #-}
+  ( R (Proxy s)
+  ) => R (T '[s] String) where
   {-# INLINE render #-}
   render (T x) = render (Proxy @ s) <> convert x
 
@@ -95,9 +106,9 @@ instance
    <> render (T b :: T (Drop (Length a) ps) b)
 
 instance
-  ( R (T (ToList (a `f` b)) (a `f` b))
+  ( R (T (ToList a) a)
   , R (Proxy s)
-  ) => R (T (s ': ss) [a `f` b]) where
+  ) => R (T (s ': ss) [a]) where
   {-# INLINE render #-}
   render (T xs)
     = render (Proxy @ s)

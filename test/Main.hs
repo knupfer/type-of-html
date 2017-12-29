@@ -271,3 +271,17 @@ spec = parallel $ do
       renderString (div_ () # td_ (Proxy @"1" # "2" # div_ () # i_A (A.id_ (Proxy @"3")) "4"))
        `shouldBe`
         "<div></div><td>12<div></div><i id=\"3\">4</i></td>"
+
+    it "handles list of convertibles" $ do
+
+      renderString (div_ [1..5 :: Int])
+       `shouldBe`
+        "<div>12345</div>"
+
+      renderString [1..5 :: Int]
+       `shouldBe`
+        "12345"
+
+      renderString (div_ ["abc"])
+       `shouldBe`
+        "<div>abc</div>"
