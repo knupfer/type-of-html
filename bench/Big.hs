@@ -12,12 +12,11 @@ import qualified Html.Attribute as A
 
 big :: Benchmark
 big = bgroup "Big"
-  [ bench "table"  $ r table (15,15)
-  , bench "table'" $ r table' (15,15)
-  , bench "page"   $ r page "big"
-  , bench "page'"  $ r page' "big"
+  [ bench "table"  $ nf (renderByteString . table) (15,15)
+  , bench "table'" $ nf (renderByteString . table') (15,15)
+  , bench "page"   $ nf (renderByteString . page) "big"
+  , bench "page'"  $ nf (renderByteString . page') "big"
   ]
-  where r f x = nf (renderByteString . f) x
 
 table (n, m) = table_ . replicate n . tr_ $ map td_ [(1::Int)..m]
 

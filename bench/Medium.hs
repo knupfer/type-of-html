@@ -15,28 +15,27 @@ import qualified Data.Text.Lazy as LT
 
 medium :: Benchmark
 medium = bgroup "Medium"
-  [ bench "helloWorld"          $ r helloWorld "medium"
-  , bench "helloWorld'"         $ r helloWorld' "medium"
+  [ bench "helloWorld"          $ nf (renderByteString . helloWorld) "medium"
+  , bench "helloWorld'"         $ nf (renderByteString . helloWorld') "medium"
   , bench "randomString"        $ nfIO randomString
   , bench "randomStringRaw"     $ nfIO randomStringRaw
   , bench "randomStrictText"    $ nfIO randomStrictText
   , bench "randomStrictTextRaw" $ nfIO randomStrictTextRaw
   , bench "randomLazyText"      $ nfIO randomLazyText
   , bench "randomLazyTextRaw"   $ nfIO randomLazyTextRaw
-  , bench "table"               $ r table (2,2)
-  , bench "table'"              $ r table' (2,2)
-  , bench "page"                $ r page "medium"
-  , bench "page'"               $ r page' "medium"
-  , bench "pageA"               $ r pageA "medium"
-  , bench "pageA'"              $ r pageA' "medium"
-  , bench "attrShort"           $ r attrShort "medium"
-  , bench "attrShort'"          $ r attrShort' "medium"
-  , bench "attrShort''"         $ r attrShort'' "medium"
-  , bench "attrLong"            $ r attrLong "medium"
-  , bench "attrLong'"           $ r attrLong' "medium"
-  , bench "attrLong''"          $ r attrLong'' "medium"
+  , bench "table"               $ nf (renderByteString . table) (2,2)
+  , bench "table'"              $ nf (renderByteString . table') (2,2)
+  , bench "page"                $ nf (renderByteString . page) "medium"
+  , bench "page'"               $ nf (renderByteString . page') "medium"
+  , bench "pageA"               $ nf (renderByteString . pageA) "medium"
+  , bench "pageA'"              $ nf (renderByteString . pageA') "medium"
+  , bench "attrShort"           $ nf (renderByteString . attrShort) "medium"
+  , bench "attrShort'"          $ nf (renderByteString . attrShort') "medium"
+  , bench "attrShort''"         $ nf (renderByteString . attrShort'') "medium"
+  , bench "attrLong"            $ nf (renderByteString . attrLong) "medium"
+  , bench "attrLong'"           $ nf (renderByteString . attrLong') "medium"
+  , bench "attrLong''"          $ nf (renderByteString . attrLong'') "medium"
   ]
-  where r f x = nf (renderByteString . f) x
 
 randomString = do
   a <- generate (resize 5 arbitrary) :: IO String

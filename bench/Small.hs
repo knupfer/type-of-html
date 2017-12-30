@@ -10,57 +10,59 @@ import qualified Html.Attribute as A
 import Data.Proxy
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
+import Data.IORef
 
 import Criterion.Main
 import Control.Arrow
 
 small :: Benchmark
 small = bgroup "Small"
-  [ bench "oneElement"                   $ r oneElement ""
-  , bench "oneElement'"                  $ r oneElement' ""
-  , bench "oneElement''"                 $ r oneElement'' ""
-  , bench "nestedElement"                $ r nestedElement ""
-  , bench "nestedElement'"               $ r nestedElement' ""
-  , bench "nestedElement''"              $ r nestedElement'' ""
-  , bench "parallelElement"              $ r parallelElement ""
-  , bench "parallelElement'"             $ r parallelElement' ""
-  , bench "parallelElement''"            $ r parallelElement'' ""
-  , bench "listElement"                  $ r listElement ""
-  , bench "listElement'"                 $ r listElement' ""
-  , bench "listElement''"                $ r listElement'' ""
-  , bench "Int"                          $ r id (123456789 :: Int)
-  , bench "Integer"                      $ r id (123456789 :: Integer)
-  , bench "Double"                       $ r id (123456789 :: Double)
-  , bench "Float"                        $ r id (123456789 :: Float)
-  , bench "Word"                         $ r id (123456789 :: Word)
-  , bench "Proxy"                        $ r id (Proxy :: Proxy "abc")
-  , bench "Char"                         $ r id 'a'
-  , bench "oneElement Proxy"             $ r oneElement (Proxy :: Proxy "abc")
-  , bench "()"                           $ r id ()
-  , bench "oneElement ()"                $ r oneElement ()
-  , bench "oneAttribute"                 $ r A.class_ ""
-  , bench "oneAttribute ()"              $ r A.class_ ()
-  , bench "oneAttribute Proxy"           $ r A.class_ (Proxy :: Proxy "abc")
-  , bench "parallelAttribute"            $ r (\x -> A.class_ x # A.id_ x) ""
-  , bench "elementWithAttribute"         $ r (\x -> div_A (A.class_ x) x) ""
-  , bench "elementWithParallelAttribute" $ r (\x -> div_A (A.class_ x # A.id_ x) x) ""
-  , bench "listOfAttributes"             $ r (\x -> [A.class_ x, A.class_ x]) ""
-  , bench "Runtime String"               $ r id runtimeTxt
-  , bench "String"                       $ r id "abcdefghijklmnopqrstuvwxyz<>&;"
-  , bench "Runtime Raw String"           $ r id (Raw runtimeTxt)
-  , bench "Raw String"                   $ r id (Raw "abcdefghijklmnopqrstuvwxyz<>&;")
-  , bench "Runtime strict Text"          $ r id (T.pack runtimeTxt)
-  , bench "strict Text"                  $ r id (T.pack "abcdefghijklmnopqrstuvwxyz<>&;")
-  , bench "Runtime Raw strict Text"      $ r id (Raw (T.pack runtimeTxt))
-  , bench "Raw strict Text"              $ r id (Raw (T.pack "abcdefghijklmnopqrstuvwxyz<>&;"))
-  , bench "Runtime lazy Text"            $ r id (LT.pack runtimeTxt)
-  , bench "lazy Text"                    $ r id (LT.pack "abcdefghijklmnopqrstuvwxyz<>&;")
-  , bench "Runtime Raw lazy Text"        $ r id (Raw (LT.pack runtimeTxt))
-  , bench "Raw lazy Text"                $ r id (Raw (LT.pack "abcdefghijklmnopqrstuvwxyz<>&;"))
-  , bench "listOfListOf"                 $ r (\x -> div_ [i_ [span_ x]]) ""
+  [ bench "oneElement"                   $ nf (renderByteString . oneElement) ""
+  , bench "oneElement'"                  $ nf (renderByteString . oneElement') ""
+  , bench "oneElement''"                 $ nf (renderByteString . oneElement'') ""
+  , bench "nestedElement"                $ nf (renderByteString . nestedElement) ""
+  , bench "nestedElement'"               $ nf (renderByteString . nestedElement') ""
+  , bench "nestedElement''"              $ nf (renderByteString . nestedElement'') ""
+  , bench "parallelElement"              $ nf (renderByteString . parallelElement) ""
+  , bench "parallelElement'"             $ nf (renderByteString . parallelElement') ""
+  , bench "parallelElement''"            $ nf (renderByteString . parallelElement'') ""
+  , bench "listElement"                  $ nf (renderByteString . listElement) ""
+  , bench "listElement'"                 $ nf (renderByteString . listElement') ""
+  , bench "listElement''"                $ nf (renderByteString . listElement'') ""
+  , bench "Int"                          $ nf renderByteString (123456789 :: Int)
+  , bench "Integer"                      $ nf renderByteString (123456789 :: Integer)
+  , bench "Double"                       $ nf renderByteString (123456789 :: Double)
+  , bench "Float"                        $ nf renderByteString (123456789 :: Float)
+  , bench "Word"                         $ nf renderByteString (123456789 :: Word)
+  , bench "Proxy"                        $ nf renderByteString (Proxy :: Proxy "abc")
+  , bench "Char"                         $ nf renderByteString 'a'
+  , bench "oneElement Proxy"             $ nf (renderByteString . oneElement) (Proxy :: Proxy "abc")
+  , bench "()"                           $ nf renderByteString ()
+  , bench "oneElement ()"                $ nf (renderByteString . oneElement) ()
+  , bench "oneAttribute"                 $ nf (renderByteString . A.class_) ""
+  , bench "oneAttribute ()"              $ nf (renderByteString . A.class_)  ()
+  , bench "oneAttribute Proxy"           $ nf (renderByteString . A.class_)  (Proxy :: Proxy "abc")
+  , bench "parallelAttribute"            $ nf (\x -> renderByteString $ A.class_ x # A.id_ x) ""
+  , bench "elementWithAttribute"         $ nf (\x -> renderByteString $ div_A (A.class_ x) x) ""
+  , bench "elementWithParallelAttribute" $ nf (\x -> renderByteString $ div_A (A.class_ x # A.id_ x) x) ""
+  , bench "listOfAttributes"             $ nf (\x -> renderByteString [A.class_ x, A.class_ x]) ""
+  , bench "Runtime String"               $ nfIO (renderByteString <$> runtimeTxt)
+  , bench "String"                       $ nf renderByteString "abcdefghijklmnopqrstuvwxyz<>&;"
+  , bench "Runtime Raw String"           $ nfIO (renderByteString . Raw <$> runtimeTxt)
+  , bench "Raw String"                   $ nf renderByteString (Raw "abcdefghijklmnopqrstuvwxyz<>&;")
+  , bench "Runtime strict Text"          $ nfIO (renderByteString . T.pack <$> runtimeTxt)
+  , bench "strict Text"                  $ nf renderByteString (T.pack "abcdefghijklmnopqrstuvwxyz<>&;")
+  , bench "Runtime Raw strict Text"      $ nfIO (renderByteString . Raw . T.pack <$> runtimeTxt)
+  , bench "Raw strict Text"              $ nf renderByteString (Raw (T.pack "abcdefghijklmnopqrstuvwxyz<>&;"))
+  , bench "Runtime lazy Text"            $ nfIO (renderByteString . LT.pack <$> runtimeTxt)
+  , bench "lazy Text"                    $ nf renderByteString (LT.pack "abcdefghijklmnopqrstuvwxyz<>&;")
+  , bench "Runtime Raw lazy Text"        $ nfIO (renderByteString . Raw . LT.pack <$> runtimeTxt)
+  , bench "Raw lazy Text"                $ nf renderByteString (Raw (LT.pack "abcdefghijklmnopqrstuvwxyz<>&;"))
+  , bench "listOfListOf"                 $ nf (\x -> renderByteString $ div_ [i_ [span_ x]]) ""
   ]
-  where r f x = nf (renderByteString . f) x
-        runtimeTxt = reverse "abcdefghijklmnopqrstuvwxyz<>&;"
+  where
+
+runtimeTxt = newIORef "abcdefghijklmnopqrstuvwxyz<>&;" >>= readIORef
 
 oneElement, oneElement', oneElement''
   :: ('Div ?> a)
