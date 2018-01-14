@@ -11,6 +11,7 @@ import Data.Proxy
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Data.IORef
+import System.IO.Unsafe
 
 import Criterion.Main
 import Control.Arrow
@@ -46,23 +47,33 @@ small = bgroup "Small"
   , bench "elementWithAttribute"         $ nf (\x -> renderByteString $ div_A (A.class_ x) x) ""
   , bench "elementWithParallelAttribute" $ nf (\x -> renderByteString $ div_A (A.class_ x # A.id_ x) x) ""
   , bench "listOfAttributes"             $ nf (\x -> renderByteString [A.class_ x, A.class_ x]) ""
-  , bench "Runtime String"               $ nfIO (renderByteString <$> runtimeTxt)
+  , bench "Runtime String"               $ nfIO (renderByteString <$> readIORef runtimeString)
   , bench "String"                       $ nf renderByteString "abcdefghijklmnopqrstuvwxyz<>&;"
-  , bench "Runtime Raw String"           $ nfIO (renderByteString . Raw <$> runtimeTxt)
+  , bench "Runtime Raw String"           $ nfIO (renderByteString . Raw <$> readIORef runtimeString)
   , bench "Raw String"                   $ nf renderByteString (Raw "abcdefghijklmnopqrstuvwxyz<>&;")
-  , bench "Runtime strict Text"          $ nfIO (renderByteString . T.pack <$> runtimeTxt)
+  , bench "Runtime strict Text"          $ nfIO (renderByteString <$> readIORef runtimeStrictText)
   , bench "strict Text"                  $ nf renderByteString (T.pack "abcdefghijklmnopqrstuvwxyz<>&;")
-  , bench "Runtime Raw strict Text"      $ nfIO (renderByteString . Raw . T.pack <$> runtimeTxt)
+  , bench "Runtime Raw strict Text"      $ nfIO (renderByteString . Raw <$> readIORef runtimeStrictText)
   , bench "Raw strict Text"              $ nf renderByteString (Raw (T.pack "abcdefghijklmnopqrstuvwxyz<>&;"))
-  , bench "Runtime lazy Text"            $ nfIO (renderByteString . LT.pack <$> runtimeTxt)
+  , bench "Runtime lazy Text"            $ nfIO (renderByteString <$> readIORef runtimeLazyText)
   , bench "lazy Text"                    $ nf renderByteString (LT.pack "abcdefghijklmnopqrstuvwxyz<>&;")
-  , bench "Runtime Raw lazy Text"        $ nfIO (renderByteString . Raw . LT.pack <$> runtimeTxt)
+  , bench "Runtime Raw lazy Text"        $ nfIO (renderByteString . Raw <$> readIORef runtimeLazyText)
   , bench "Raw lazy Text"                $ nf renderByteString (Raw (LT.pack "abcdefghijklmnopqrstuvwxyz<>&;"))
   , bench "listOfListOf"                 $ nf (\x -> renderByteString $ div_ [i_ [span_ x]]) ""
   ]
   where
 
-runtimeTxt = newIORef "abcdefghijklmnopqrstuvwxyz<>&;" >>= readIORef
+{-# NOINLINE runtimeString #-}
+runtimeString :: IORef String
+runtimeString = unsafePerformIO $ newIORef "abcdefghijklmnopqrstuvwxyz<>&;"
+
+{-# NOINLINE runtimeLazyText #-}
+runtimeLazyText :: IORef LT.Text
+runtimeLazyText = unsafePerformIO . newIORef $ LT.pack "abcdefghijklmnopqrstuvwxyz<>&;"
+
+{-# NOINLINE runtimeStrictText #-}
+runtimeStrictText :: IORef T.Text
+runtimeStrictText = unsafePerformIO . newIORef $ T.pack "abcdefghijklmnopqrstuvwxyz<>&;"
 
 oneElement, oneElement', oneElement''
   :: ('Div ?> a)
