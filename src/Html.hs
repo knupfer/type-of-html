@@ -23,10 +23,11 @@ import Html.Element
 import Html.Type
 import Html.Type.Internal
 
-import qualified Data.ByteString.Lazy    as B
-import qualified Data.ByteString.Builder as B
-import qualified Data.Text.Lazy          as T
-import qualified Data.Text.Lazy.Encoding as T
+import qualified Data.ByteString.Lazy          as B
+import qualified Data.ByteString.Builder       as B
+import qualified Data.ByteString.Builder.Extra as BE
+import qualified Data.Text.Lazy                as T
+import qualified Data.Text.Lazy.Encoding       as T
 
 -- | Constraint synonym of html documents.
 type Document  a = Document' a
@@ -50,7 +51,11 @@ renderText = T.decodeUtf8 . renderByteString
 -- | Render a html document to a lazy ByteString.
 {-# INLINE renderByteString #-}
 renderByteString :: Document a => a -> B.ByteString
-renderByteString = B.toLazyByteString . renderBuilder
+renderByteString = BE.toLazyByteStringWith
+  ( BE.untrimmedStrategy
+    BE.smallChunkSize
+    BE.defaultChunkSize
+  ) B.empty . renderBuilder
 
 -- | Orphan show instance to faciliate ghci development.
 instance {-# OVERLAPPABLE #-} Document a => Show a where show = renderString
