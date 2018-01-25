@@ -94,7 +94,7 @@ instance
   {-# INLINE render #-}
   render (T ~(WithAttributes b c))
     = render (T b :: T (Take (Length b) ps) b)
-   <> render (T c :: T (Drop (Length b) ps) c)
+    <> render (T c :: T (Drop (Length b) ps) c)
 
 instance
   ( R (T (Take (Length a) ps) a)
@@ -103,7 +103,7 @@ instance
   {-# INLINE render #-}
   render (T ~(a :#: b))
     = render (T a :: T (Take (Length a) ps) a)
-   <> render (T b :: T (Drop (Length a) ps) b)
+    <> render (T b :: T (Drop (Length a) ps) b)
 
 instance
   ( R (T (ToList a) a)
