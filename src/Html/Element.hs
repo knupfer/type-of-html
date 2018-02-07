@@ -412,11 +412,11 @@ img_ = WithAttributes () ()
 img_A :: ('Img <?> a) () => a -> ('Img :@: a) ()
 img_A = flip WithAttributes ()
 
-input_ :: ('Input ?> a) => a -> 'Input > a
-input_ = WithAttributes ()
+input_ :: 'Input > ()
+input_ = WithAttributes () ()
 
-input_A :: ('Input <?> a) b => a -> b -> ('Input :@: a) b
-input_A = WithAttributes
+input_A :: ('Input <?> a) () => a -> ('Input :@: a) ()
+input_A = flip WithAttributes ()
 
 ins_ :: ('Ins ?> a) => a -> 'Ins > a
 ins_ = WithAttributes ()

@@ -746,6 +746,7 @@ type family GetEInfo a = r | r -> a where
   GetEInfo I          = EInfo "i"             '[ FlowContent, PhrasingContent ]                  PhrasingContent
   GetEInfo Iframe     = EInfo "iframe"        '[ FlowContent, PhrasingContent ]                  NoContent
   GetEInfo Img        = EInfo "img"           '[ FlowContent, PhrasingContent ]                  NoContent
+  GetEInfo Input      = EInfo "input"         '[]                                                NoContent
   GetEInfo Ins        = EInfo "ins"           '[ FlowContent, PhrasingContent ]                  OnlyText
   GetEInfo Kbd        = EInfo "kbd"           '[ FlowContent, PhrasingContent ]                  PhrasingContent
   GetEInfo Label      = EInfo "label"         '[ FlowContent, PhrasingContent ]                  (PhrasingContent :&: NOT (SingleElement Label))
