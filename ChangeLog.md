@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.3.3.0  -- 2018-02-07
+
+* fix the 'input' element
+
 ## 1.3.2.2  -- 2018-01-29
 
 * ghc 8.4 compatibility
