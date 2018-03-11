@@ -1,5 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc822" }:
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc841" }:
 
-nixpkgs.haskell.lib.overrideSrc
-  (nixpkgs.haskell.packages.${compiler}.callPackage ./type-of-html.nix {})
-  {src = nixpkgs.lib.sourceFilesBySuffices ./. [".cabal" ".hs" "LICENSE" ".md"];}
+nixpkgs.haskell.packages.${compiler}.callCabal2nix "type-of-html" (nixpkgs.lib.sourceFilesBySuffices ./. [".cabal" ".hs" "LICENSE" ".md"]) {}
+
