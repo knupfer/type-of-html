@@ -1,12 +1,10 @@
 { nixpkgs ? import <nixpkgs> {} }:
-
 with nixpkgs.haskell.lib;
-let
-  eval = ghc: import ./default.nix { compiler = ghc; };
-  doBench = drv: overrideCabal drv (drv: { isExecutable = true; buildTarget = "test bench"; configureFlags = "--enable-benchmarks --enable-tests --disable-optimization"; });
-in rec {
-     sdist = sdistTarball ghc822;
-     bench = doBench (doBenchmark (eval "ghc822"));
-     ghc802 = buildStrictly (eval "ghc802");
-     ghc822 = buildStrictly (eval "ghc822");
-}
+with nixpkgs.lib;
+let tested = ["ghc802" "ghc822" "ghc841" ];
+    eval = x: import ./default.nix { compiler = x; };
+in
+{ sdist = sdistTarball (buildStrictly (eval (last tested)));
+  bench = (x: overrideCabal x (x: { isExecutable = true; buildTarget = "test bench"; configureFlags = "--enable-benchmarks --enable-tests --disable-optimization"; }))
+          (doBenchmark (eval (last tested)));
+} // genAttrs tested (x: buildStrictly (eval x))
