@@ -53,8 +53,8 @@ renderText = T.decodeUtf8 . renderByteString
 renderByteString :: Document a => a -> B.ByteString
 renderByteString = BE.toLazyByteStringWith
   ( BE.untrimmedStrategy
+    1024
     BE.smallChunkSize
-    BE.defaultChunkSize
   ) B.empty . renderBuilder
 
 -- | Orphan show instance to faciliate ghci development.

@@ -30,32 +30,32 @@ main = mainWith $ do
   -- nixpkgs: 1b27260
   -- ghc: 8.4.1
 
-  f "()"                            4256 renderByteString ()
-  f "Int"                           4328 renderByteString (123456789 :: Int)
-  f "Word"                          4328 renderByteString (123456789 :: Word)
-  f "Char"                          4344 renderByteString 'a'
-  f "Integer"                       4360 renderByteString (123456789 :: Integer)
-  f "Proxy"                         4392 renderByteString (Proxy :: Proxy "a")
-  f "oneElement Proxy"              4392 (renderByteString . S.oneElement) (Proxy :: Proxy "b")
-  f "oneElement ()"                 4392 (renderByteString . S.oneElement) ()
-  f "oneAttribute ()"               4392 (renderByteString . A.class_) ()
-  f "oneAttribute Proxy"            4392 (renderByteString . A.class_) (Proxy :: Proxy "c")
-  f "listElement"                   4488 (renderByteString . S.listElement) ()
-  f "Double"                        4472 renderByteString (123456789 :: Double)
-  f "oneElement"                    4480 (renderByteString . S.oneElement) ""
-  f "nestedElement"                 4480 (renderByteString . S.nestedElement) ""
-  f "listOfAttributes"              4464 (\x -> renderByteString [A.class_ x, A.class_ x]) ()
-  f "Float"                         4512 renderByteString (123456789 :: Float)
-  f "oneAttribute"                  4520 (renderByteString . A.class_) ""
-  f "parallelElement"               4632 (renderByteString . S.parallelElement) ""
-  f "parallelAttribute"             4696 (\x -> renderByteString $ A.class_ x # A.id_ x) ""
-  f "elementWithAttribute"          4696 (\x -> renderByteString $ div_A (A.class_ x) x) ""
-  f "listOfListOf"                  4744 (\x -> renderByteString $ div_ [i_ [span_ x]]) ()
-  f "helloWorld"                    5344 (renderByteString . M.helloWorld) ()
-  f "page"                          5624 (renderByteString . M.page) ()
-  f "table"                         5776 (renderByteString . M.table) (2,2)
-  f "AttrShort"                     6720 (renderByteString . M.attrShort) ()
-  f "pageA"                         7072 (renderByteString . M.pageA) ()
-  f "AttrLong"                      7272 (renderByteString . M.attrLong) ()
-  f "Big table"                    19712 (renderByteString . M.table) (15,15)
-  f "Big page"                     24704 (renderByteString . B.page) ()
+  f "()"                             144 renderByteString ()
+  f "Int"                            216 renderByteString (123456789 :: Int)
+  f "Word"                           216 renderByteString (123456789 :: Word)
+  f "Char"                           232 renderByteString 'a'
+  f "Integer"                        248 renderByteString (123456789 :: Integer)
+  f "Proxy"                          280 renderByteString (Proxy :: Proxy "a")
+  f "oneElement Proxy"               280 (renderByteString . S.oneElement) (Proxy :: Proxy "b")
+  f "oneElement ()"                  280 (renderByteString . S.oneElement) ()
+  f "oneAttribute ()"                280 (renderByteString . A.class_) ()
+  f "oneAttribute Proxy"             280 (renderByteString . A.class_) (Proxy :: Proxy "c")
+  f "listElement"                    376 (renderByteString . S.listElement) ()
+  f "Double"                         360 renderByteString (123456789 :: Double)
+  f "oneElement"                     368 (renderByteString . S.oneElement) ""
+  f "nestedElement"                  368 (renderByteString . S.nestedElement) ""
+  f "listOfAttributes"               352 (\x -> renderByteString [A.class_ x, A.class_ x]) ()
+  f "Float"                          400 renderByteString (123456789 :: Float)
+  f "oneAttribute"                   408 (renderByteString . A.class_) ""
+  f "parallelElement"                520 (renderByteString . S.parallelElement) ""
+  f "parallelAttribute"              584 (\x -> renderByteString $ A.class_ x # A.id_ x) ""
+  f "elementWithAttribute"           584 (\x -> renderByteString $ div_A (A.class_ x) x) ""
+  f "listOfListOf"                   632 (\x -> renderByteString $ div_ [i_ [span_ x]]) ()
+  f "helloWorld"                    1232 (renderByteString . M.helloWorld) ()
+  f "page"                          1512 (renderByteString . M.page) ()
+  f "table"                         1664 (renderByteString . M.table) (2,2)
+  f "AttrShort"                     2608 (renderByteString . M.attrShort) ()
+  f "pageA"                         2960 (renderByteString . M.pageA) ()
+  f "AttrLong"                      3160 (renderByteString . M.attrLong) ()
+  f "Big table"                    19968 (renderByteString . M.table) (15,15)
+  f "Big page"                     25064 (renderByteString . B.page) ()
