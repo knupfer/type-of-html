@@ -1,26 +1,13 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Big where
 
 import Html
-import Medium (attrShort, attrLong)
+import Medium (attrShort, attrLong, table)
 
-import Criterion.Main
 import qualified Html.Attribute as A
-
-big :: Benchmark
-big = bgroup "Big"
-  [ bench "table"  $ nf (renderByteString . table) (15,15)
-  , bench "table'" $ nf (renderByteString . table') (15,15)
-  , bench "page"   $ nf (renderByteString . page) "big"
-  , bench "page'"  $ nf (renderByteString . page') "big"
-  ]
-
-table (n, m) = table_ . replicate n . tr_ $ map td_ [(1::Int)..m]
-
-table' = \(n,m) -> table_ . replicate n . tr_ $ map td_ [(1::Int)..m]
 
 page x =
   html_

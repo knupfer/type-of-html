@@ -49,9 +49,23 @@ test-suite test
                     , QuickCheck
                     , hspec
 
-benchmark bench
+benchmark alloc
   type:               exitcode-stdio-1.0
-  main-is:            Main.hs
+  main-is:            Alloc.hs
+  other-modules:      Small
+                    , Medium
+                    , Big
+  hs-source-dirs:     bench
+  ghc-options:        -Wall -O2
+  default-language:   Haskell2010
+  build-depends:      base >= 4.9 && < 5
+                    , type-of-html
+                    , deepseq
+                    , weigh
+
+benchmark perf
+  type:               exitcode-stdio-1.0
+  main-is:            Perf.hs
   other-modules:      Small
                     , Medium
                     , Big
@@ -65,4 +79,4 @@ benchmark bench
                     , bytestring
                     , blaze-html
                     , criterion
-                    , QuickCheck
+                    , random

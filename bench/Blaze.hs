@@ -1,16 +1,11 @@
 module Blaze where
 
-import Html
-import Small
-import Medium
-
 import Data.String
-import Criterion.Main
 import Control.Monad
 import Text.Blaze.Html5 ((!))
-import Text.Blaze.Html.Renderer.Utf8
 import System.IO.Unsafe
-import Test.QuickCheck
+
+import System.Random
 
 import qualified Data.Text as T
 
@@ -19,45 +14,7 @@ import qualified Text.Blaze.Html5.Attributes as BA
 
 {-# NOINLINE randomText #-}
 randomText :: T.Text
-randomText = unsafePerformIO $ do
-  s <- take 250 <$> generate infiniteList :: IO String
-  return $ T.pack s
-
-blaze :: Benchmark
-blaze = bgroup "Blaze"
-  [ bgroup "minimal"
-    [ bench "blaze-html"   $ nf (renderHtml . blazeMinimal)     (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . oneElement) "TEST"
-    ]
-  , bgroup "hello world"
-    [ bench "blaze-html"   $ nf (renderHtml . blazeHelloWorld)  (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . helloWorld) "TEST"
-    ]
-  , bgroup "attributes long"
-    [ bench "blaze-html"   $ nf (renderHtml . blazeAttrLong)    (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . attrLong)   "TEST"
-    ]
-  , bgroup "attributes short"
-    [ bench "blaze-html"   $ nf (renderHtml . blazeAttrShort)   (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . attrShort)  "TEST"
-    ]
-  , bgroup "page"
-    [ bench "blaze-html"   $ nf (renderHtml . blazePage)        (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . page)       "TEST"
-    ]
-  , bgroup "page with attributes"
-    [ bench "blaze-html"   $ nf (renderHtml . blazePageA)       (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . pageA)      "TEST"
-    ]
-  , bgroup "table"
-    [ bench "blaze-html"   $ nf (renderHtml . blazeTable)       (4,4)
-    , bench "type-of-html" $ nf (renderByteString . table)      (4,4)
-    ]
-  , bgroup "encode strict text"
-    [ bench "blaze-html"   $ nf (renderHtml . B.div . B.toHtml) randomText
-    , bench "type-of-html" $ nf (renderByteString . div_) randomText
-    ]
-  ]
+randomText = unsafePerformIO $ T.pack . take 250 . randoms <$> newStdGen
 
 blazeMinimal :: B.Html -> B.Html
 blazeMinimal = B.div

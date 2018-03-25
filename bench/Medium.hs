@@ -1,65 +1,11 @@
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module Medium where
 
 import Html
-
-import Test.QuickCheck
-import Criterion.Main
-
 import qualified Html.Attribute as A
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as LT
-
-medium :: Benchmark
-medium = bgroup "Medium"
-  [ bench "helloWorld"          $ nf (renderByteString . helloWorld) "medium"
-  , bench "helloWorld'"         $ nf (renderByteString . helloWorld') "medium"
-  , bench "randomString"        $ nfIO randomString
-  , bench "randomStringRaw"     $ nfIO randomStringRaw
-  , bench "randomStrictText"    $ nfIO randomStrictText
-  , bench "randomStrictTextRaw" $ nfIO randomStrictTextRaw
-  , bench "randomLazyText"      $ nfIO randomLazyText
-  , bench "randomLazyTextRaw"   $ nfIO randomLazyTextRaw
-  , bench "table"               $ nf (renderByteString . table) (2,2)
-  , bench "table'"              $ nf (renderByteString . table') (2,2)
-  , bench "page"                $ nf (renderByteString . page) "medium"
-  , bench "page'"               $ nf (renderByteString . page') "medium"
-  , bench "pageA"               $ nf (renderByteString . pageA) "medium"
-  , bench "pageA'"              $ nf (renderByteString . pageA') "medium"
-  , bench "attrShort"           $ nf (renderByteString . attrShort) "medium"
-  , bench "attrShort'"          $ nf (renderByteString . attrShort') "medium"
-  , bench "attrShort''"         $ nf (renderByteString . attrShort'') "medium"
-  , bench "attrLong"            $ nf (renderByteString . attrLong) "medium"
-  , bench "attrLong'"           $ nf (renderByteString . attrLong') "medium"
-  , bench "attrLong''"          $ nf (renderByteString . attrLong'') "medium"
-  ]
-
-randomString = do
-  a <- generate (resize 5 arbitrary) :: IO String
-  return . renderByteString $ div_ a
-
-randomStringRaw = do
-  a <- generate (resize 5 arbitrary) :: IO String
-  return . renderByteString $ div_ (Raw a)
-
-randomStrictText = do
-  a <- T.pack <$> generate (resize 5 arbitrary) :: IO T.Text
-  return . renderByteString $ div_ a
-
-randomStrictTextRaw = do
-  a <- T.pack <$> generate (resize 5 arbitrary) :: IO T.Text
-  return . renderByteString $ div_ (Raw a)
-
-randomLazyText = do
-  a <- LT.pack <$> generate (resize 5 arbitrary) :: IO LT.Text
-  return . renderByteString $ div_ a
-
-randomLazyTextRaw = do
-  a <- LT.pack <$> generate (resize 5 arbitrary) :: IO LT.Text
-  return . renderByteString $ div_ (Raw a)
 
 helloWorld x =
   html_
@@ -155,7 +101,7 @@ attrShort x
   . i_A (A.contextmenu_     "d")
   . i_A (A.dir_             "e")
   . i_A (A.draggable_       "f")
-  . i_A (A.hidden_             )
+  . i_A  A.hidden_
   . i_A (A.id_              "h")
   . i_A (A.itemprop_        "i")
   . i_A (A.lang_            "j")
@@ -171,7 +117,7 @@ attrShort'
   . i_A (A.contextmenu_     "d")
   . i_A (A.dir_             "e")
   . i_A (A.draggable_       "f")
-  . i_A (A.hidden_             )
+  . i_A  A.hidden_
   . i_A (A.id_              "h")
   . i_A (A.itemprop_        "i")
   . i_A (A.lang_            "j")
@@ -187,7 +133,7 @@ attrShort''
   . i_A (A.contextmenu_     "d")
   . i_A (A.dir_             "e")
   . i_A (A.draggable_       "f")
-  . i_A (A.hidden_             )
+  . i_A  A.hidden_
   . i_A (A.id_              "h")
   . i_A (A.itemprop_        "i")
   . i_A (A.lang_            "j")
