@@ -1,4 +1,4 @@
 language: nix
 
 script:
-- nix-build release.nix
+- nix build -f release.nix
