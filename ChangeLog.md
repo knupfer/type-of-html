@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.3.3.2  -- 2018-03-25
+
+* reduce allocations for smaller pages
+
 ## 1.3.3.0  -- 2018-02-07
 
 * fix the 'input' element
