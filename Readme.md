@@ -171,7 +171,7 @@ Remember this benchmark from `blaze-html`?
 
 This is comparing blaze with `type-of-html`:
 
-![type-of-html](https://user-images.githubusercontent.com/5609565/30524978-229dd21c-9bfe-11e7-8404-1f69b93cec22.png)
+![type-of-html](https://user-images.githubusercontent.com/5609565/37879227-765df128-3075-11e8-9270-3839ce1852c8.png)
 
 To look at the exact code of this benchmark look into the repo.  The
 big table benchmark here is only a 4x4 table. Using a 1000x10 table
