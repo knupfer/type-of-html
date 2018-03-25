@@ -38,9 +38,9 @@ library
                     , ghc-prim
                     , double-conversion
 
-test-suite test
+test-suite value
   type:               exitcode-stdio-1.0
-  main-is:            Main.hs
+  main-is:            Value.hs
   hs-source-dirs:     test
   ghc-options:        -Wall -O0
   default-language:   Haskell2010
@@ -48,6 +48,17 @@ test-suite test
                     , type-of-html
                     , QuickCheck
                     , hspec
+
+test-suite type
+  type:               exitcode-stdio-1.0
+  main-is:            Type.hs
+  hs-source-dirs:     test
+                    , src
+  other-modules:      Html.CPP
+                    , Html.Type.Internal
+  ghc-options:        -Wall
+  default-language:   Haskell2010
+  build-depends:      base >= 4.9 && < 5
 
 benchmark alloc
   type:               exitcode-stdio-1.0
