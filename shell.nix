@@ -1,3 +1,3 @@
 { nixpkgs ? import <nixpkgs> {} }:
 
-(nixpkgs.haskell.lib.overrideCabal (import ./default.nix {}) (drv: { libraryHaskellDepends = drv.libraryHaskellDepends ++ drv.benchmarkHaskellDepends; })).env
+(nixpkgs.haskell.lib.doBenchmark (import ./default.nix {})).env
