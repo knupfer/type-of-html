@@ -227,10 +227,10 @@ max_ = AT
 maxlength_ :: Integral a => a -> 'MaxlengthA := a
 maxlength_ = AT
 
-minlength_ :: a -> 'MinlengthA := a
+minlength_ :: Integral a => a -> 'MinlengthA := a
 minlength_ = AT
 
-media_ :: Integral a => a -> 'MediaA := a
+media_ :: a -> 'MediaA := a
 media_ = AT
 
 method_ :: a -> 'MethodA := a
