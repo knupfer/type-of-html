@@ -79,18 +79,18 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
   f "Big page"                     25064 (renderByteString . B.page) ()
 
-  validateAction "Compile Library"   (compile tmp) "Html"           (allocsError 10476 5)
-  validateAction "Compile Small.hs"  (compile tmp) "Small"          (allocsError 10872 5)
-  validateAction "Compile Medium.hs" (compile tmp) "Medium"         (allocsError 18165 5)
-  validateAction "Compile Big.hs"    (compile tmp) "Big"            (allocsError 24967 5)
-  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs" (allocsError 25576 5)
-  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"  (allocsError 49094 5)
+  validateAction "Compile Library"   (compile tmp) "Html"           (allocsError 1021 6)
+  validateAction "Compile Small.hs"  (compile tmp) "Small"          (allocsError 1061 6)
+  validateAction "Compile Medium.hs" (compile tmp) "Medium"         (allocsError 1790 6)
+  validateAction "Compile Big.hs"    (compile tmp) "Big"            (allocsError 2470 6)
+  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs" (allocsError 2531 6)
+  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"  (allocsError 4809 6)
 
 compile :: String -> String -> IO ()
 compile out m =
   void . defaultErrorHandler defaultFatalMessager defaultFlushOut . runGhc (Just libdir) $ do
     dflags <- getSessionDynFlags
-    void $ setSessionDynFlags (dflags {optLevel = 2, importPaths = ["src", "bench"], hiDir = Just out, objectDir = Just out})
+    void $ setSessionDynFlags (dflags {optLevel = 2, importPaths = ["src", "bench"], hiDir = Just out, objectDir = Just out, outputFile = Just (out ++ "/out")})
     target <- guessTarget m Nothing
     setTargets [target]
     load LoadAllTargets
