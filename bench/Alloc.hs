@@ -13,6 +13,12 @@ import Control.DeepSeq
 import Data.Proxy
 import Data.Int
 
+import System.IO.Temp
+import GHC
+import GHC.Paths (libdir)
+import DynFlags
+import Control.Monad
+
 allocs :: Int64 -> Weight -> Maybe String
 allocs n w
   | n' > n = Just $ "More" ++ answer
@@ -21,11 +27,24 @@ allocs n w
   where n' = weightAllocatedBytes w
         answer = " allocated bytes than " ++ commas n ++ ": " ++ commas n'
 
+allocsError :: Int -> Int -> Weight -> Maybe String
+allocsError n i w
+  | n' > (n+1) = Just $ "More" ++ answer
+  | n' < (n-1) = Just $ "Less" ++ answer
+  | otherwise = Nothing
+  where n' = round (fromIntegral (weightAllocatedBytes w) / (10^i) :: Rational) :: Int
+        answer = " allocated bytes than "
+              ++ pretty (show n)
+              ++ ": "
+              ++ pretty (show n')
+        pretty (a:as) = a : '.' : as ++ " e" ++ show (length as+i)
+        pretty _      = ""
+
 f :: NFData b => String -> Int64 -> (a -> b) -> a -> Weigh ()
 f s n g x = validateFunc s g x (allocs n)
 
 main :: IO ()
-main = mainWith $ do
+main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
 
   -- nixpkgs: 1b27260
   -- ghc: 8.4.1
@@ -40,7 +59,7 @@ main = mainWith $ do
   f "oneElement ()"                  280 (renderByteString . S.oneElement) ()
   f "oneAttribute ()"                280 (renderByteString . A.class_) ()
   f "oneAttribute Proxy"             280 (renderByteString . A.class_) (Proxy :: Proxy "c")
-  f "listElement"                    376 (renderByteString . S.listElement) ()
+  f "listElement"                    352 (renderByteString . S.listElement) ()
   f "Double"                         360 renderByteString (123456789 :: Double)
   f "oneElement"                     368 (renderByteString . S.oneElement) ""
   f "nestedElement"                  368 (renderByteString . S.nestedElement) ""
@@ -56,6 +75,22 @@ main = mainWith $ do
   f "table"                         1664 (renderByteString . M.table) (2,2)
   f "AttrShort"                     2608 (renderByteString . M.attrShort) ()
   f "pageA"                         2960 (renderByteString . M.pageA) ()
-  f "AttrLong"                      3160 (renderByteString . M.attrLong) ()
+  f "AttrLong"                      3352 (renderByteString . M.attrLong) ()
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
   f "Big page"                     25064 (renderByteString . B.page) ()
+
+  validateAction "Compile Library"   (compile tmp) "Html"           (allocsError 10476 5)
+  validateAction "Compile Small.hs"  (compile tmp) "Small"          (allocsError 10872 5)
+  validateAction "Compile Medium.hs" (compile tmp) "Medium"         (allocsError 18165 5)
+  validateAction "Compile Big.hs"    (compile tmp) "Big"            (allocsError 24967 5)
+  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs" (allocsError 25576 5)
+  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"  (allocsError 49094 5)
+
+compile :: String -> String -> IO ()
+compile out m =
+  void . defaultErrorHandler defaultFatalMessager defaultFlushOut . runGhc (Just libdir) $ do
+    dflags <- getSessionDynFlags
+    void $ setSessionDynFlags (dflags {optLevel = 2, importPaths = ["src", "bench"], hiDir = Just out, objectDir = Just out})
+    target <- guessTarget m Nothing
+    setTargets [target]
+    load LoadAllTargets
