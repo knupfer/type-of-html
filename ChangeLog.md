@@ -1,5 +1,11 @@
 # Revision history for type-of-html
 
+## 1.3.4.0  -- 2018-04-03
+
+* reduce allocations
+* add compilation benchmarks
+* small bug fixes
+
 ## 1.3.3.2  -- 2018-03-25
 
 * reduce allocations for smaller pages
