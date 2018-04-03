@@ -66,6 +66,16 @@ benchmark alloc
   other-modules:      Small
                     , Medium
                     , Big
+                    , Compilation
+                    , Compilation.X0
+                    , Compilation.X1
+                    , Compilation.X2
+                    , Compilation.X4
+                    , Compilation.X8
+                    , Compilation.X16
+                    , Compilation.X32
+                    , Compilation.X64
+                    , Compilation.X128
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
