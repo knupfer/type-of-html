@@ -34,11 +34,10 @@ allocsError n i w
   | otherwise = Nothing
   where n' = round (fromIntegral (weightAllocatedBytes w) / (10^i) :: Rational) :: Int
         answer = " allocated bytes than "
-              ++ pretty (show n)
+              ++ pretty n
               ++ ": "
-              ++ pretty (show n')
-        pretty (a:as) = a : '.' : as ++ " e" ++ show (length as+i)
-        pretty _      = ""
+              ++ pretty n'
+        pretty x = show x ++ " e" ++ show i
 
 f :: NFData b => String -> Int64 -> (a -> b) -> a -> Weigh ()
 f s n g x = validateFunc s g x (allocs n)
