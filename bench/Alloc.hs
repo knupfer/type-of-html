@@ -78,22 +78,22 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
   f "Big page"                     25064 (renderByteString . B.page) ()
 
-  validateAction "Compile Library"   (compile tmp) "Html"                      $ allocsError 1021 6
-  validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ allocsError 1061 6
-  validateAction "Compile Medium.hs" (compile tmp) "Medium"                    $ allocsError 1790 6
-  validateAction "Compile Big.hs"    (compile tmp) "Big"                       $ allocsError 2470 6
-  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ allocsError 2531 6
-  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ allocsError 4809 6
-  let x0 n = allocsError (1065 + n) 6
-  validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ x0      0
-  validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ x0     14
-  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ x0     27
-  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ x0     57
-  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ x0    126
-  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ x0    301
-  validateAction "Compile X32.hs"    (compile tmp) "bench/Compilation/X32.hs"  $ x0    795
-  validateAction "Compile X64.hs"    (compile tmp) "bench/Compilation/X64.hs"  $ x0   2365
-  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ x0   7832
+  validateAction "Compile Library"   (compile tmp) "Html"                      $ allocsError 103 7
+  validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ allocsError 107 7
+  validateAction "Compile Medium.hs" (compile tmp) "Medium"                    $ allocsError 180 7
+  validateAction "Compile Big.hs"    (compile tmp) "Big"                       $ allocsError 248 7
+  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ allocsError 254 7
+  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ allocsError 482 7
+  let x0 n = allocsError (107 + n) 7
+  validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ x0   0
+  validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ x0   1
+  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ x0   3
+  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ x0   6
+  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ x0  13
+  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ x0  30
+  validateAction "Compile X32.hs"    (compile tmp) "bench/Compilation/X32.hs"  $ x0  80
+  validateAction "Compile X64.hs"    (compile tmp) "bench/Compilation/X64.hs"  $ x0 237
+  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ x0 783
 
 compile :: String -> String -> IO ()
 compile out m =
