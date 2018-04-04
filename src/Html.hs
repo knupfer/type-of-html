@@ -57,5 +57,7 @@ renderByteString = BE.toLazyByteStringWith
     BE.smallChunkSize
   ) B.empty . renderBuilder
 
--- | Orphan show instance to faciliate ghci development.
-instance {-# OVERLAPPABLE #-} Document a => Show a where show = renderString
+-- | Show instances to faciliate ghci development.
+instance Document ((a :@: b) c) => Show ((a :@: b) c) where show = renderString
+instance Document (a := b)      => Show (a := b)      where show = renderString
+instance Document (a # b)       => Show (a # b)       where show = renderString
