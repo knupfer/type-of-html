@@ -383,6 +383,7 @@ type family Check f a b :: Constraint where
   Check f a (b # c)                 = (Check f a b, Check f a c)
   Check f a (Maybe b)               = Check f a b
   Check f a (Either b c)            = (Check f a b, Check f a c)
+  Check f a (b -> c)                = TypeError (ShowType a :<>: Text " can't contain a function.")
   Check Element a ((b :@: _) _)     = MaybeTypeError a b (CheckContentCategory (EInfoContent (GetEInfo a)) (SingleElement b ': EInfoCategories (GetEInfo b)))
   Check Element a (f ((b :@: c) d)) = Check Element a ((b :@: c) d)
   Check Element a (f (b # c))       = Check Element a (b # c)
