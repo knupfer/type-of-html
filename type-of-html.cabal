@@ -7,8 +7,7 @@ license-file:         LICENSE
 author:               Florian Knupfer
 maintainer:           fknupfer@gmail.com
 homepage:             https://github.com/knupfer/type-of-html
-tested-with:          GHC == 8.0.2
-                    , GHC == 8.2.2
+tested-with:          GHC == 8.2.2
                     , GHC == 8.4.1
 copyright:            2017, Florian Knupfer
 category:             Language, Text, Web, HTML
@@ -27,7 +26,6 @@ library
                     , Html.Element
                     , Html.Attribute
   other-modules:      Html.Type.Internal
-                    , Html.CPP
                     , Html.Reify
   hs-source-dirs:     src
   default-language:   Haskell2010
@@ -54,8 +52,7 @@ test-suite type
   main-is:            Type.hs
   hs-source-dirs:     test
                     , src
-  other-modules:      Html.CPP
-                    , Html.Type.Internal
+  other-modules:      Html.Type.Internal
   ghc-options:        -Wall
   default-language:   Haskell2010
   build-depends:      base >= 4.9 && < 5

@@ -12,7 +12,6 @@ module Html.Reify
 
 import Html.Type.Internal
 import Html.Convert
-import Html.CPP
 
 import GHC.TypeLits
 import Data.Proxy
@@ -27,17 +26,6 @@ instance
   {-# INLINE render #-}
   render = convert
 
-instance
-  R (Proxy ('[] :: [Symbol])) where
-  {-# INLINE render #-}
-  render _ = mempty
-
-instance
-  ( KnownSymbol x, R (Proxy xs)
-  ) => R (Proxy ((x ': xs) :: [Symbol])) where
-  {-# INLINE render #-}
-  render _ = convert (Proxy @ x) <> render (Proxy @ xs)
-
 instance {-# INCOHERENT #-}
   R (T '[] val) where
   {-# INLINE render #-}
@@ -45,12 +33,7 @@ instance {-# INCOHERENT #-}
 
 instance {-# INCOHERENT #-}
   ( Convert val
-  ) => R (T '[ EmptySym ] val) where
-  {-# INLINE render #-}
-  render (T x) = convert x
-
-instance {-# OVERLAPPING #-}
-  R (T '[ EmptySym ] String) where
+  ) => R (T '[ "" ] val) where
   {-# INLINE render #-}
   render (T x) = convert x
 

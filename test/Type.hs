@@ -4,11 +4,9 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE CPP #-}
 
 module Main where
 
-#if __GLASGOW_HASKELL__ >= 802
 import GHC.TypeLits
 import Html.Type.Internal
 import Data.Proxy
@@ -44,8 +42,3 @@ type Test =
 type family a == b where
   a == a = ()
   a == b = TypeError ('Text "Unequal types:" ':$$: 'ShowType a ':$$: 'ShowType b)
-
-#else
-main :: IO ()
-main = pure ()
-#endif

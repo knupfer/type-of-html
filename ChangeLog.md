@@ -1,5 +1,11 @@
 # Revision history for type-of-html
 
+## Master
+
+* remove ghc8.0.2 compatibility for perf reasons
+* remove CPP
+* error early on functions as children
+
 ## 1.3.4.0  -- 2018-04-03
 
 * reduce allocations

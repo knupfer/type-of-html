@@ -11,8 +11,6 @@
 
 module Html.Type.Internal where
 
-import Html.CPP
-
 import GHC.TypeLits
 import GHC.Exts
 import Data.Proxy
@@ -332,39 +330,37 @@ data Attribute
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
 -- and snoc(O1) but append(On).  Optimal would be a real 2-3
 -- FingerTree.
-data FingerTree = FingerTree [Sym] Sym
-type Empty = 'FingerTree '[] EmptySym
-type Split = 'FingerTree '[EmptySym] EmptySym
-type NoTail xs = 'FingerTree xs EmptySym
+data FingerTree = FingerTree [Symbol] Symbol
+type Empty = 'FingerTree '[] ""
+type Split = 'FingerTree '[""] ""
+type NoTail xs = 'FingerTree xs ""
 type Singleton = 'FingerTree '[]
 
-type Both l r = AppSymbols (Append (List l) (List r))
-
 type family (<|) s t :: FingerTree where
-  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (Both l s ': ss) r
-  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (Both l r)
+  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (AppendSymbol l s ': ss) r
+  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (AppendSymbol l r)
 
 type family (|>) t s :: FingerTree where
-  (|>) ('FingerTree ss r) rr = 'FingerTree ss (Both r rr)
+  (|>) ('FingerTree ss r) rr = 'FingerTree ss (AppendSymbol r rr)
 
 type family (><) t1 t2 :: FingerTree where
-  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (Both r s ': ss2)) r2
-  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (Both r r2)
+  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppendSymbol r s ': ss2)) r2
+  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppendSymbol r r2)
 
-type OpenTag e = ["<", ShowElement e, ">"]
+type OpenTag e = AppendSymbol "<" (AppendSymbol (ShowElement e) ">")
 
-type CloseTag e = ["</", ShowElement e, ">"]
+type CloseTag e = AppendSymbol "</" (AppendSymbol (ShowElement e) ">")
 
 -- | Flatten a document into a type list of tags.
 type family ToList a :: FingerTree where
   ToList (a # b)         = ToList a >< ToList b
-  ToList ((a :@: ()) ()) = Singleton (If (HasContent (GetEInfo a)) (AppSymbols (Append (OpenTag a) (CloseTag a))) (AppSymbols (OpenTag a)))
-  ToList ((a :@: b) ())  = AppSymbols '["<", ShowElement a] <| ToList b |> If (HasContent (GetEInfo a)) (AppSymbols (">" ': CloseTag a)) (AppSymbols '[">"])
-  ToList ((a :@: ()) b)  = AppSymbols (OpenTag a) <| ToList b |> AppSymbols (CloseTag a)
-  ToList ((a :@: b) c)   = (AppSymbols '["<", ShowElement a] <| ToList b) >< (AppSymbols '[">"] <| ToList c |> AppSymbols (CloseTag a))
-  ToList (a := b)        = AppSymbols '[" ", ShowAttribute a,"=\""] <| ToList b |> AppSymbols '["\""]
+  ToList ((a :@: ()) ()) = Singleton (If (HasContent (GetEInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
+  ToList ((a :@: b) ())  = AppendSymbol "<" (ShowElement a) <| ToList b |> If (HasContent (GetEInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
+  ToList ((a :@: ()) b)  = OpenTag a <| ToList b |> CloseTag a
+  ToList ((a :@: b) c)   = (AppendSymbol "<" (ShowElement a) <| ToList b) >< (">" <| ToList c |> CloseTag a)
+  ToList (a := b)        = AppendSymbol " " (AppendSymbol (ShowAttribute a) "=\"") <| ToList b |> "\""
   ToList ()              = Empty
-  ToList (Proxy x)       = Singleton (AppSymbols '[x])
+  ToList (Proxy x)       = Singleton x
   ToList x               = Split
 
 newtype (:=) (a :: Attribute) b = AT b
