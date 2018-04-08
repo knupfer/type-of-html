@@ -83,17 +83,17 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   validateAction "Compile Medium.hs" (compile tmp) "Medium"                    $ allocsError 180 7
   validateAction "Compile Big.hs"    (compile tmp) "Big"                       $ allocsError 248 7
   validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ allocsError 254 7
-  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ allocsError 482 7
-  let x0 n = allocsError (107 + n) 7
+  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ allocsError 400 7
+  let x0 n = allocsError (106 + n) 7
   validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ x0   0
-  validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ x0   1
-  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ x0   3
-  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ x0   6
-  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ x0  13
-  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ x0  30
-  validateAction "Compile X32.hs"    (compile tmp) "bench/Compilation/X32.hs"  $ x0  80
-  validateAction "Compile X64.hs"    (compile tmp) "bench/Compilation/X64.hs"  $ x0 237
-  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ x0 783
+  validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ x0   0
+  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ x0   1
+  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ x0   3
+  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ x0   8
+  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ x0  21
+  validateAction "Compile X32.hs"    (compile tmp) "bench/Compilation/X32.hs"  $ x0  61
+  validateAction "Compile X64.hs"    (compile tmp) "bench/Compilation/X64.hs"  $ x0 200
+  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ x0 711
 
 compile :: String -> String -> IO ()
 compile out m =
