@@ -328,31 +328,30 @@ data Attribute
   | WrapA
 
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
--- and snoc(O1) but append(On).  Optimal would be a real 2-3
--- FingerTree.
-data FingerTree = FingerTree [Symbol] Symbol
-type Empty = 'FingerTree '[] ""
-type Split = 'FingerTree '[""] ""
-type NoTail xs = 'FingerTree xs ""
-type Singleton = 'FingerTree '[]
+-- and snoc(O1) but append(On).  Optimal would be a FingerTree.
+data List = List [Symbol] Symbol
+type Empty = 'List '[] ""
+type Split = 'List '[""] ""
+type NoTail xs = 'List xs ""
+type Singleton = 'List '[]
 
-type family (<|) s t :: FingerTree where
-  (<|) l ('FingerTree (s ': ss) r) = 'FingerTree (AppendSymbol l s ': ss) r
-  (<|) l ('FingerTree '[] r) = 'FingerTree '[] (AppendSymbol l r)
+type family (<|) s t :: List where
+  (<|) l ('List (s ': ss) r) = 'List (AppendSymbol l s ': ss) r
+  (<|) l ('List '[] r) = 'List '[] (AppendSymbol l r)
 
-type family (|>) t s :: FingerTree where
-  (|>) ('FingerTree ss r) rr = 'FingerTree ss (AppendSymbol r rr)
+type family (|>) t s :: List where
+  (|>) ('List ss r) rr = 'List ss (AppendSymbol r rr)
 
-type family (><) t1 t2 :: FingerTree where
-  (><) ('FingerTree ss r) ('FingerTree (s ': ss2) r2) = 'FingerTree (Append ss (AppendSymbol r s ': ss2)) r2
-  (><) ('FingerTree ss r) ('FingerTree '[] r2) = 'FingerTree ss (AppendSymbol r r2)
+type family (><) t1 t2 :: List where
+  (><) ('List ss r) ('List (s ': ss2) r2) = 'List (Append ss (AppendSymbol r s ': ss2)) r2
+  (><) ('List ss r) ('List '[] r2) = 'List ss (AppendSymbol r r2)
 
 type OpenTag e = AppendSymbol "<" (AppendSymbol (ShowElement e) ">")
 
 type CloseTag e = AppendSymbol "</" (AppendSymbol (ShowElement e) ">")
 
 -- | Flatten a document into a type list of tags.
-type family ToList a :: FingerTree where
+type family ToList a :: List where
   ToList (a # b)         = ToList a >< ToList b
   ToList ((a :@: ()) ()) = Singleton (If (HasContent (GetEInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
   ToList ((a :@: b) ())  = AppendSymbol "<" (ShowElement a) <| ToList b |> If (HasContent (GetEInfo a)) (AppendSymbol ">" (CloseTag a)) ">"

@@ -66,7 +66,7 @@ instance {-# OVERLAPPING #-}
 instance
   ( R (T xs val)
   , R (Proxy x)
-  ) => R (T ('FingerTree xs x) val) where
+  ) => R (T ('List xs x) val) where
   {-# INLINE render #-}
   render (T t) = render (T t :: T xs val) <> render (Proxy @ x)
 
