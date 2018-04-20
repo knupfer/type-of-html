@@ -1,7 +1,7 @@
 { nixpkgs ? import <nixpkgs> {} }:
 with nixpkgs.haskell.lib;
 with nixpkgs.lib;
-let tested = [ "ghc822" "ghc841" ];
+let tested = [ "ghc822" "ghc842" ];
     eval = x: import ./default.nix { compiler = x; };
 in
 { sdist = sdistTarball (eval (last tested));
