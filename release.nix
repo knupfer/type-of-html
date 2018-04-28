@@ -1,4 +1,5 @@
-{ nixpkgs ? import <nixpkgs> {} }:
+{ nixpkgs ? import ./nixpkgs.nix }:
+
 with nixpkgs.haskell.lib;
 with nixpkgs.lib;
 let tested = [ "ghc822" "ghc842" ];
