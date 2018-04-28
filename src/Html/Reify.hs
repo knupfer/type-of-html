@@ -2,6 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE MonoLocalBinds       #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE PolyKinds            #-}
@@ -13,18 +14,11 @@ module Html.Reify
 import Html.Type.Internal
 import Html.Convert
 
-import GHC.TypeLits
 import Data.Proxy
 import Data.Semigroup ((<>))
 
 class R a where
   render :: a -> Converted
-
-instance
-  KnownSymbol s
-  => R (Proxy (s :: Symbol)) where
-  {-# INLINE render #-}
-  render = convert
 
 instance {-# INCOHERENT #-}
   R (T '[] val) where
@@ -39,23 +33,23 @@ instance {-# INCOHERENT #-}
 
 instance
   ( Convert b
-  , R (Proxy s)
+  , Convert (Proxy s)
   ) => R (T '[s] (a := b)) where
   {-# INLINE render #-}
-  render (T (AT x)) = render (Proxy @ s) <> convert x
+  render (T (AT x)) = convert (Proxy @ s) <> convert x
 
 instance {-# INCOHERENT #-}
   ( Convert val
-  , R (Proxy s)
+  , Convert (Proxy s)
   ) => R (T '[s] val) where
   {-# INLINE render #-}
-  render (T x) = render (Proxy @ s) <> convert x
+  render (T x) = convert (Proxy @ s) <> convert x
 
 instance {-# OVERLAPPING #-}
-  ( R (Proxy s)
+  ( Convert (Proxy s)
   ) => R (T '[s] String) where
   {-# INLINE render #-}
-  render (T x) = render (Proxy @ s) <> convert x
+  render (T x) = convert (Proxy @ s) <> convert x
 
 instance {-# OVERLAPPING #-}
   ( R (T xs val)
@@ -65,10 +59,10 @@ instance {-# OVERLAPPING #-}
 
 instance
   ( R (T xs val)
-  , R (Proxy x)
+  , Convert (Proxy x)
   ) => R (T ('List xs x) val) where
   {-# INLINE render #-}
-  render (T t) = render (T t :: T xs val) <> render (Proxy @ x)
+  render (T t) = render (T t :: T xs val) <> convert (Proxy @ x)
 
 instance
   ( R (T (Take (Length b) ps) b)
@@ -90,30 +84,30 @@ instance
 
 instance
   ( R (T (ToList a) a)
-  , R (Proxy s)
+  , Convert (Proxy s)
   ) => R (T (s ': ss) [a]) where
   {-# INLINE render #-}
   render (T xs)
-    = render (Proxy @ s)
+    = convert (Proxy @ s)
     <> foldMap (render . newT) xs
 
 instance
   ( R (T (ToList a) a)
-  , R (Proxy s)
+  , Convert (Proxy s)
   ) => R (T (s ': ss) (Maybe a)) where
   {-# INLINE render #-}
   render (T mx)
-    = render (Proxy @ s)
+    = convert (Proxy @ s)
     <> foldMap (render . newT) mx
 
 instance
   ( R (T (ToList a) a)
   , R (T (ToList b) b)
-  , R (Proxy s)
+  , Convert (Proxy s)
   ) => R (T (s ': ss) (Either a b)) where
   {-# INLINE render #-}
   render (T eab)
-    = render (Proxy @ s)
+    = convert (Proxy @ s)
     <> either (render . newT) (render . newT) eab
 
 newT :: x -> T (ToList x) x
