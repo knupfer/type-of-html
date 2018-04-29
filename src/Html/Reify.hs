@@ -2,20 +2,31 @@
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE TypeApplications     #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE ConstraintKinds      #-}
 {-# LANGUAGE MonoLocalBinds       #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE PolyKinds            #-}
 
-module Html.Reify
-  ( R(..)
-  ) where
+module Html.Reify where
 
 import Html.Type.Internal
 import Html.Convert
 
 import Data.Proxy
 import Data.Semigroup ((<>))
+import Data.ByteString.Builder (Builder)
+import GHC.Exts
+
+-- | Constraint synonym of html documents.
+type Document  a = Document' a
+type Document' a = R (T (ToList a) a)
+
+-- | Render a html document to a Builder.
+{-# INLINE renderBuilder #-}
+renderBuilder :: Document a => a -> Builder
+renderBuilder = unConv . render . (T :: a -> T (ToList a) a) . inline
 
 class R a where
   render :: a -> Converted
@@ -89,7 +100,7 @@ instance
   {-# INLINE render #-}
   render (T xs)
     = convert (Proxy @ s)
-    <> foldMap (render . newT) xs
+    <> foldMap (Converted . renderBuilder) xs
 
 instance
   ( R (T (ToList a) a)
@@ -98,7 +109,7 @@ instance
   {-# INLINE render #-}
   render (T mx)
     = convert (Proxy @ s)
-    <> foldMap (render . newT) mx
+    <> foldMap (Converted . renderBuilder) mx
 
 instance
   ( R (T (ToList a) a)
@@ -108,7 +119,4 @@ instance
   {-# INLINE render #-}
   render (T eab)
     = convert (Proxy @ s)
-    <> either (render . newT) (render . newT) eab
-
-newT :: x -> T (ToList x) x
-newT = T
+    <> either (Converted . renderBuilder) (Converted . renderBuilder) eab

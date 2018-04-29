@@ -19,7 +19,8 @@ import Numeric.Natural
 import GHC.TypeLits
 import GHC.Types
 import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
-import GHC.CString (unpackCString#, unpackCStringUtf8#)
+import GHC.CString (unpackCString#, unpackCStringUtf8#, unpackFoldrCString#)
+import GHC.Base (build)
 
 import qualified Data.Semigroup                   as S
 import qualified Data.Monoid                      as M
@@ -153,8 +154,14 @@ escape =
 {-# RULES "CONVERTED literal" forall a.
     stringConv (unpackCString# a) = builderCString# escape a #-}
 
+{-# RULES "CONVERTED foldr literal" forall a.
+    stringConv (build (unpackFoldrCString# a)) = builderCString# escape a #-}
+
 {-# RULES "CONVERTED literal raw" forall a.
     stringConvRaw (unpackCString# a) = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
+
+{-# RULES "CONVERTED foldr literal raw" forall a.
+    stringConvRaw (build (unpackFoldrCString# a)) = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
 
 {-# RULES "CONVERTED literal utf8" forall a.
     stringConv (unpackCStringUtf8# a) = convert (T.pack (unpackCStringUtf8# a)) #-}

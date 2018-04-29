@@ -57,23 +57,23 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "oneElement ()"                  280 (renderByteString . S.oneElement) ()
   f "oneAttribute ()"                280 (renderByteString . A.class_) ()
   f "oneAttribute Proxy"             280 (renderByteString . A.class_) (Proxy :: Proxy "c")
-  f "listElement"                    376 (renderByteString . S.listElement) ()
+  f "listElement"                    392 (renderByteString . S.listElement) ()
   f "Double"                         360 renderByteString (123456789 :: Double)
   f "oneElement"                     368 (renderByteString . S.oneElement) ""
   f "nestedElement"                  368 (renderByteString . S.nestedElement) ""
-  f "listOfAttributes"               376 (\x -> renderByteString [A.class_ x, A.class_ x]) ()
+  f "listOfAttributes"               488 (\x -> renderByteString [A.class_ x, A.class_ x]) ()
   f "Float"                          400 renderByteString (123456789 :: Float)
   f "oneAttribute"                   408 (renderByteString . A.class_) ""
   f "parallelElement"                520 (renderByteString . S.parallelElement) ""
   f "parallelAttribute"              584 (\x -> renderByteString $ A.class_ x # A.id_ x) ""
   f "elementWithAttribute"           584 (\x -> renderByteString $ div_A (A.class_ x) x) ""
-  f "listOfListOf"                   632 (\x -> renderByteString $ div_ [i_ [span_ x]]) ()
-  f "helloWorld"                    1232 (renderByteString . M.helloWorld) ()
-  f "page"                          1416 (renderByteString . M.page) ()
+  f "listOfListOf"                   984 (\x -> renderByteString $ div_ [i_ [span_ x]]) ()
+  f "helloWorld"                    1264 (renderByteString . M.helloWorld) ()
+  f "page"                          1256 (renderByteString . M.page) ()
   f "table"                         1664 (renderByteString . M.table) (2,2)
-  f "AttrShort"                     2608 (renderByteString . M.attrShort) ()
-  f "pageA"                         2792 (renderByteString . M.pageA) ()
-  f "AttrLong"                      3352 (renderByteString . M.attrLong) ()
+  f "AttrShort"                     3352 (renderByteString . M.attrShort) ()
+  f "pageA"                         2320 (renderByteString . M.pageA) ()
+  f "AttrLong"                      2608 (renderByteString . M.attrLong) ()
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
   f "Big page"                     25064 (renderByteString . B.page) ()
 
