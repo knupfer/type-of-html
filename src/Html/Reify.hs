@@ -6,6 +6,7 @@
 {-# LANGUAGE ConstraintKinds      #-}
 {-# LANGUAGE MonoLocalBinds       #-}
 {-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE PolyKinds            #-}
 
@@ -19,9 +20,11 @@ import Data.Semigroup ((<>))
 import Data.ByteString.Builder (Builder)
 import GHC.Exts
 
--- | Constraint synonym of html documents.
-type Document  a = Document' a
 type Document' a = R (T (ToList a) a)
+
+-- | Constraint for html documents.  It's a type family to avoid an
+-- error about FlexibleContexts and a warning about MonoLocalBinds.
+type family Document a where Document a = Document' a
 
 -- | Render a html document to a Builder.
 {-# INLINE renderBuilder #-}
