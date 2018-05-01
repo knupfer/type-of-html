@@ -77,7 +77,7 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
   f "Big page"                     25064 (renderByteString . B.page) ()
 
-  let libAlloc n = allocsError (101 + n) 7
+  let libAlloc n = allocsError (102 + n) 7
 
   validateAction "Compile Library"   (compile tmp) "Html"                      $ libAlloc   0
   validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ libAlloc   4
@@ -86,15 +86,15 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ libAlloc 151
   validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ libAlloc 299
 
-  validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ libAlloc   5
+  validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ libAlloc   4
   validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ libAlloc   5
-  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ libAlloc   6
-  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ libAlloc   8
-  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ libAlloc  13
-  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ libAlloc  26
+  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ libAlloc   5
+  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ libAlloc   7
+  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ libAlloc  12
+  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ libAlloc  25
   validateAction "Compile X32.hs"    (compile tmp) "bench/Compilation/X32.hs"  $ libAlloc  66
   validateAction "Compile X64.hs"    (compile tmp) "bench/Compilation/X64.hs"  $ libAlloc 205
-  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ libAlloc 716
+  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ libAlloc 717
 
 compile :: String -> String -> IO ()
 compile out m =
