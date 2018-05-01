@@ -400,6 +400,7 @@ infixr 5 #
 
 -- | Type synonym for elements without attributes.
 type (>) a b = (:@:) a () b
+infixr 6 >
 
 -- | Decorate an element with attributes and descend to a valid child.
 -- It is recommended to use the predefined elements.
