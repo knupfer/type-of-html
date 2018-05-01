@@ -1,7 +1,8 @@
 # Revision history for type-of-html
 
-## Master
+## 1.4.0.0  -- 2018-05-01
 
+* add fixity for >
 * remove ghc8.0.2 compatibility for perf reasons
 * remove CPP
 * error early on functions as children
