@@ -305,10 +305,14 @@ shows that this is equivalent of directly embedding the entire
 resulting html as bytestring in the binary and is therefore the
 fastest possible output.
 
-Please consider as well using the packages `type-of-html-static` which
-provides helper TH functions to optimize even more at compile time.
-It was put in a seperate package to avoid a dependency on TH (which
-would've been handy for the functions in `Html.Element`).
+Please consider as well using the packages
+[https://hackage.haskell.org/package/type-of-html-static](type-of-html-static)
+which provides helper TH functions to optimize even more at compile
+time.  It was put in a seperate package to avoid a dependency on TH
+(which would've been handy for the functions in `Html.Element`).  You
+can achieve more or less 5x faster rendering when applying these
+optimizations.  The actual performance gain depends a lot on the
+structure of your document.
 
 ## Comparision to lucid and blaze-html
 
