@@ -71,20 +71,20 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "helloWorld"                    1264 (renderByteString . M.helloWorld) ()
   f "page"                          1256 (renderByteString . M.page) ()
   f "table"                         1664 (renderByteString . M.table) (2,2)
-  f "AttrShort"                     3352 (renderByteString . M.attrShort) ()
+  f "AttrShort"                     3232 (renderByteString . M.attrShort) ()
   f "pageA"                         2320 (renderByteString . M.pageA) ()
-  f "AttrLong"                      2608 (renderByteString . M.attrLong) ()
+  f "AttrLong"                      3232 (renderByteString . M.attrLong) ()
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
-  f "Big page"                     25064 (renderByteString . B.page) ()
+  f "Big page"                     24960 (renderByteString . B.page) ()
 
   let libAlloc n = allocsError (102 + n) 7
 
   validateAction "Compile Library"   (compile tmp) "Html"                      $ libAlloc   0
-  validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ libAlloc   4
-  validateAction "Compile Medium.hs" (compile tmp) "Medium"                    $ libAlloc  77
-  validateAction "Compile Big.hs"    (compile tmp) "Big"                       $ libAlloc 145
-  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ libAlloc 151
-  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ libAlloc 299
+  validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ libAlloc   2
+  validateAction "Compile Medium.hs" (compile tmp) "Medium"                    $ libAlloc  39
+  validateAction "Compile Big.hs"    (compile tmp) "Big"                       $ libAlloc  73
+  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ libAlloc  76
+  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ libAlloc 181
 
   validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ libAlloc   4
   validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ libAlloc   5
