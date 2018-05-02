@@ -13,6 +13,7 @@ import qualified Big            as B
 import Criterion.Main
 import Data.String
 import System.Random
+import System.IO.Unsafe
 import Data.Proxy
 import Text.Blaze.Html.Renderer.Utf8
 import qualified Text.Blaze.Html5 as BL
@@ -30,17 +31,9 @@ main = defaultMain
 small :: Benchmark
 small = bgroup "Small"
   [ bench "oneElement"                   $ nf (renderByteString . S.oneElement) ""
-  , bench "oneElement'"                  $ nf (renderByteString . S.oneElement') ""
-  , bench "oneElement''"                 $ nf (renderByteString . S.oneElement'') ""
   , bench "nestedElement"                $ nf (renderByteString . S.nestedElement) ""
-  , bench "nestedElement'"               $ nf (renderByteString . S.nestedElement') ""
-  , bench "nestedElement''"              $ nf (renderByteString . S.nestedElement'') ""
   , bench "parallelElement"              $ nf (renderByteString . S.parallelElement) ""
-  , bench "parallelElement'"             $ nf (renderByteString . S.parallelElement') ""
-  , bench "parallelElement''"            $ nf (renderByteString . S.parallelElement'') ""
   , bench "listElement"                  $ nf (renderByteString . S.listElement) ""
-  , bench "listElement'"                 $ nf (renderByteString . S.listElement') ""
-  , bench "listElement''"                $ nf (renderByteString . S.listElement'') ""
   , bench "Int"                          $ nf renderByteString (123456789 :: Int)
   , bench "Integer"                      $ nf renderByteString (123456789 :: Integer)
   , bench "Double"                       $ nf renderByteString (123456789 :: Double)
@@ -64,47 +57,54 @@ small = bgroup "Small"
 medium :: Benchmark
 medium = bgroup "Medium"
   [ bench "helloWorld"          $ nf (renderByteString . M.helloWorld) "medium"
-  , bench "helloWorld'"         $ nf (renderByteString . M.helloWorld') "medium"
-  , bench "randomString"        $ nfIO randomString
-  , bench "randomStringRaw"     $ nfIO randomStringRaw
-  , bench "randomStrictText"    $ nfIO randomStrictText
-  , bench "randomStrictTextRaw" $ nfIO randomStrictTextRaw
-  , bench "randomLazyText"      $ nfIO randomLazyText
-  , bench "randomLazyTextRaw"   $ nfIO randomLazyTextRaw
+  , bench "randomString"        $ nf renderByteString randomString
+  , bench "randomStringRaw"     $ nf renderByteString randomStringRaw
+  , bench "randomStrictText"    $ nf renderByteString randomStrictText
+  , bench "randomStrictTextRaw" $ nf renderByteString randomStrictTextRaw
+  , bench "randomLazyText"      $ nf renderByteString randomLazyText
+  , bench "randomLazyTextRaw"   $ nf renderByteString randomLazyTextRaw
   , bench "table"               $ nf (renderByteString . M.table) (2,2)
-  , bench "table'"              $ nf (renderByteString . M.table') (2,2)
   , bench "page"                $ nf (renderByteString . M.page) "medium"
-  , bench "page'"               $ nf (renderByteString . M.page') "medium"
   , bench "pageA"               $ nf (renderByteString . M.pageA) "medium"
-  , bench "pageA'"              $ nf (renderByteString . M.pageA') "medium"
   , bench "attrShort"           $ nf (renderByteString . M.attrShort) "medium"
-  , bench "attrShort'"          $ nf (renderByteString . M.attrShort') "medium"
-  , bench "attrShort''"         $ nf (renderByteString . M.attrShort'') "medium"
   , bench "attrLong"            $ nf (renderByteString . M.attrLong) "medium"
-  , bench "attrLong'"           $ nf (renderByteString . M.attrLong') "medium"
-  , bench "attrLong''"          $ nf (renderByteString . M.attrLong'') "medium"
-  ] where
+  ]
 
-      randomString        = renderByteString . div_ . take 5 . randoms @Char <$> newStdGen
-      randomStringRaw     = renderByteString . div_ . Raw . take 5 . randoms @Char <$> newStdGen
-      randomStrictText    = renderByteString . div_ . T.pack . take 5 . randoms <$> newStdGen
-      randomStrictTextRaw = renderByteString . div_ . Raw . T.pack . take 5 . randoms <$> newStdGen
-      randomLazyText      = renderByteString . div_ . LT.pack . take 5 . randoms <$> newStdGen
-      randomLazyTextRaw   = renderByteString . div_ . Raw . LT.pack . take 5 . randoms <$> newStdGen
+{-# NOINLINE randomString #-}
+randomString :: String
+randomString = unsafePerformIO $ take 250 . randoms <$> newStdGen
+
+{-# NOINLINE randomStringRaw #-}
+randomStringRaw :: Raw String
+randomStringRaw = unsafePerformIO $ Raw . take 250 . randoms <$> newStdGen
+
+{-# NOINLINE randomStrictText #-}
+randomStrictText :: T.Text
+randomStrictText = unsafePerformIO $ T.pack . take 250 . randoms <$> newStdGen
+
+{-# NOINLINE randomStrictTextRaw #-}
+randomStrictTextRaw :: Raw T.Text
+randomStrictTextRaw = unsafePerformIO $ Raw . T.pack . take 250 . randoms <$> newStdGen
+
+{-# NOINLINE randomLazyText #-}
+randomLazyText :: LT.Text
+randomLazyText = unsafePerformIO $ LT.pack . take 250 . randoms <$> newStdGen
+
+{-# NOINLINE randomLazyTextRaw #-}
+randomLazyTextRaw :: Raw LT.Text
+randomLazyTextRaw = unsafePerformIO $ Raw . LT.pack . take 250 . randoms <$> newStdGen
 
 big :: Benchmark
 big = bgroup "Big"
   [ bench "table"  $ nf (renderByteString . M.table) (15,15)
-  , bench "table'" $ nf (renderByteString . M.table') (15,15)
   , bench "page"   $ nf (renderByteString . B.page) "big"
-  , bench "page'"  $ nf (renderByteString . B.page') "big"
   ]
 
 blaze :: Benchmark
 blaze = bgroup "Blaze"
   [ bgroup "minimal"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeMinimal) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . S.oneElement) "TEST"
+    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeMinimal) (fromString "")
+    , bench "type-of-html" $ nf (renderByteString . S.oneElement) ""
     ]
   , bgroup "hello world"
     [ bench "blaze-html"   $ nf (renderHtml . BL.blazeHelloWorld) (fromString "TEST")
@@ -130,8 +130,8 @@ blaze = bgroup "Blaze"
     [ bench "blaze-html"   $ nf (renderHtml . BL.blazeTable) (4,4)
     , bench "type-of-html" $ nf (renderByteString . M.table) (4,4)
     ]
-  , bgroup "encode strict text"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.div . BL.toHtml) BL.randomText
-    , bench "type-of-html" $ nf (renderByteString . div_) BL.randomText
+  , bgroup "encode random string"
+    [ bench "blaze-html"   $ nf (renderHtml . BL.div . BL.toHtml) randomString
+    , bench "type-of-html" $ nf (renderByteString . div_) randomString
     ]
   ]
