@@ -4,11 +4,6 @@ module Blaze where
 
 import Control.Monad
 import Text.Blaze.Html5 ((!))
-import System.IO.Unsafe
-
-import System.Random
-
-import qualified Data.Text as T
 
 import qualified Text.Blaze.Html5            as B
 import qualified Text.Blaze.Html5.Attributes as BA
