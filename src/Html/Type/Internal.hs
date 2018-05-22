@@ -9,6 +9,8 @@
 {-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE GADTs                  #-}
 
+{-# LANGUAGE CPP #-} -- Compatibility with ghc8.2
+
 module Html.Type.Internal where
 
 import GHC.TypeLits
@@ -444,6 +446,12 @@ type family HasContent a where
 -- a big html page get bigger if you try to refactor.
 type family Append xs ys :: [k] where
 
+  Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': x11 ': x12 ': x13 ': x14 ': x15 ': x16 ': Append xs ys
+
+  Append (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': xs) ys
+        = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': Append xs ys
+
   Append (x1 ': x2 ': x3 ': x4 ': xs) ys
         = x1 ': x2 ': x3 ': x4 ': Append xs ys
 
@@ -465,9 +473,14 @@ type family Drop n xs :: [k] where
   Drop 0 xs = xs
   Drop 1 (_ ': xs) = xs
   Drop 2 (_ ': _ ': xs) = xs
-  Drop 3 (_ ': _ ': _ ': xs) = xs
   Drop 4 (_ ': _ ': _ ': _ ': xs) = xs
+#if __GLASGOW_HASKELL__ >= 804
+  Drop 8 (_ ': _ ': _ ': _ ': _ ': _ ': _ ': _ ': xs) = xs
+  Drop n xs = Drop (n - 2^Log2 n) (Drop (2^(Log2 n-1)) (Drop (2^(Log2 n-1)) xs))
+#else
+  Drop 3 (_ ': _ ': _ ': xs) = xs
   Drop n (_ ': _ ': _ ': _ ': _ ': xs) = Drop (n-5) xs
+#endif
 
 -- | Type level take.
 --
@@ -480,7 +493,12 @@ type family Take n xs :: [k] where
   Take 2 (x1 ': x2 ': _) = '[x1, x2]
   Take 3 (x1 ': x2 ': x3 ': _) = '[x1, x2, x3]
   Take 4 (x1 ': x2 ': x3 ': x4 ': _) = '[x1, x2, x3, x4]
-  Take n (x1 ': x2 ': x3 ': x4 ': x5 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': Take (n-5) xs
+  Take 5 (x1 ': x2 ': x3 ': x4 ': x5 ': _) = '[x1, x2, x3, x4, x5]
+  Take 6 (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': _) = '[x1, x2, x3, x4, x5, x6]
+  Take 7 (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': _) = '[x1, x2, x3, x4, x5, x6, x7]
+  Take 8 (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': _) = '[x1, x2, x3, x4, x5, x6, x7, x8]
+  Take 9 (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': _) = '[x1, x2, x3, x4, x5, x6, x7, x8, x9]
+  Take n (x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': xs) = x1 ': x2 ': x3 ': x4 ': x5 ': x6 ': x7 ': x8 ': x9 ': x10 ': Take (n-10) xs
 
 -- | Type of type level information about tags.
 data EInfo
