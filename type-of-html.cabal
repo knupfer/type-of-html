@@ -57,6 +57,15 @@ test-suite type
   default-language:   Haskell2010
   build-depends:      base >= 4.9 && < 5
 
+benchmark reduction
+  type:               exitcode-stdio-1.0
+  main-is:            Reduction.hs
+  hs-source-dirs:     bench
+  ghc-options:        -Wall -O2
+  default-language:   Haskell2010
+  build-depends:      base >= 4.9 && < 5
+                    , type-of-html
+
 benchmark alloc
   type:               exitcode-stdio-1.0
   main-is:            Alloc.hs
