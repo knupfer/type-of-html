@@ -77,7 +77,7 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "Big table"                    19968 (renderByteString . M.table) (15,15)
   f "Big page"                     24960 (renderByteString . B.page) ()
 
-  let libAlloc n = allocsError (102 + n) 7
+  let libAlloc n = allocsError (104 + n) 7
 
   validateAction "Compile Library"   (compile tmp) "Html"                      $ libAlloc   0
   validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ libAlloc   2
