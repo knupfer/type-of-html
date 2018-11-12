@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.4.0.2  -- 2018-11-12
+
+* remove all checks for Raw data
+
 ## 1.4.0.1  -- 2018-05-26
 
 * reduction of reduction depth
