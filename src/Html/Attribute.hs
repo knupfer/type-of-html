@@ -5,6 +5,111 @@ module Html.Attribute where
 
 import Html.Type
 
+role_ :: a -> 'RoleA := a
+role_ = AT
+
+ariaActivedescendant_ :: a -> 'AriaActivedescendantA := a
+ariaActivedescendant_ = AT
+
+ariaAtomic_ :: a -> 'AriaAtomicA := a
+ariaAtomic_ = AT
+
+ariaAutocomplete_ :: a -> 'AriaAutocompleteA := a
+ariaAutocomplete_ = AT
+
+ariaBusy_ :: a -> 'AriaBusyA := a
+ariaBusy_ = AT
+
+ariaChecked_ :: a -> 'AriaCheckedA := a
+ariaChecked_ = AT
+
+ariaControls_ :: a -> 'AriaControlsA := a
+ariaControls_ = AT
+
+ariaDescribedby_ :: a -> 'AriaDescribedbyA := a
+ariaDescribedby_ = AT
+
+ariaDisabled_ :: a -> 'AriaDisabledA := a
+ariaDisabled_ = AT
+
+ariaDropeffect_ :: a -> 'AriaDropeffectA := a
+ariaDropeffect_ = AT
+
+ariaExpanded_ :: a -> 'AriaExpandedA := a
+ariaExpanded_ = AT
+
+ariaFlowto_ :: a -> 'AriaFlowtoA := a
+ariaFlowto_ = AT
+
+ariaGrabbed_ :: a -> 'AriaGrabbedA := a
+ariaGrabbed_ = AT
+
+ariaHaspopup_ :: a -> 'AriaHaspopupA := a
+ariaHaspopup_ = AT
+
+ariaHidden_ :: a -> 'AriaHiddenA := a
+ariaHidden_ = AT
+
+ariaInvalid_ :: a -> 'AriaInvalidA := a
+ariaInvalid_ = AT
+
+ariaLabel_ :: a -> 'AriaLabelA := a
+ariaLabel_ = AT
+
+ariaLabelledBy_ :: a -> 'AriaLabelledByA := a
+ariaLabelledBy_ = AT
+
+ariaLevel_ :: a -> 'AriaLevelA := a
+ariaLevel_ = AT
+
+ariaLive_ :: a -> 'AriaLiveA := a
+ariaLive_ = AT
+
+ariaMultiline_ :: a -> 'AriaMultilineA := a
+ariaMultiline_ = AT
+
+ariaMultiselectable_ :: a -> 'AriaMultiselectableA := a
+ariaMultiselectable_ = AT
+
+ariaOwns_ :: a -> 'AriaOwnsA := a
+ariaOwns_ = AT
+
+ariaPosinset_ :: a -> 'AriaPosinsetA := a
+ariaPosinset_ = AT
+
+ariaPressed_ :: a -> 'AriaPressedA := a
+ariaPressed_ = AT
+
+ariaReadonly_ :: a -> 'AriaReadonlyA := a
+ariaReadonly_ = AT
+
+ariaRelevant_ :: a -> 'AriaRelevantA := a
+ariaRelevant_ = AT
+
+ariaRequired_ :: a -> 'AriaRequiredA := a
+ariaRequired_ = AT
+
+ariaSelected_ :: a -> 'AriaSelectedA := a
+ariaSelected_ = AT
+
+ariaSetsize_ :: a -> 'AriaSetsizeA := a
+ariaSetsize_ = AT
+
+ariaSort_ :: a -> 'AriaSortA := a
+ariaSort_ = AT
+
+ariaValuemax_ :: a -> 'AriaValuemaxA := a
+ariaValuemax_ = AT
+
+ariaValuemin_ :: a -> 'AriaValueminA := a
+ariaValuemin_ = AT
+
+ariaValuenow_ :: a -> 'AriaValuenowA := a
+ariaValuenow_ = AT
+
+ariaValuetext_ :: a -> 'AriaValuetextA := a
+ariaValuetext_ = AT
+
 accept_ :: a -> 'AcceptA := a
 accept_ = AT
 
