@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.4.1.0  -- 2018-11-12
+
+* add aria rules and attributes
+
 ## 1.4.0.2  -- 2018-11-12
 
 * remove all checks for Raw data
