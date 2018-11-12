@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE CPP       #-}
 
 -- | Note that the allocation numbers are only reproducible on linux using the nix shell.
 
@@ -27,74 +28,77 @@ allocs n w
   | n' < n = Just $ "Less" ++ answer
   | otherwise = Nothing
   where n' = weightAllocatedBytes w
-        answer = " allocated bytes than " ++ commas n ++ ": " ++ commas n'
+        answer = " allocated bytes than expected: " ++ show (abs $ n' - n)
 
-allocsError :: Int -> Int -> Weight -> Maybe String
-allocsError n i w
-  | n' > (n+1) = Just $ "More" ++ answer
-  | n' < (n-1) = Just $ "Less" ++ answer
+allocsError :: Int -> Int -> Int -> Weight -> Maybe String
+allocsError i m n w
+  | n' > (m'+1) = Just $ "More" ++ answer
+  | n' < (m'-1) = Just $ "Less" ++ answer
   | otherwise = Nothing
   where n' = round (fromIntegral (weightAllocatedBytes w) / (10^i) :: Rational) :: Int
-        answer = " allocated bytes than "
-              ++ pretty n
-              ++ ": "
-              ++ pretty n'
+        m' = n + m
+        answer = " allocated bytes than expected: " ++ pretty (abs $ m' - n')
         pretty x = show x ++ " e" ++ show i
 
-f :: NFData b => String -> Int64 -> (a -> b) -> a -> Weigh ()
-f s n g x = validateFunc s g x (allocs n)
+f :: NFData b => String -> (a -> b) -> a -> Int64 -> Weigh ()
+f s g x n = validateFunc s g x (allocs n)
 
 main :: IO ()
 main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
 
-  f "()"                              96 renderByteString ()
-  f "Int"                            216 renderByteString (123456789 :: Int)
-  f "Word"                           216 renderByteString (123456789 :: Word)
-  f "Char"                           232 renderByteString 'a'
-  f "Integer"                        248 renderByteString (123456789 :: Integer)
-  f "Proxy"                          280 renderByteString (Proxy :: Proxy "a")
-  f "oneElement Proxy"               280 (renderByteString . S.oneElement) (Proxy :: Proxy "b")
-  f "oneElement ()"                  280 (renderByteString . S.oneElement) ()
-  f "oneAttribute ()"                280 (renderByteString . A.class_) ()
-  f "oneAttribute Proxy"             280 (renderByteString . A.class_) (Proxy :: Proxy "c")
-  f "listElement"                    392 (renderByteString . S.listElement) ()
-  f "Double"                         360 renderByteString (123456789 :: Double)
-  f "oneElement"                     368 (renderByteString . S.oneElement) ""
-  f "nestedElement"                  368 (renderByteString . S.nestedElement) ""
-  f "listOfAttributes"               488 (\x -> renderByteString [A.class_ x, A.class_ x]) ()
-  f "Float"                          400 renderByteString (123456789 :: Float)
-  f "oneAttribute"                   408 (renderByteString . A.class_) ""
-  f "parallelElement"                520 (renderByteString . S.parallelElement) ""
-  f "parallelAttribute"              584 (\x -> renderByteString $ A.class_ x # A.id_ x) ""
-  f "elementWithAttribute"           584 (\x -> renderByteString $ div_A (A.class_ x) x) ""
-  f "listOfListOf"                   984 (\x -> renderByteString $ div_ [i_ [span_ x]]) ()
-  f "helloWorld"                    1264 (renderByteString . M.helloWorld) ()
-  f "page"                          1256 (renderByteString . M.page) ()
-  f "table"                         1664 (renderByteString . M.table) (2,2)
-  f "AttrShort"                     3232 (renderByteString . M.attrShort) ()
-  f "pageA"                         2320 (renderByteString . M.pageA) ()
-  f "AttrLong"                      3232 (renderByteString . M.attrLong) ()
-  f "Big table"                    19968 (renderByteString . M.table) (15,15)
-  f "Big page"                     24960 (renderByteString . B.page) ()
+  --                                                                        ghc version    822   843   861
+  f "()"                   renderByteString ()                                    $ ghc [   96             ]
+  f "Int"                  renderByteString (123456789 :: Int)                    $ ghc [  216             ]
+  f "Word"                 renderByteString (123456789 :: Word)                   $ ghc [  216             ]
+  f "Char"                 renderByteString 'a'                                   $ ghc [  232             ]
+  f "Integer"              renderByteString (123456789 :: Integer)                $ ghc [  248             ]
+  f "Proxy"                renderByteString (Proxy :: Proxy "a")                  $ ghc [  280             ]
+  f "oneElement Proxy"     (renderByteString . S.oneElement) (Proxy :: Proxy "b") $ ghc [  280             ]
+  f "oneElement ()"        (renderByteString . S.oneElement) ()                   $ ghc [  280             ]
+  f "oneAttribute ()"      (renderByteString . A.class_) ()                       $ ghc [  280             ]
+  f "oneAttribute Proxy"   (renderByteString . A.class_) (Proxy :: Proxy "c")     $ ghc [  280             ]
+  f "listElement"          (renderByteString . S.listElement) ()                  $ ghc [  392             ]
+  f "Double"               renderByteString (123456789 :: Double)                 $ ghc [  360             ]
+  f "oneElement"           (renderByteString . S.oneElement) ""                   $ ghc [  368             ]
+  f "nestedElement"        (renderByteString . S.nestedElement) ""                $ ghc [  368             ]
+  f "listOfAttributes"     (\x -> renderByteString [A.class_ x, A.class_ x]) ()   $ ghc [  488,    0,  -16 ]
+  f "Float"                renderByteString (123456789 :: Float)                  $ ghc [  400             ]
+  f "oneAttribute"         (renderByteString . A.class_) ""                       $ ghc [  408             ]
+  f "parallelElement"      (renderByteString . S.parallelElement) ""              $ ghc [  520             ]
+  f "parallelAttribute"    (\x -> renderByteString $ A.class_ x # A.id_ x) ""     $ ghc [  584             ]
+  f "elementWithAttribute" (\x -> renderByteString $ div_A (A.class_ x) x) ""     $ ghc [  584             ]
+  f "listOfListOf"         (\x -> renderByteString $ div_ [i_ [span_ x]]) ()      $ ghc [  896,   88,   -8 ]
+  f "helloWorld"           (renderByteString . M.helloWorld) ()                   $ ghc [ 1248,    0,   16 ]
+  f "page"                 (renderByteString . M.page) ()                         $ ghc [ 1256             ]
+  f "table"                (renderByteString . M.table) (2,2)                     $ ghc [ 1920, -256,   -8 ]
+  f "AttrShort"            (renderByteString . M.attrShort) ()                    $ ghc [ 3184,   48       ]
+  f "pageA"                (renderByteString . M.pageA) ()                        $ ghc [ 2536, -216       ]
+  f "AttrLong"             (renderByteString . M.attrLong) ()                     $ ghc [ 3184,   48, -192 ]
+  f "Big table"            (renderByteString . M.table) (15,15)                   $ ghc [12904, 7064,   -8 ]
+  f "Big page"             (renderByteString . B.page) ()                         $ ghc [25208, -248,  -40 ]
+  let g x y z = validateAction x (compile tmp) y . allocsError 7 z                $ ghc [  104,    0,    2 ]
+  g "Compile Library"   "Html"                                                    $ ghc [    0             ]
+  g "Compile Small.hs"  "Small"                                                   $ ghc [    0             ]
+  g "Compile Medium.hs" "Medium"                                                  $ ghc [   37,    0,    2 ]
+  g "Compile Big.hs"    "Big"                                                     $ ghc [   70,    0,    3 ]
+  g "Compile Alloc.hs"  "bench/Alloc.hs"                                          $ ghc [   74,    2       ]
+  g "Compile Perf.hs"   "bench/Perf.hs"                                           $ ghc [  179,    2       ]
+  g "Compile X0.hs"     "bench/Compilation/X0.hs"                                 $ ghc [    4,   -2       ]
+  g "Compile X1.hs"     "bench/Compilation/X1.hs"                                 $ ghc [    3             ]
+  g "Compile X2.hs"     "bench/Compilation/X2.hs"                                 $ ghc [    5             ]
+  g "Compile X4.hs"     "bench/Compilation/X4.hs"                                 $ ghc [    7             ]
+  g "Compile X8.hs"     "bench/Compilation/X8.hs"                                 $ ghc [   12             ]
+  g "Compile X16.hs"    "bench/Compilation/X16.hs"                                $ ghc [   23             ]
+  g "Compile X32.hs"    "bench/Compilation/X32.hs"                                $ ghc [   64,    0       ]
+  g "Compile X64.hs"    "bench/Compilation/X64.hs"                                $ ghc [  203,    2,   -3 ]
+  g "Compile X128.hs"   "bench/Compilation/X128.hs"                               $ ghc [  711,    4,   -5 ]
 
-  let libAlloc n = allocsError (104 + n) 7
+ghc :: Num a => [a] -> a
+ghc [] = 0
+ghc (x:xs) = sum $ x:[y | (y, v) <- zip xs supportedGhcs, v < __GLASGOW_HASKELL__]
 
-  validateAction "Compile Library"   (compile tmp) "Html"                      $ libAlloc   0
-  validateAction "Compile Small.hs"  (compile tmp) "Small"                     $ libAlloc   2
-  validateAction "Compile Medium.hs" (compile tmp) "Medium"                    $ libAlloc  39
-  validateAction "Compile Big.hs"    (compile tmp) "Big"                       $ libAlloc  73
-  validateAction "Compile Alloc.hs"  (compile tmp) "bench/Alloc.hs"            $ libAlloc  76
-  validateAction "Compile Perf.hs"   (compile tmp) "bench/Perf.hs"             $ libAlloc 181
+  where supportedGhcs = [802, 804] :: [Int]
 
-  validateAction "Compile X0.hs"     (compile tmp) "bench/Compilation/X0.hs"   $ libAlloc   4
-  validateAction "Compile X1.hs"     (compile tmp) "bench/Compilation/X1.hs"   $ libAlloc   5
-  validateAction "Compile X2.hs"     (compile tmp) "bench/Compilation/X2.hs"   $ libAlloc   5
-  validateAction "Compile X4.hs"     (compile tmp) "bench/Compilation/X4.hs"   $ libAlloc   7
-  validateAction "Compile X8.hs"     (compile tmp) "bench/Compilation/X8.hs"   $ libAlloc  12
-  validateAction "Compile X16.hs"    (compile tmp) "bench/Compilation/X16.hs"  $ libAlloc  25
-  validateAction "Compile X32.hs"    (compile tmp) "bench/Compilation/X32.hs"  $ libAlloc  66
-  validateAction "Compile X64.hs"    (compile tmp) "bench/Compilation/X64.hs"  $ libAlloc 205
-  validateAction "Compile X128.hs"   (compile tmp) "bench/Compilation/X128.hs" $ libAlloc 717
 
 compile :: String -> String -> IO ()
 compile out m =

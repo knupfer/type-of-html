@@ -18,9 +18,9 @@ main = pure ()
 
 type Test =
   ( ToList ()
-    == Empty
+    == 'List '[] ""
   , ToList Int
-    == Split
+    == 'List '[""] ""
   , ToList (Proxy "a")
     == 'List '[] "a"
   , ToList ('A > Char)

@@ -114,14 +114,14 @@ stringConvRaw :: String -> Converted
 stringConvRaw = Converted . B.stringUtf8
 
 escapeUtf8 :: BP.BoundedPrim Char
-escapeUtf8 =
-    BP.condB (>  '>' ) BP.charUtf8 $
-    BP.condB (== '<' ) (fixed4 ('&',('l',('t',';')))) $
-    BP.condB (== '>' ) (fixed4 ('&',('g',('t',';')))) $
-    BP.condB (== '&' ) (fixed5 ('&',('a',('m',('p',';'))))) $
-    BP.condB (== '"' ) (fixed5 ('&',('#',('3',('4',';'))))) $
-    BP.condB (== '\'') (fixed5 ('&',('#',('3',('9',';'))))) $
-    BP.liftFixedToBounded BP.char7
+escapeUtf8
+  = BP.condB (>  '>' ) BP.charUtf8
+  . BP.condB (== '<' ) (fixed4 ('&',('l',('t',';'))))
+  . BP.condB (== '>' ) (fixed4 ('&',('g',('t',';'))))
+  . BP.condB (== '&' ) (fixed5 ('&',('a',('m',('p',';')))))
+  . BP.condB (== '"' ) (fixed5 ('&',('#',('3',('4',';')))))
+  . BP.condB (== '\'') (fixed5 ('&',('#',('3',('9',';')))))
+  $ BP.liftFixedToBounded BP.char7
   where
     {-# INLINE fixed4 #-}
     fixed4 x = BP.liftFixedToBounded $ const x BP.>$<
@@ -132,14 +132,14 @@ escapeUtf8 =
       BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7
 
 escape :: BP.BoundedPrim Word8
-escape =
-    BP.condB (>  c2w '>' ) (BP.liftFixedToBounded BP.word8) $
-    BP.condB (== c2w '<' ) (fixed4 (c2w '&',(c2w 'l',(c2w 't',c2w ';')))) $
-    BP.condB (== c2w '>' ) (fixed4 (c2w '&',(c2w 'g',(c2w 't',c2w ';')))) $
-    BP.condB (== c2w '&' ) (fixed5 (c2w '&',(c2w 'a',(c2w 'm',(c2w 'p',c2w ';'))))) $
-    BP.condB (== c2w '"' ) (fixed5 (c2w '&',(c2w '#',(c2w '3',(c2w '4',c2w ';'))))) $
-    BP.condB (== c2w '\'') (fixed5 (c2w '&',(c2w '#',(c2w '3',(c2w '9',c2w ';'))))) $
-    BP.liftFixedToBounded BP.word8
+escape
+  = BP.condB (>  c2w '>' ) (BP.liftFixedToBounded BP.word8)
+  . BP.condB (== c2w '<' ) (fixed4 (c2w '&',(c2w 'l',(c2w 't',c2w ';'))))
+  . BP.condB (== c2w '>' ) (fixed4 (c2w '&',(c2w 'g',(c2w 't',c2w ';'))))
+  . BP.condB (== c2w '&' ) (fixed5 (c2w '&',(c2w 'a',(c2w 'm',(c2w 'p',c2w ';')))))
+  . BP.condB (== c2w '"' ) (fixed5 (c2w '&',(c2w '#',(c2w '3',(c2w '4',c2w ';')))))
+  . BP.condB (== c2w '\'') (fixed5 (c2w '&',(c2w '#',(c2w '3',(c2w '9',c2w ';')))))
+  $ BP.liftFixedToBounded BP.word8
   where
     c2w = fromIntegral . ord
 

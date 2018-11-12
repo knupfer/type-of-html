@@ -67,7 +67,7 @@ instance {-# OVERLAPPING #-}
 
 instance {-# OVERLAPPING #-}
   ( R (T xs val)
-  ) => R (T (NoTail xs) val) where
+  ) => R (T ('List xs "") val) where
   {-# INLINE render #-}
   render (T t) = render (T t :: T xs val)
 

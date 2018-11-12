@@ -1,3 +1,7 @@
-{ nixpkgs ? import ./nixpkgs.nix, compiler ? "ghc842" }:
+{ nixpkgs ? import ./nixpkgs.nix, compiler ? "" }:
 
-nixpkgs.haskell.packages.${compiler}.callCabal2nix "type-of-html" (nixpkgs.lib.sourceFilesBySuffices ./. [".cabal" ".hs" "LICENSE" ".md"]) {}
+with nixpkgs;
+let ghc = if compiler == "" then haskellPackages else haskell.packages.${compiler}; in
+haskell.lib.shellAware (haskell.lib.doBenchmark (ghc.callCabal2nix "type-of-html" (lib.sourceFilesBySuffices ./. [".cabal" ".hs" "LICENSE" ".md"]) {}))
+
+

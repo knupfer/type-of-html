@@ -14,7 +14,7 @@
 module Html.Type.Internal where
 
 import GHC.TypeLits
-import GHC.Exts
+import GHC.Exts (Constraint)
 import Data.Proxy
 import Data.Type.Bool
 
@@ -332,10 +332,6 @@ data Attribute
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
 -- and snoc(O1) but append(On).  Optimal would be a FingerTree.
 data List = List [Symbol] Symbol
-type Empty = 'List '[] ""
-type Split = 'List '[""] ""
-type NoTail xs = 'List xs ""
-type Singleton = 'List '[]
 
 type family (<|) s t :: List where
   (<|) l ('List (s ': ss) r) = 'List (AppendSymbol l s ': ss) r
@@ -355,14 +351,14 @@ type CloseTag e = AppendSymbol "</" (AppendSymbol (ShowElement e) ">")
 -- | Flatten a document into a type list of tags.
 type family ToList a :: List where
   ToList (a # b)         = ToList a >< ToList b
-  ToList ((a :@: ()) ()) = Singleton (If (HasContent (GetEInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
+  ToList ((a :@: ()) ()) = 'List '[] (If (HasContent (GetEInfo a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
   ToList ((a :@: b) ())  = AppendSymbol "<" (ShowElement a) <| ToList b |> If (HasContent (GetEInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
   ToList ((a :@: ()) b)  = OpenTag a <| ToList b |> CloseTag a
   ToList ((a :@: b) c)   = (AppendSymbol "<" (ShowElement a) <| ToList b) >< (">" <| ToList c |> CloseTag a)
   ToList (a := b)        = AppendSymbol " " (AppendSymbol (ShowAttribute a) "=\"") <| ToList b |> "\""
-  ToList ()              = Empty
-  ToList (Proxy x)       = Singleton x
-  ToList x               = Split
+  ToList ()              = 'List '[] ""
+  ToList (Proxy x)       = 'List '[] x
+  ToList x               = 'List '[""] ""
 
 newtype (:=) (a :: Attribute) b = AT b
 
@@ -374,6 +370,7 @@ type (<?>) p a b = (Check Attribute p a, Check Element p b)
 
 type family Check f a b :: Constraint where
   Check _ _ ()                      = ()
+  Check _ _ (Raw _)                 = ()
   Check f a (b # c)                 = (Check f a b, Check f a c)
   Check f a (Maybe b)               = Check f a b
   Check f a (Either b c)            = (Check f a b, Check f a c)

@@ -2,8 +2,8 @@
 
 with nixpkgs.haskell.lib;
 with nixpkgs.lib;
-let tested = [ "ghc822" "ghc842" ];
-    eval = x: import ./default.nix { compiler = x; };
+let tested = [ "ghc822" "ghc844" ];
+    eval = x: import ./default.nix { nixpkgs = nixpkgs; compiler = x; };
 in
 { sdist = sdistTarball (eval (last tested));
-} // genAttrs tested (x: buildStrictly (eval x))
+} // genAttrs tested eval
