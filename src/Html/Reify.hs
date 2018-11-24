@@ -4,7 +4,6 @@
 {-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE ConstraintKinds      #-}
-{-# LANGUAGE MonoLocalBinds       #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE DataKinds            #-}
