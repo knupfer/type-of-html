@@ -11,6 +11,15 @@ module Html.Type
   , Raw(..)
   , Attribute(..)
   , Element(..)
+  , CompactHTML
+  , Put(..)
+  , V(..)
+  , Retrievable
+  , Retrieve
+  , Variables
+  , Document
+  , Compactable
   ) where
 
 import Html.Type.Internal
+import Html.Reify

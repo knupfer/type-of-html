@@ -2,6 +2,9 @@
 
 {-# LANGUAGE TypeFamilyDependencies #-}
 {-# LANGUAGE UndecidableInstances   #-}
+{-# LANGUAGE ScopedTypeVariables    #-}
+{-# LANGUAGE AllowAmbiguousTypes    #-}
+{-# LANGUAGE TypeApplications       #-}
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
 {-# LANGUAGE TypeFamilies           #-}
@@ -17,6 +20,7 @@ import GHC.TypeLits
 import GHC.Exts (Constraint)
 import Data.Proxy
 import Data.Type.Bool
+import Data.ByteString (ByteString)
 
 {-# DEPRECATED
 
@@ -47,6 +51,52 @@ import Data.Type.Bool
   Nextid
 
  "This is an obsolete html element and should not be used." #-}
+
+-- | Data for declaring variables in a html document which will be compacted.
+data V (n :: Symbol) = V
+
+newtype One a = One a
+
+-- | Unique set of variables in a html document in the order of occurence.
+type Variables a = Dedupe (GetV a)
+
+-- | A compacted html documented with it's variables annoted as a list of Symbols.
+data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)] deriving Show
+
+type family GetV a :: [Symbol] where
+  GetV (a # b)       = Append (GetV a) (GetV b)
+  GetV ((a :@: b) c) = Append (GetV b) (GetV c)
+  GetV (a := b)      = GetV b
+  GetV (Maybe a)     = GetV a
+  GetV [a]           = GetV a
+  GetV (Either a b)  = Append (GetV a) (GetV b)
+  GetV (V v)         = '[v]
+  GetV x             = '[]
+
+type family Reverse xs where
+  Reverse xs = Reverse' xs '[]
+
+type family Reverse' xs ys where
+  Reverse' (x':xs) ys = Reverse' xs (x':ys)
+  Reverse' '[] ys = ys
+
+type family Dedupe xs :: [Symbol] where
+  Dedupe (x ': xs) = x ': Dedupe (Delete x xs)
+  Dedupe '[] = '[]
+
+type family Delete x xs :: [Symbol] where
+  Delete x (x ': xs) = Delete x xs
+  Delete x (y ': xs) = y ': Delete x xs
+  Delete _ _ = '[]
+
+class ShowTypeList a where
+  showTypeList :: [String]
+
+instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList (x ': xs) where
+  showTypeList = symbolVal (Proxy @ x) : showTypeList @ xs
+
+instance ShowTypeList '[] where
+  showTypeList = []
 
 -- | The data type of all html elements and the kind of elements.
 data Element
