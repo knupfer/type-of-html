@@ -2,13 +2,13 @@
 
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 #if   __GLASGOW_HASKELL__ <= 802
-{-# OPTIONS_GHC -fsimpl-tick-factor=42 -freduction-depth=55 #-}
+{-# OPTIONS_GHC -fsimpl-tick-factor=66 -freduction-depth=55 #-}
 #elif __GLASGOW_HASKELL__ <= 804
-{-# OPTIONS_GHC -fsimpl-tick-factor=42 -freduction-depth=29 #-}
+{-# OPTIONS_GHC -fsimpl-tick-factor=66 -freduction-depth=29 #-}
 #elif __GLASGOW_HASKELL__ <= 806
-{-# OPTIONS_GHC -fsimpl-tick-factor=42 -freduction-depth=29 #-}
+{-# OPTIONS_GHC -fsimpl-tick-factor=66 -freduction-depth=29 #-}
 #else
-{-# OPTIONS_GHC -fsimpl-tick-factor=42 -freduction-depth=1  #-}
+{-# OPTIONS_GHC -fsimpl-tick-factor=66 -freduction-depth=1  #-}
 #endif
 
 module Main where

@@ -1,4 +1,7 @@
-{-# LANGUAGE DataKinds #-}
+{-# OPTIONS_GHC -freduction-depth=0 #-}
+
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DataKinds        #-}
 
 module Main where
 
@@ -15,7 +18,6 @@ import System.Random
 import System.IO.Unsafe
 import Data.Proxy
 import Text.Blaze.Html.Renderer.Utf8
-import qualified Text.Blaze.Html5 as BL
 import qualified Data.Text.Lazy   as LT
 import qualified Data.Text        as T
 
@@ -24,7 +26,8 @@ main = defaultMain
   [ small
   , medium
   , big
-  , blaze
+  , comparison
+  , scaling
   ]
 
 small :: Benchmark
@@ -99,38 +102,60 @@ big = bgroup "Big"
   , bench "page"   $ nf (renderByteString . B.page) "big"
   ]
 
-blaze :: Benchmark
-blaze = bgroup "Blaze"
-  [ bgroup "minimal"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeMinimal) (fromString "")
-    , bench "type-of-html" $ nf (renderByteString . S.oneElement) ""
-    ]
-  , bgroup "hello world"
+comparison :: Benchmark
+comparison = bgroup "Comparison"
+  [ bgroup "hello world"
     [ bench "blaze-html"   $ nf (renderHtml . BL.blazeHelloWorld) (fromString "TEST")
     , bench "type-of-html" $ nf (renderByteString . M.helloWorld) "TEST"
-    ]
-  , bgroup "attributes long"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeAttrLong) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . M.attrLong) "TEST"
-    ]
-  , bgroup "attributes short"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeAttrShort) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . M.attrShort) "TEST"
-    ]
-  , bgroup "page"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazePage) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . M.page) "TEST"
-    ]
-  , bgroup "page with attributes"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazePageA) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . M.pageA) "TEST"
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.helloWorld (V @ "x"))) (Put "TEST")
     ]
   , bgroup "table"
     [ bench "blaze-html"   $ nf (renderHtml . BL.blazeTable) (4,4)
     , bench "type-of-html" $ nf (renderByteString . M.table) (4,4)
     ]
-  , bgroup "encode random string"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.div . BL.toHtml) randomString
-    , bench "type-of-html" $ nf (renderByteString . div_) randomString
+  , bgroup "small page"
+    [ bench "blaze-html"   $ nf (renderHtml . BL.blazePageA) (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . M.pageA) "TEST"
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x"))) (Put "TEST")
+    ]
+  , bgroup "medium page"
+    [ bench "blaze-html"   $ nf (renderHtml . (\x -> BL.blazePageA x <> BL.blazePageA x)) (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . (\x -> M.pageA x # M.pageA x)) "TEST"
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x") # M.pageA (V @ "x"))) (Put "TEST")
+    ]
+  , bgroup "big page"
+    [ bench "blaze-html"   $ nf (renderHtml . (\x -> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x)) (fromString "TEST")
+    , bench "type-of-html" $ nf (renderByteString . (\x -> M.pageA x # M.pageA x # M.pageA x # M.pageA x)) "TEST"
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x"))) (Put "TEST")
     ]
   ]
+
+scaling :: Benchmark
+scaling = bgroup "Scaling"
+  [ bgroup "2 divs"
+    [ bench "normal" $ nf (renderByteString . divs2) "input"
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs2 (V @ "x")) (Put "input")
+    ]
+  , bgroup "4 divs"
+    [ bench "normal" $ nf (renderByteString . divs4) "input"
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs4 (V @ "x")) (Put "input")
+    ]
+  , bgroup "8 divs"
+    [ bench "normal" $ nf (renderByteString . divs8) "input"
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs8 (V @ "x")) (Put "input")
+    ]
+  , bgroup "16 divs"
+    [ bench "normal" $ nf (renderByteString . divs16) "input"
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs16 (V @ "x")) (Put "input")
+    ]
+  , bgroup "32 divs"
+    [ bench "normal" $ nf (renderByteString . divs32) "input"
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs32 (V @ "x")) (Put "input")
+    ]
+  ]
+  where
+    divs2 x = div_ "lorem;" # x # div_ "ipsum<>"
+    divs4 = divs2 . divs2
+    divs8 = divs4 . divs4
+    divs16 = divs8 . divs8
+    divs32 = divs16 . divs16
