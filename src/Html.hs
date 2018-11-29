@@ -48,7 +48,7 @@ import qualified Data.Text.Lazy.Encoding       as T
 -- | Render a html document to a Builder.
 {-# INLINE renderBuilder #-}
 renderBuilder :: Document a => a -> Builder
-renderBuilder = unConv . render @ 'False . (T :: a -> T (ToList a) a) . inline
+renderBuilder = unConv . inline (render @ 'False . (T :: a -> T (ToList a) a)) . inline
 
 -- | Render a html document to a String.
 {-# INLINE renderString #-}

@@ -70,13 +70,11 @@ instance Convert s
 
 instance Convert s
   => R 'True (One s) where
-  {-# INLINE render #-}
   render (One x) = pure . Left $ convert x
 
 instance {-# INCOHERENT #-}
   KnownSymbol n =>
   R 'True (T '[ "" ] (V n)) where
-  {-# INLINE render #-}
   render _ = pure (Right (symbolVal (Proxy @ n)))
 
 -- | Common instances
@@ -97,7 +95,7 @@ instance
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] (a := b)) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T (AT x)) = render (One (Proxy @ s)) <> render (T x :: T '[ "" ] b)
 
 instance {-# INCOHERENT #-}
@@ -105,7 +103,7 @@ instance {-# INCOHERENT #-}
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] val) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T x) = render (One (Proxy @ s)) <> render (T x :: T '[ "" ] val)
 
 instance {-# OVERLAPPING #-}
@@ -113,13 +111,13 @@ instance {-# OVERLAPPING #-}
   , R u (One String)
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] String) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T x) = render (One (Proxy @ s)) <> render (One x)
 
 instance {-# OVERLAPPING #-}
   ( R u (T xs val)
   ) => R u (T ('List xs "") val) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T t) = render (T t :: T xs val)
 
 instance
@@ -127,7 +125,7 @@ instance
   , R u (One (Proxy x))
   , Semigroup (RenderOutput u)
   ) => R u (T ('List xs x) val) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T t) = render (T t :: T xs val) <> render (One (Proxy @ x))
 
 instance
@@ -135,7 +133,7 @@ instance
   , R u (T (Drop (Length b) ps) c)
   , Semigroup (RenderOutput u)
   ) => R u (T ps ((a :@: b) c)) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T ~(WithAttributes b c))
     = render (T b :: T (Take (Length b) ps) b)
     <> render (T c :: T (Drop (Length b) ps) c)
@@ -145,7 +143,7 @@ instance
   , R u (T (Drop (Length a) ps) b)
   , Semigroup (RenderOutput u)
   ) => R u (T ps (a # b)) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T ~(a :#: b))
     = render (T a :: T (Take (Length a) ps) a)
     <> render (T b :: T (Drop (Length a) ps) b)
@@ -156,7 +154,7 @@ instance
   , Semigroup (RenderOutput u)
   , Monoid (RenderOutput u)
   ) => R u (T (s ': ss) [a]) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T xs)
     = render (One (Proxy @ s))
     <> foldMap (render . (T :: a -> T (ToList a) a)) xs
@@ -167,7 +165,7 @@ instance
   , Semigroup (RenderOutput u)
   , Monoid (RenderOutput u)
   ) => R u (T (s ': ss) (Maybe a)) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T mx)
     = render (One (Proxy @ s))
     <> foldMap (render . (T :: a -> T (ToList a) a)) mx
@@ -178,7 +176,7 @@ instance
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
   ) => R u (T (s ': ss) (Either a b)) where
-  {-# INLINE render #-}
+  {-# INLINABLE render #-}
   render (T eab)
     = render (One (Proxy @ s))
     <> either (render . (T :: a -> T (ToList a) a)) (render . (T :: b -> T (ToList b) b)) eab
