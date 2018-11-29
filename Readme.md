@@ -305,14 +305,30 @@ shows that this is equivalent of directly embedding the entire
 resulting html as bytestring in the binary and is therefore the
 fastest possible output.
 
-Please consider as well using the packages
-[https://hackage.haskell.org/package/type-of-html-static](type-of-html-static)
-which provides helper TH functions to optimize even more at compile
-time.  It was put in a seperate package to avoid a dependency on TH
-(which would've been handy for the functions in `Html.Element`).  You
-can achieve more or less 5x faster rendering when applying these
-optimizations.  The actual performance gain depends a lot on the
-structure of your document.
+### CompactHTML
+
+You can use an even more performant representation if you can
+sacrifice some flexibility.  If every variable of your html document
+is just some type which will be converted into a Builder, you can
+render your entire html document as a list of ByteString which will be
+cached by ghc and interspersed with variables.  This will be in a lot
+of cases orders of magnitude faster.  This is especially the case with
+larger pages.  For very small pages (let's say upto 5 elements) this
+technique is slower.
+
+```haskell
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DataKinds #-}
+
+import Html
+
+test x y = div_ "Hello, my name is: " # x # "I'm of age: " # y
+
+myDoc :: CompactHTML ["name", "age"]
+myDoc = compactHTML (test (V @"name") (V @"age"))
+
+main = putStrLn $ renderCompactString myDoc (Put "Bob") (Put (42 :: Int))
+```
 
 ## Comparision to lucid and blaze-html
 
@@ -449,7 +465,4 @@ of repetitions, which are at the moment shared.  Even the bytestring,
 which is used for the Symbol, is shared of equal Symbols.
 
 ### Isn't there any performance tweak left?
-At the moment, string literals are handled well, but not optimal.  The
-escaping of string literals is done everytime when rendering the html
-document, ideally we convince GHC to float the escaped string literal
-to top level.  I guess, that would make things a bit faster.
+As far as I know: no.  If you disagree, please file an issue.
