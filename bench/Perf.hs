@@ -18,6 +18,7 @@ import System.Random
 import System.IO.Unsafe
 import Data.Proxy
 import Text.Blaze.Html.Renderer.Utf8
+import Data.Semigroup ((<>))
 import qualified Data.Text.Lazy   as LT
 import qualified Data.Text        as T
 
