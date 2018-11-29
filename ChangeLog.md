@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.5.0.0  -- 2018-11-29
+
+* add compactHTML
+
 ## 1.4.1.0  -- 2018-11-12
 
 * add aria rules and attributes
