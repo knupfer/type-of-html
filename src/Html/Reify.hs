@@ -19,9 +19,9 @@ import Html.Type.Internal
 import Html.Convert
 
 import Data.Proxy
-import Data.Semigroup ((<>))
 import GHC.TypeLits
 import Data.ByteString.Builder
+import Data.Semigroup ((<>), Semigroup)
 
 import qualified Data.Sequence as S
 
@@ -153,6 +153,7 @@ instance
 instance
   ( R u (T (ToList a) a)
   , R u (One (Proxy s))
+  , Semigroup (RenderOutput u)
   , Monoid (RenderOutput u)
   ) => R u (T (s ': ss) [a]) where
   {-# INLINE render #-}
@@ -163,6 +164,7 @@ instance
 instance
   ( R u (T (ToList a) a)
   , R u (One (Proxy s))
+  , Semigroup (RenderOutput u)
   , Monoid (RenderOutput u)
   ) => R u (T (s ': ss) (Maybe a)) where
   {-# INLINE render #-}
