@@ -83,21 +83,6 @@ main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
   f "AttrLong"             M.attrLong ()                           $ ghc  2688     0  2104      0
   f "Big table"            M.table (15,15)                         $ ghc 54040     0     8 (-3736)
   f "Big page"             B.page ()                               $ ghc 27888 (-120)    0 (-1344)
-  let g x y z = validateAction x (compile tmp) y . allocsError 7 z $ ghc   116     0     4    (-4)
-  g "Compile Library"   "Html"                                     $ ghc     0     0     0      0
-  g "Compile Small.hs"  "Small"                                    $ ghc     1     0     0      0
-  g "Compile Medium.hs" "Medium"                                   $ ghc    39     2     2    (-2)
-  g "Compile Big.hs"    "Big"                                      $ ghc    73     2     1    (-2)
---g "Compile Perf.hs"   "bench/Perf.hs"                            $ ghc   117   213     4      0
-  g "Compile X0.hs"     "bench/Compilation/X0.hs"                  $ ghc     3     1     0      0
-  g "Compile X1.hs"     "bench/Compilation/X1.hs"                  $ ghc     4     2   (-2)     0
-  g "Compile X2.hs"     "bench/Compilation/X2.hs"                  $ ghc     5     0     0      0
-  g "Compile X4.hs"     "bench/Compilation/X4.hs"                  $ ghc     7     0     0      0
-  g "Compile X8.hs"     "bench/Compilation/X8.hs"                  $ ghc    12     0     0      0
-  g "Compile X16.hs"    "bench/Compilation/X16.hs"                 $ ghc    25     0     0    (-2)
-  g "Compile X32.hs"    "bench/Compilation/X32.hs"                 $ ghc    64     2     0    (-7)
-  g "Compile X64.hs"    "bench/Compilation/X64.hs"                 $ ghc   203     4   (-4)  (-22)
-  g "Compile X128.hs"   "bench/Compilation/X128.hs"                $ ghc   714     4   (-5)  (-82)
 
 type family GhcVersions xs where
   GhcVersions '[] = Int64
