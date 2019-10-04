@@ -1,4 +1,4 @@
 language: nix
 
 script:
-- nix build -f release.nix --verbose
+- nix build --verbose --arg release true
