@@ -1,8 +1,8 @@
 import ((import <nixpkgs> {}).fetchFromGitHub {
   owner  = "knupfer";
   repo   = "hs-nix-default";
-  rev    = "3aef8297cb20ff9d0e4d80a70cb9c36b4466d9f2";
-  sha256 = "17ssqk5f18fprfq2wy5cv1cd68ycyq12rfnmjg3ryyg1fzdndgaq";})
+  rev    = "3d7569d391e988bfa79346d09fc88df825135525";
+  sha256 = "1sjry7bd8yx0w7mh99v0c9623qaxk4ksc2dy47pv9bznajhq6kva";})
 
   { project = "type-of-html";
     directory = ./.;
