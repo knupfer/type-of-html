@@ -7,9 +7,12 @@ license-file:         LICENSE
 author:               Florian Knupfer
 maintainer:           fknupfer@gmail.com
 homepage:             https://github.com/knupfer/type-of-html
-tested-with:          GHC == 8.2.2
+tested-with:          GHC == 8.6.5
+                    , GHC == 8.6.4
                     , GHC == 8.4.4
-                    , GHC == 8.6.2
+                    , GHC == 8.4.3
+                    , GHC == 8.2.2
+                    , GHC == 8.2.1
 copyright:            2017 - 2018, Florian Knupfer
 category:             Language, Text, Web, HTML
 build-type:           Simple
@@ -30,8 +33,8 @@ library
                     , Html.Reify
   hs-source-dirs:     src
   default-language:   Haskell2010
-  ghc-options:        -Wall
-  build-depends:      base >= 4.9 && <= 5
+  ghc-options:        -Wall -O2
+  build-depends:      base >= 4.10 && <= 5
                     , text
                     , bytestring
                     , ghc-prim
@@ -44,7 +47,7 @@ test-suite value
   hs-source-dirs:     test
   ghc-options:        -Wall -O0
   default-language:   Haskell2010
-  build-depends:      base >= 4.9 && <= 5
+  build-depends:      base >= 4.10 && <= 5
                     , type-of-html
                     , QuickCheck
                     , hspec
@@ -57,7 +60,7 @@ test-suite type
   other-modules:      Html.Type.Internal
   ghc-options:        -Wall
   default-language:   Haskell2010
-  build-depends:      base >= 4.9 && <= 5
+  build-depends:      base >= 4.10 && <= 5
                     , bytestring
 
 benchmark reduction
@@ -66,7 +69,7 @@ benchmark reduction
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
-  build-depends:      base >= 4.9 && <= 5
+  build-depends:      base >= 4.10 && <= 5
                     , type-of-html
 
 benchmark alloc
@@ -88,7 +91,7 @@ benchmark alloc
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
-  build-depends:      base >= 4.9 && <= 5
+  build-depends:      base >= 4.10 && <= 5
                     , type-of-html
                     , deepseq
                     , weigh
@@ -106,7 +109,7 @@ benchmark perf
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
-  build-depends:      base >= 4.9 && <= 5
+  build-depends:      base >= 4.10 && <= 5
                     , type-of-html
                     , text
                     , bytestring
