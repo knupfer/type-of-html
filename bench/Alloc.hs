@@ -21,7 +21,6 @@ import Weigh
 import Data.Proxy
 import Data.Int
 
-import System.IO.Temp
 import GHC
 import GHC.Paths (libdir)
 import GHC.TypeNats
@@ -50,7 +49,7 @@ f :: Document b => String -> (a -> b) -> a -> Int64 -> Weigh ()
 f s g x n = validateFunc s (renderByteString . g) x (allocs n)
 
 main :: IO ()
-main = withSystemTempDirectory "compile" $ \tmp -> mainWith $ do
+main = mainWith $ do
 
   let ghc = allocFold                                    ::  GhcVersions  [802,  804,  806,   808]
 

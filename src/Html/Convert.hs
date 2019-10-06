@@ -18,9 +18,8 @@ import Data.Double.Conversion.ByteString
 import Numeric.Natural
 import GHC.Exts
 import GHC.TypeLits
-import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
+-- import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
 import GHC.CString (unpackCString#, unpackCStringUtf8#, unpackFoldrCString#)
-import GHC.Base (build)
 
 import qualified Data.Semigroup                   as S
 import qualified Data.Monoid                      as M

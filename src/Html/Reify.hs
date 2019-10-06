@@ -13,6 +13,8 @@
 {-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE GADTs                  #-}
 
+{-# LANGUAGE CPP #-}
+
 module Html.Reify where
 
 import Html.Type.Internal
@@ -21,7 +23,10 @@ import Html.Convert
 import Data.Proxy
 import GHC.TypeLits
 import Data.ByteString.Builder
+
+#if __GLASGOW_HASKELL__ <= 802
 import Data.Semigroup ((<>), Semigroup)
+#endif
 
 import qualified Data.Sequence as S
 

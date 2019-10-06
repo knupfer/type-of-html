@@ -3,6 +3,8 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE DataKinds        #-}
 
+{-# LANGUAGE CPP #-}
+
 module Main where
 
 import Html
@@ -18,9 +20,12 @@ import System.Random
 import System.IO.Unsafe
 import Data.Proxy
 import Text.Blaze.Html.Renderer.Utf8
-import Data.Semigroup ((<>))
 import qualified Data.Text.Lazy   as LT
 import qualified Data.Text        as T
+
+#if __GLASGOW_HASKELL__ <= 802
+import Data.Semigroup ((<>), Semigroup)
+#endif
 
 main :: IO ()
 main = defaultMain

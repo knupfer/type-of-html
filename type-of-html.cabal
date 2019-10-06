@@ -87,7 +87,6 @@ benchmark alloc
                     , weigh
                     , ghc
                     , ghc-paths
-                    , temporary
 
 benchmark perf
   type:               exitcode-stdio-1.0

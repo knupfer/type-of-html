@@ -1,13 +1,14 @@
-import ((import <nixpkgs> {}).fetchFromGitHub {
-  owner  = "knupfer";
-  repo   = "hs-nix-default";
-  rev    = "3d7569d391e988bfa79346d09fc88df825135525";
-  sha256 = "1sjry7bd8yx0w7mh99v0c9623qaxk4ksc2dy47pv9bznajhq6kva";})
+ import ((import <nixpkgs> {}).fetchFromGitHub {
+   owner  = "knupfer";
+   repo   = "hs-nix-default";
+   rev    = "a0afef1c5a75eb899aae023d02f63db8983bcdcb";
+   sha256 = "1bjra3bg7600r1zvqsc5lrs3vx7ymp47dyjh1zwwnmz87v9rh0zx";})
 
   { project = "type-of-html";
     directory = ./.;
     versions =
       [
+        { "8.8.1" = "master";}
         "8.6.5"
         "8.6.4"
         { "8.4.4" = "nixpkgs_2018";}
