@@ -30,13 +30,13 @@ type Test =
   , ToList (('Div :@: ('ClassA := Int)) Int)
     == 'List '["<div class=\"","\">"] "</div>"
   , ToList (('Div :@: ('ClassA := ())) Int)
-    == 'List '["<div class=\"\">"] "</div>"
+    == 'List '["<div class>"] "</div>"
   , ToList (('Div :@: ('ClassA := ())) ())
-    == 'List '[] "<div class=\"\"></div>"
+    == 'List '[] "<div class></div>"
   , ToList (('Div :@: ('ClassA := () # 'IdA := ())) ())
-    == 'List '[] "<div class=\"\" id=\"\"></div>"
+    == 'List '[] "<div class id></div>"
   , ToList (('Div :@: ('ClassA := () # 'IdA := Proxy "ab")) ())
-    == 'List '[] "<div class=\"\" id=\"ab\"></div>"
+    == 'List '[] "<div class id=\"ab\"></div>"
   )
 
 type family a == b where

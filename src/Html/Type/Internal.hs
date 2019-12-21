@@ -441,6 +441,7 @@ type family ToList a :: List where
   ToList ((a :@: b) ())  = AppendSymbol "<" (ShowElement a) <| ToList b |> If (HasContent (GetEInfo a)) (AppendSymbol ">" (CloseTag a)) ">"
   ToList ((a :@: ()) b)  = OpenTag a <| ToList b |> CloseTag a
   ToList ((a :@: b) c)   = (AppendSymbol "<" (ShowElement a) <| ToList b) >< (">" <| ToList c |> CloseTag a)
+  ToList (a := ())       = 'List '[] (AppendSymbol " " (ShowAttribute a))
   ToList (a := b)        = AppendSymbol " " (AppendSymbol (ShowAttribute a) "=\"") <| ToList b |> "\""
   ToList ()              = 'List '[] ""
   ToList (Proxy x)       = 'List '[] x

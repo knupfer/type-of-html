@@ -213,23 +213,23 @@ spec = parallel $ do
 
       renderString (div_A (A.id_ ()) "a")
        `shouldBe`
-        "<div id=\"\">a</div>"
+        "<div id>a</div>"
 
       renderString (div_A A.hidden_ "a")
        `shouldBe`
-        "<div hidden=\"\">a</div>"
+        "<div hidden>a</div>"
 
       renderString (div_A A.hidden_ ())
        `shouldBe`
-        "<div hidden=\"\"></div>"
+        "<div hidden></div>"
 
       renderString (div_A A.hidden_ () # "a")
        `shouldBe`
-        "<div hidden=\"\"></div>a"
+        "<div hidden></div>a"
 
       renderString (div_A A.hidden_ () # img_)
        `shouldBe`
-        "<div hidden=\"\"></div><img>"
+        "<div hidden></div><img>"
 
     it "handles Ints" $ do
 
