@@ -46,22 +46,18 @@ import qualified Data.Text.Lazy                as T
 import qualified Data.Text.Lazy.Encoding       as T
 
 -- | Render a html document to a Builder.
-{-# INLINE renderBuilder #-}
 renderBuilder :: Document a => a -> Builder
-renderBuilder = unConv . inline (render @ 'False . (T :: a -> T (ToList a) a)) . inline
+renderBuilder = unConv . (render @ 'False . (T :: a -> T (ToList a) a))
 
 -- | Render a html document to a String.
-{-# INLINE renderString #-}
 renderString :: Document a => a -> String
 renderString = T.unpack . renderText
 
 -- | Render a html document to a lazy Text.
-{-# INLINE renderText #-}
 renderText :: Document a => a -> T.Text
 renderText = T.decodeUtf8 . renderByteString
 
 -- | Render a html document to a lazy ByteString.
-{-# INLINE renderByteString #-}
 renderByteString :: Document a => a -> BL.ByteString
 renderByteString = BE.toLazyByteStringWith
   ( BE.untrimmedStrategy

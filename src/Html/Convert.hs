@@ -18,7 +18,6 @@ import Data.Double.Conversion.ByteString
 import Numeric.Natural
 import GHC.Exts
 import GHC.TypeLits
--- import GHC.Prim (Addr#, ord#, indexCharOffAddr#)
 import GHC.CString (unpackCString#, unpackCStringUtf8#, unpackFoldrCString#)
 
 import qualified Data.Semigroup                   as S
@@ -31,10 +30,7 @@ import qualified Data.Text.Encoding               as T
 import qualified Data.Text.Lazy                   as TL
 import qualified Data.Text.Lazy.Encoding          as TL
 
-newtype Converted = Converted {unConv :: B.Builder} deriving (M.Monoid)
-instance S.Semigroup Converted where
-  {-# INLINE (<>) #-}
-  Converted x <> Converted y = Converted (inline x S.<> inline y)
+newtype Converted = Converted {unConv :: B.Builder} deriving (M.Monoid, S.Semigroup)
 
 instance IsString Converted where fromString = convert
 

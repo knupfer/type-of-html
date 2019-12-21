@@ -52,7 +52,6 @@ instance (KnownSymbol x, Retrievable xs) => Retrievable (x ': xs) where
   retrieve m f (MkCompactHTML c1 c2) (Put x) = retrieve (unConv (convert x) : m) f (MkCompactHTML @ xs c1 c2)
 
 instance Retrievable '[] where
-  {-# INLINE retrieve #-}
   retrieve m f (MkCompactHTML bs is) = f $ byteString bs <> foldMap (\(i,b) -> m !! i <> byteString b) is
 
 type Document' a = R 'False (T (ToList a) a)
