@@ -1,5 +1,9 @@
 # Revision history for type-of-html
 
+## 1.5.1.0  -- 2020-01-18
+
+* improve compile times and run times for big pages
+
 ## 1.5.0.0  -- 2018-11-29
 
 * add compactHTML
