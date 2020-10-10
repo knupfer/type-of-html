@@ -19,12 +19,12 @@ Let's check out the /type safety/ in ghci:
 >>> td_ (tr_ "a")
 
 <interactive>:1:1: error:
-    • 'Tr is not a valid child of 'Td
+    • <tr> is not a valid child of <td>
     • In the expression: td_ (tr_ "a")
       In an equation for ‘it’: it = td_ (tr_ "a")
 
 <interactive>:1:6: error:
-    • 'Tr can't contain a string
+    • <tr> can't contain a string
     • In the first argument of ‘td_’, namely ‘(tr_ "a")’
       In the expression: td_ (tr_ "a")
       In an equation for ‘it’: it = td_ (tr_ "a")
@@ -39,7 +39,7 @@ And
 >>> td_A (A.coords_ "a") "b"
 
 <interactive>:1:1: error:
-    • 'CoordsA is not a valid attribute of 'Td
+    • coords is not a valid attribute of <td>
     • In the expression: td_A (A.coords_ "a") "b"
       In an equation for ‘it’: it = td_A (A.coords_ "a") "b"
 

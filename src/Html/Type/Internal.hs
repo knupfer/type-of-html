@@ -457,20 +457,26 @@ type a ?> b = Check Element a b
 -- | Check whether `a` is a valid attribute and `b` is a valid child of `p`.
 type (<?>) p a b = (Check Attribute p a, Check Element p b)
 
+type TextE a = Text (EInfoName (GetEInfo a))
+type TextA a = Text (AInfoName (GetAInfo a))
+type TagE a = Text "<" :<>: TextE a :<>: Text ">"
+
 type family Check f a b :: Constraint where
   Check _ _ ()                      = ()
   Check _ _ (Raw _)                 = ()
   Check f a (b # c)                 = (Check f a b, Check f a c)
   Check f a (Maybe b)               = Check f a b
   Check f a (Either b c)            = (Check f a b, Check f a c)
-  Check f a (b -> c)                = TypeError (ShowType a :<>: Text " can't contain a function.")
+--  Check f a (b -> c)                = TypeError (ShowType a :<>: Text " can't contain a function.")
+  Check f a (b -> c)                = TypeError (TagE a :<>: Text " can't contain a function.")
   Check Element a ((b :@: _) _)     = MaybeTypeError a b (CheckContentCategory (EInfoContent (GetEInfo a)) (SingleElement b ': EInfoCategories (GetEInfo b)))
   Check Element a (f ((b :@: c) d)) = Check Element a ((b :@: c) d)
   Check Element a (f (b # c))       = Check Element a (b # c)
+  Check Element a (b := c)          = TypeError (TagE a :<>: Text " can't contain an attribute." :$$: Text "Try '" :<>: TextE a :<>: Text "_A' instead.")
   Check Element a b                 = CheckString a b
   Check Attribute a (b := _)        = If (Elem a (AInfoElements (GetAInfo b)) || Null (AInfoElements (GetAInfo b)))
                                         (() :: Constraint)
-                                        (TypeError (ShowType b :<>: Text " is not a valid attribute of " :<>: ShowType a))
+                                        (TypeError (TextA b :<>: Text " is not a valid attribute of " :<>: TagE a :<>: Text "."))
   Check Attribute _ b               = TypeError (ShowType b :<>: Text " is not an attribute.")
 
 -- | Combine two elements or attributes sequentially.
@@ -608,7 +614,7 @@ type family CheckContentCategory (a :: ContentCategory) (b :: [ContentCategory])
 type family CheckString (a :: Element) b where
   CheckString a b = If (CheckContentCategory (EInfoContent (GetEInfo a)) '[OnlyText, FlowContent, PhrasingContent])
                        (() :: Constraint)
-                       (TypeError (ShowType a :<>: Text " can't contain a " :<>: ShowType b))
+                       (TypeError (TagE a :<>: Text " can't contain a " :<>: ShowType b))
 
 -- | Content categories according to the html spec.
 data ContentCategory
@@ -629,7 +635,7 @@ infixr 3 :&:
 
 type family MaybeTypeError (a :: Element) (b :: Element) c where
   MaybeTypeError a b c = If c (() :: Constraint)
-   (TypeError (ShowType b :<>: Text " is not a valid child of " :<>: ShowType a))
+   (TypeError (TagE b :<>: Text " is not a valid child of " :<>: TagE a :<>: Text "."))
 
 type family Elem (a :: k) (xs :: [k]) where
   Elem a (a : xs) = True
