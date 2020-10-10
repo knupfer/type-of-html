@@ -415,6 +415,8 @@ data Attribute
   | WidthA
   | WrapA
 
+  | CustomA Symbol
+
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
 -- and snoc(O1) but append(On).  Optimal would be a FingerTree.
 data List = List [Symbol] Symbol
@@ -642,7 +644,7 @@ type family AInfoElements x where AInfoElements (AInfo _ es) = es
 type family AInfoName x where AInfoName (AInfo s _) = s
 
 -- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
-type family GetAInfo a = r | r -> a where
+type family GetAInfo a where
 
   GetAInfo RoleA                 = AInfo "role"                  '[]
   GetAInfo AriaActivedescendantA = AInfo "aria-activedescendant" '[]
@@ -808,6 +810,7 @@ type family GetAInfo a = r | r -> a where
   GetAInfo ValueA                = AInfo "value"                 '[Button, Option, Input, Li, Meter, Progress, Param, Data]
   GetAInfo WidthA                = AInfo "width"                 '[Canvas, Embed, Iframe, Img, Input, Object, Video]
   GetAInfo WrapA                 = AInfo "wrap"                  '[Textarea]
+  GetAInfo (CustomA x)           = AInfo x                       '[]
 
 -- | Retrieve type level meta data about elements.
 type family GetEInfo a = r | r -> a where

@@ -494,5 +494,26 @@ width_ = AT
 wrap_ :: a -> 'WrapA := a
 wrap_ = AT
 
+-- | Escape hatch for defining non standard attributes. Note that it's
+-- your responsibility to choose valid attribute names, these are at
+-- the moment not checked. These custom attributes don't carry any
+-- performance penalty, they are fused at compiletime just as much as
+-- standard attributes.
+--
+-- @
+--   {-\# LANGUAGE DataKinds \#-}
+--   {-\# LANGUAGE TypeOperators \#-}
+--   import Html
+--   import qualified Html.Attribute as A
+--
+--   dataName_ :: a -> 'CustomA "data-name" := a
+--   dataName_ = A.custom_
+-- @
+--
+-- >>> div_A (dataName_ "foo") "bar"
+-- <div data-name="foo">bar</div>
+custom_ :: a -> 'CustomA b := a
+custom_ = AT
+
 addAttributes :: (a <?> (b # b')) c => b' -> (a :@: b) c -> (a :@: (b # b')) c
 addAttributes b' (WithAttributes b c) = WithAttributes (b # b') c

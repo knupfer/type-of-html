@@ -12,6 +12,7 @@ import qualified Html.Attribute as A
 import Data.Proxy
 import Test.Hspec
 import Test.QuickCheck
+import Custom
 
 main :: IO ()
 main = hspec spec
@@ -230,6 +231,12 @@ spec = parallel $ do
       renderString (div_A A.hidden_ () # img_)
        `shouldBe`
         "<div hidden></div><img>"
+
+    it "handles custom attributes" $ do
+
+      renderString (div_A (hxPost_ "x") "y")
+        `shouldBe`
+        "<div hx-post=\"x\">y</div>"
 
     it "handles Ints" $ do
 

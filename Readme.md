@@ -394,6 +394,33 @@ example =
     )
 ```
 
+## Custom Attributes
+
+You can define your own attributes, for example data-* or htmx. These
+custom attributes reside as well 100% at the type level and don't
+incur any performance penalty. Beware that it is up to you to choose a
+valid attribute name.
+
+```haskell
+{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE TypeOperators #-}
+
+module Main where
+
+import Html
+import qualified Html.Attribute as A
+
+dataName_ :: a -> 'CustomA "data-name" := a
+dataName_ = A.custom_
+
+main :: IO ()
+main = print $ div_A (dataName_ "foo") "bar"
+```
+
+I'd recommend that you put all your custom attributes in one module
+which reexports Html.Attribute, so you can just qualified import your
+module and have an uniform naming scheme.
+
 ## FAQ
 
 ### Why don't you provide a pretty printer?
