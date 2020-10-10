@@ -1,5 +1,10 @@
 # Revision history for type-of-html
 
+## 1.5.2.0  -- 2020-10-10
+
+* make error messages nicer
+* allow custom attributes
+
 ## 1.5.1.0  -- 2020-01-18
 
 * improve compile times and run times for big pages
