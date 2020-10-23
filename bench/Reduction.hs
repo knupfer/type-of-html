@@ -1,10 +1,18 @@
 {-# LANGUAGE CPP #-}
-
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
-#if   __GLASGOW_HASKELL__ <= 802
-{-# OPTIONS_GHC -fsimpl-tick-factor=66 -freduction-depth=55 #-}
+
+#if   __GLASGOW_HASKELL__ == 802
+{-# OPTIONS_GHC -freduction-depth=55 #-}
+#elif __GLASGOW_HASKELL__ == 804
+{-# OPTIONS_GHC -freduction-depth=29 #-}
+#elif __GLASGOW_HASKELL__ == 806
+{-# OPTIONS_GHC -freduction-depth=29 #-}
+#elif __GLASGOW_HASKELL__ == 808
+{-# OPTIONS_GHC -freduction-depth=29 #-}
+#elif __GLASGOW_HASKELL__ == 810
+{-# OPTIONS_GHC -freduction-depth=30 #-}
 #else
-{-# OPTIONS_GHC -fsimpl-tick-factor=66 -freduction-depth=29  #-}
+{-# OPTIONS_GHC -freduction-depth=0 #-}
 #endif
 
 module Main where

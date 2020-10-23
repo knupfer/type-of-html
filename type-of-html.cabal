@@ -10,12 +10,9 @@ homepage:             https://github.com/knupfer/type-of-html
 tested-with:          GHC == 8.10.2
                     , GHC == 8.8.4
                     , GHC == 8.6.5
-                    , GHC == 8.6.4
                     , GHC == 8.4.4
-                    , GHC == 8.4.3
                     , GHC == 8.2.2
-                    , GHC == 8.2.1
-copyright:            2017 - 2018, Florian Knupfer
+copyright:            2017 - 2020, Florian Knupfer
 category:             Language, Text, Web, HTML
 build-type:           Simple
 extra-source-files:   ChangeLog.md
