@@ -8,6 +8,7 @@
 {-# LANGUAGE ConstraintKinds      #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE PolyKinds            #-}
 
 module Html
   ( module Html.Type

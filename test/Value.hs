@@ -88,10 +88,6 @@ spec = parallel $ do
        `shouldBe`
         "<link>"
 
-      renderString menuitem_
-       `shouldBe`
-        "<menuitem>"
-
       renderString meta_
        `shouldBe`
         "<meta>"

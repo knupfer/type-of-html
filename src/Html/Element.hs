@@ -22,11 +22,11 @@ abbr_ = WithAttributes ()
 abbr_A :: ('Abbr <?> a) b => a -> b -> ('Abbr :@: a) b
 abbr_A = WithAttributes
 
-acronym_ :: ('Acronym ?> a) => a -> 'Acronym > a
-acronym_ = WithAttributes ()
+-- acronym_ :: ('Acronym ?> a) => a -> 'Acronym > a
+-- acronym_ = WithAttributes ()
 
-acronym_A :: ('Acronym <?> a) b  => a -> b -> ('Acronym :@: a) b
-acronym_A = WithAttributes
+-- acronym_A :: ('Acronym <?> a) b  => a -> b -> ('Acronym :@: a) b
+-- acronym_A = WithAttributes
 
 address_ :: ('Address ?> a) => a -> 'Address > a
 address_ = WithAttributes ()
@@ -34,11 +34,11 @@ address_ = WithAttributes ()
 address_A :: ('Address <?> a) b  => a -> b -> ('Address :@: a) b
 address_A = WithAttributes
 
-applet_ :: ('Applet ?> a) => a -> 'Applet > a
-applet_ = WithAttributes ()
+-- applet_ :: ('Applet ?> a) => a -> 'Applet > a
+-- applet_ = WithAttributes ()
 
-applet_A :: ('Applet <?> a) b  => a -> b -> ('Applet :@: a) b
-applet_A = WithAttributes
+-- applet_A :: ('Applet <?> a) b  => a -> b -> ('Applet :@: a) b
+-- applet_A = WithAttributes
 
 area_ :: 'Area > ()
 area_ = WithAttributes () ()
@@ -76,11 +76,11 @@ base_ = WithAttributes () ()
 base_A :: ('Base <?> a) () => a -> ('Base :@: a) ()
 base_A = flip WithAttributes ()
 
-basefont_ :: ('Basefont ?> a) => a -> 'Basefont > a
-basefont_ = WithAttributes ()
+-- basefont_ :: ('Basefont ?> a) => a -> 'Basefont > a
+-- basefont_ = WithAttributes ()
 
-basefont_A :: ('Basefont <?> a) b => a -> b -> ('Basefont :@: a) b
-basefont_A = WithAttributes
+-- basefont_A :: ('Basefont <?> a) b => a -> b -> ('Basefont :@: a) b
+-- basefont_A = WithAttributes
 
 bdi_ :: ('Bdi ?> a) => a -> 'Bdi > a
 bdi_ = WithAttributes ()
@@ -94,23 +94,23 @@ bdo_ = WithAttributes ()
 bdo_A :: ('Bdo <?> a) b => a -> b -> ('Bdo :@: a) b
 bdo_A = WithAttributes
 
-bgsound_ :: ('Bgsound ?> a) => a -> 'Bgsound > a
-bgsound_ = WithAttributes ()
+-- bgsound_ :: ('Bgsound ?> a) => a -> 'Bgsound > a
+-- bgsound_ = WithAttributes ()
 
-bgsound_A :: ('Bgsound <?> a) b => a -> b -> ('Bgsound :@: a) b
-bgsound_A = WithAttributes
+-- bgsound_A :: ('Bgsound <?> a) b => a -> b -> ('Bgsound :@: a) b
+-- bgsound_A = WithAttributes
 
-big_ :: ('Big ?> a) => a -> 'Big > a
-big_ = WithAttributes ()
+-- big_ :: ('Big ?> a) => a -> 'Big > a
+-- big_ = WithAttributes ()
 
-big_A :: ('Big <?> a) b => a -> b -> ('Big :@: a) b
-big_A = WithAttributes
+-- big_A :: ('Big <?> a) b => a -> b -> ('Big :@: a) b
+-- big_A = WithAttributes
 
-blink_ :: ('Blink ?> a) => a -> 'Blink > a
-blink_ = WithAttributes ()
+-- blink_ :: ('Blink ?> a) => a -> 'Blink > a
+-- blink_ = WithAttributes ()
 
-blink_A :: ('Blink <?> a) b => a -> b -> ('Blink :@: a) b
-blink_A = WithAttributes
+-- blink_A :: ('Blink <?> a) b => a -> b -> ('Blink :@: a) b
+-- blink_A = WithAttributes
 
 blockquote_ :: ('Blockquote ?> a) => a -> 'Blockquote > a
 blockquote_ = WithAttributes ()
@@ -148,11 +148,11 @@ caption_ = WithAttributes ()
 caption_A :: ('Caption <?> a) b => a -> b -> ('Caption :@: a) b
 caption_A = WithAttributes
 
-center_ :: ('Center ?> a) => a -> 'Center > a
-center_ = WithAttributes ()
+-- center_ :: ('Center ?> a) => a -> 'Center > a
+-- center_ = WithAttributes ()
 
-center_A :: ('Center <?> a) b => a -> b -> ('Center :@: a) b
-center_A = WithAttributes
+-- center_A :: ('Center <?> a) b => a -> b -> ('Center :@: a) b
+-- center_A = WithAttributes
 
 cite_ :: ('Cite ?> a) => a -> 'Cite > a
 cite_ = WithAttributes ()
@@ -178,17 +178,17 @@ colgroup_ = WithAttributes ()
 colgroup_A :: ('Colgroup <?> a) b => a -> b -> ('Colgroup :@: a) b
 colgroup_A = WithAttributes
 
-command_ :: ('Command ?> a) => a -> 'Command > a
-command_ = WithAttributes ()
+-- command_ :: ('Command ?> a) => a -> 'Command > a
+-- command_ = WithAttributes ()
 
-command_A :: ('Command <?> a) b => a -> b -> ('Command :@: a) b
-command_A = WithAttributes
+-- command_A :: ('Command <?> a) b => a -> b -> ('Command :@: a) b
+-- command_A = WithAttributes
 
-content_ :: ('Content ?> a) => a -> 'Content > a
-content_ = WithAttributes ()
+-- content_ :: ('Content ?> a) => a -> 'Content > a
+-- content_ = WithAttributes ()
 
-content_A :: ('Content <?> a) b => a -> b -> ('Content :@: a) b
-content_A = WithAttributes
+-- content_A :: ('Content <?> a) b => a -> b -> ('Content :@: a) b
+-- content_A = WithAttributes
 
 data_ :: ('Data ?> a) => a -> 'Data > a
 data_ = WithAttributes ()
@@ -232,11 +232,11 @@ dialog_ = WithAttributes ()
 dialog_A :: ('Dialog <?> a) b => a -> b -> ('Dialog :@: a) b
 dialog_A = WithAttributes
 
-dir_ :: ('Dir ?> a) => a -> 'Dir > a
-dir_ = WithAttributes ()
+-- dir_ :: ('Dir ?> a) => a -> 'Dir > a
+-- dir_ = WithAttributes ()
 
-dir_A :: ('Dir <?> a) b => a -> b -> ('Dir :@: a) b
-dir_A = WithAttributes
+-- dir_A :: ('Dir <?> a) b => a -> b -> ('Dir :@: a) b
+-- dir_A = WithAttributes
 
 div_ :: ('Div ?> a) => a -> 'Div > a
 div_ = WithAttributes ()
@@ -256,11 +256,11 @@ dt_ = WithAttributes ()
 dt_A :: ('Dt <?> a) b => a -> b -> ('Dt :@: a) b
 dt_A = WithAttributes
 
-element_ :: ('Element ?> a) => a -> 'Element > a
-element_ = WithAttributes ()
+-- element_ :: ('Element ?> a) => a -> 'Element > a
+-- element_ = WithAttributes ()
 
-element_A :: ('Element <?> a) b => a -> b -> ('Element :@: a) b
-element_A = WithAttributes
+-- element_A :: ('Element <?> a) b => a -> b -> ('Element :@: a) b
+-- element_A = WithAttributes
 
 em_ :: ('Em ?> a) => a -> 'Em > a
 em_ = WithAttributes ()
@@ -292,11 +292,11 @@ figure_ = WithAttributes ()
 figure_A :: ('Figure <?> a) b => a -> b -> ('Figure :@: a) b
 figure_A = WithAttributes
 
-font_ :: ('Font ?> a) => a -> 'Font > a
-font_ = WithAttributes ()
+-- font_ :: ('Font ?> a) => a -> 'Font > a
+-- font_ = WithAttributes ()
 
-font_A :: ('Font <?> a) b => a -> b -> ('Font :@: a) b
-font_A = WithAttributes
+-- font_A :: ('Font <?> a) b => a -> b -> ('Font :@: a) b
+-- font_A = WithAttributes
 
 footer_ :: ('Footer ?> a) => a -> 'Footer > a
 footer_ = WithAttributes ()
@@ -310,17 +310,17 @@ form_ = WithAttributes ()
 form_A :: ('Form <?> a) b => a -> b -> ('Form :@: a) b
 form_A = WithAttributes
 
-frame_ :: ('Frame ?> a) => a -> 'Frame > a
-frame_ = WithAttributes ()
+-- frame_ :: ('Frame ?> a) => a -> 'Frame > a
+-- frame_ = WithAttributes ()
 
-frame_A :: ('Frame <?> a) b => a -> b -> ('Frame :@: a) b
-frame_A = WithAttributes
+-- frame_A :: ('Frame <?> a) b => a -> b -> ('Frame :@: a) b
+-- frame_A = WithAttributes
 
-frameset_ :: ('Frameset ?> a) => a -> 'Frameset > a
-frameset_ = WithAttributes ()
+-- frameset_ :: ('Frameset ?> a) => a -> 'Frameset > a
+-- frameset_ = WithAttributes ()
 
-frameset_A :: ('Frameset <?> a) b => a -> b -> ('Frameset :@: a) b
-frameset_A = WithAttributes
+-- frameset_A :: ('Frameset <?> a) b => a -> b -> ('Frameset :@: a) b
+-- frameset_A = WithAttributes
 
 h1_ :: ('H1 ?> a) => a -> 'H1 > a
 h1_ = WithAttributes ()
@@ -400,11 +400,11 @@ iframe_ = WithAttributes () ()
 iframe_A :: ('Iframe <?> a) () => a -> ('Iframe :@: a) ()
 iframe_A = flip WithAttributes ()
 
-image_ :: ('Image ?> a) => a -> 'Image > a
-image_ = WithAttributes ()
+-- image_ :: ('Image ?> a) => a -> 'Image > a
+-- image_ = WithAttributes ()
 
-image_A :: ('Image <?> a) b => a -> b -> ('Image :@: a) b
-image_A = WithAttributes
+-- image_A :: ('Image <?> a) b => a -> b -> ('Image :@: a) b
+-- image_A = WithAttributes
 
 img_ :: 'Img > ()
 img_ = WithAttributes () ()
@@ -424,11 +424,11 @@ ins_ = WithAttributes ()
 ins_A :: ('Ins <?> a) b => a -> b -> ('Ins :@: a) b
 ins_A = WithAttributes
 
-isindex_ :: ('Isindex ?> a) => a -> 'Isindex > a
-isindex_ = WithAttributes ()
+-- isindex_ :: ('Isindex ?> a) => a -> 'Isindex > a
+-- isindex_ = WithAttributes ()
 
-isindex_A :: ('Isindex <?> a) b => a -> b -> ('Isindex :@: a) b
-isindex_A = WithAttributes
+-- isindex_A :: ('Isindex <?> a) b => a -> b -> ('Isindex :@: a) b
+-- isindex_A = WithAttributes
 
 kbd_ :: ('Kbd ?> a) => a -> 'Kbd > a
 kbd_ = WithAttributes ()
@@ -436,11 +436,11 @@ kbd_ = WithAttributes ()
 kbd_A :: ('Kbd <?> a) b => a -> b -> ('Kbd :@: a) b
 kbd_A = WithAttributes
 
-keygen_ :: ('Keygen ?> a) => a -> 'Keygen > a
-keygen_ = WithAttributes ()
+-- keygen_ :: ('Keygen ?> a) => a -> 'Keygen > a
+-- keygen_ = WithAttributes ()
 
-keygen_A :: ('Keygen <?> a) b => a -> b -> ('Keygen :@: a) b
-keygen_A = WithAttributes
+-- keygen_A :: ('Keygen <?> a) b => a -> b -> ('Keygen :@: a) b
+-- keygen_A = WithAttributes
 
 label_ :: ('Label ?> a) => a -> 'Label > a
 label_ = WithAttributes ()
@@ -466,11 +466,11 @@ link_ = WithAttributes () ()
 link_A :: ('Link <?> a) () => a -> ('Link :@: a) ()
 link_A = flip WithAttributes ()
 
-listing_ :: ('Listing ?> a) => a -> 'Listing > a
-listing_ = WithAttributes ()
+-- listing_ :: ('Listing ?> a) => a -> 'Listing > a
+-- listing_ = WithAttributes ()
 
-listing_A :: ('Listing <?> a) b => a -> b -> ('Listing :@: a) b
-listing_A = WithAttributes
+-- listing_A :: ('Listing <?> a) b => a -> b -> ('Listing :@: a) b
+-- listing_A = WithAttributes
 
 main_ :: ('Main ?> a) => a -> 'Main > a
 main_ = WithAttributes ()
@@ -490,17 +490,17 @@ mark_ = WithAttributes ()
 mark_A :: ('Mark <?> a) b => a -> b -> ('Mark :@: a) b
 mark_A = WithAttributes
 
-marquee_ :: ('Marquee ?> a) => a -> 'Marquee > a
-marquee_ = WithAttributes ()
+-- marquee_ :: ('Marquee ?> a) => a -> 'Marquee > a
+-- marquee_ = WithAttributes ()
 
-marquee_A :: ('Marquee <?> a) b => a -> b -> ('Marquee :@: a) b
-marquee_A = WithAttributes
+-- marquee_A :: ('Marquee <?> a) b => a -> b -> ('Marquee :@: a) b
+-- marquee_A = WithAttributes
 
-math_ :: ('Math ?> a) => a -> 'Math > a
-math_ = WithAttributes ()
+-- math_ :: ('Math ?> a) => a -> 'Math > a
+-- math_ = WithAttributes ()
 
-math_A :: ('Math <?> a) b => a -> b -> ('Math :@: a) b
-math_A = WithAttributes
+-- math_A :: ('Math <?> a) b => a -> b -> ('Math :@: a) b
+-- math_A = WithAttributes
 
 menu_ :: ('Menu ?> a) => a -> 'Menu > a
 menu_ = WithAttributes ()
@@ -508,11 +508,11 @@ menu_ = WithAttributes ()
 menu_A :: ('Menu <?> a) b => a -> b -> ('Menu :@: a) b
 menu_A = WithAttributes
 
-menuitem_ :: 'Menuitem > ()
-menuitem_ = WithAttributes () ()
+-- menuitem_ :: 'Menuitem > ()
+-- menuitem_ = WithAttributes () ()
 
-menuitem_A :: ('Menuitem <?> a) () => a -> ('Menuitem :@: a) ()
-menuitem_A = flip WithAttributes ()
+-- menuitem_A :: ('Menuitem <?> a) () => a -> ('Menuitem :@: a) ()
+-- menuitem_A = flip WithAttributes ()
 
 meta_ :: 'Meta > ()
 meta_ = WithAttributes () ()
@@ -526,11 +526,11 @@ meter_ = WithAttributes ()
 meter_A :: ('Meter <?> a) b => a -> b -> ('Meter :@: a) b
 meter_A = WithAttributes
 
-multicol_ :: ('Multicol ?> a) => a -> 'Multicol > a
-multicol_ = WithAttributes ()
+-- multicol_ :: ('Multicol ?> a) => a -> 'Multicol > a
+-- multicol_ = WithAttributes ()
 
-multicol_A :: ('Multicol <?> a) b => a -> b -> ('Multicol :@: a) b
-multicol_A = WithAttributes
+-- multicol_A :: ('Multicol <?> a) b => a -> b -> ('Multicol :@: a) b
+-- multicol_A = WithAttributes
 
 nav_ :: ('Nav ?> a) => a -> 'Nav > a
 nav_ = WithAttributes ()
@@ -538,29 +538,29 @@ nav_ = WithAttributes ()
 nav_A :: ('Nav <?> a) b => a -> b -> ('Nav :@: a) b
 nav_A = WithAttributes
 
-nextid_ :: ('Nextid ?> a) => a -> 'Nextid > a
-nextid_ = WithAttributes ()
+-- nextid_ :: ('Nextid ?> a) => a -> 'Nextid > a
+-- nextid_ = WithAttributes ()
 
-nextid_A :: ('Nextid <?> a) b => a -> b -> ('Nextid :@: a) b
-nextid_A = WithAttributes
+-- nextid_A :: ('Nextid <?> a) b => a -> b -> ('Nextid :@: a) b
+-- nextid_A = WithAttributes
 
-nobr_ :: ('Nobr ?> a) => a -> 'Nobr > a
-nobr_ = WithAttributes ()
+-- nobr_ :: ('Nobr ?> a) => a -> 'Nobr > a
+-- nobr_ = WithAttributes ()
 
-nobr_A :: ('Nobr <?> a) b => a -> b -> ('Nobr :@: a) b
-nobr_A = WithAttributes
+-- nobr_A :: ('Nobr <?> a) b => a -> b -> ('Nobr :@: a) b
+-- nobr_A = WithAttributes
 
-noembed_ :: ('Noembed ?> a) => a -> 'Noembed > a
-noembed_ = WithAttributes ()
+-- noembed_ :: ('Noembed ?> a) => a -> 'Noembed > a
+-- noembed_ = WithAttributes ()
 
-noembed_A :: ('Noembed <?> a) b => a -> b -> ('Noembed :@: a) b
-noembed_A = WithAttributes
+-- noembed_A :: ('Noembed <?> a) b => a -> b -> ('Noembed :@: a) b
+-- noembed_A = WithAttributes
 
-noframes_ :: ('Noframes ?> a) => a -> 'Noframes > a
-noframes_ = WithAttributes ()
+-- noframes_ :: ('Noframes ?> a) => a -> 'Noframes > a
+-- noframes_ = WithAttributes ()
 
-noframes_A :: ('Noframes <?> a) b => a -> b -> ('Noframes :@: a) b
-noframes_A = WithAttributes
+-- noframes_A :: ('Noframes <?> a) b => a -> b -> ('Noframes :@: a) b
+-- noframes_A = WithAttributes
 
 noscript_ :: ('Noscript ?> a) => a -> 'Noscript > a
 noscript_ = WithAttributes ()
@@ -616,11 +616,11 @@ picture_ = WithAttributes ()
 picture_A :: ('Picture <?> a) b => a -> b -> ('Picture :@: a) b
 picture_A = WithAttributes
 
-plaintext_ :: ('Plaintext ?> a) => a -> 'Plaintext > a
-plaintext_ = WithAttributes ()
+-- plaintext_ :: ('Plaintext ?> a) => a -> 'Plaintext > a
+-- plaintext_ = WithAttributes ()
 
-plaintext_A :: ('Plaintext <?> a) b => a -> b -> ('Plaintext :@: a) b
-plaintext_A = WithAttributes
+-- plaintext_A :: ('Plaintext <?> a) b => a -> b -> ('Plaintext :@: a) b
+-- plaintext_A = WithAttributes
 
 pre_ :: ('Pre ?> a) => a -> 'Pre > a
 pre_ = WithAttributes ()
@@ -652,11 +652,11 @@ rt_ = WithAttributes ()
 rt_A :: ('Rt <?> a) b => a -> b -> ('Rt :@: a) b
 rt_A = WithAttributes
 
-rtc_ :: ('Rtc ?> a) => a -> 'Rtc > a
-rtc_ = WithAttributes ()
+-- rtc_ :: ('Rtc ?> a) => a -> 'Rtc > a
+-- rtc_ = WithAttributes ()
 
-rtc_A :: ('Rtc <?> a) b => a -> b -> ('Rtc :@: a) b
-rtc_A = WithAttributes
+-- rtc_A :: ('Rtc <?> a) b => a -> b -> ('Rtc :@: a) b
+-- rtc_A = WithAttributes
 
 ruby_ :: ('Ruby ?> a) => a -> 'Ruby > a
 ruby_ = WithAttributes ()
@@ -694,11 +694,11 @@ select_ = WithAttributes ()
 select_A :: ('Select <?> a) b => a -> b -> ('Select :@: a) b
 select_A = WithAttributes
 
-shadow_ :: ('Shadow ?> a) => a -> 'Shadow > a
-shadow_ = WithAttributes ()
+-- shadow_ :: ('Shadow ?> a) => a -> 'Shadow > a
+-- shadow_ = WithAttributes ()
 
-shadow_A :: ('Shadow <?> a) b => a -> b -> ('Shadow :@: a) b
-shadow_A = WithAttributes
+-- shadow_A :: ('Shadow <?> a) b => a -> b -> ('Shadow :@: a) b
+-- shadow_A = WithAttributes
 
 slot_ :: ('Slot ?> a) => a -> 'Slot > a
 slot_ = WithAttributes ()
@@ -718,11 +718,11 @@ source_ = WithAttributes () ()
 source_A :: ('Source <?> a) () => a -> ('Source :@: a) ()
 source_A = flip WithAttributes ()
 
-spacer_ :: ('Spacer ?> a) => a -> 'Spacer > a
-spacer_ = WithAttributes ()
+-- spacer_ :: ('Spacer ?> a) => a -> 'Spacer > a
+-- spacer_ = WithAttributes ()
 
-spacer_A :: ('Spacer <?> a) b => a -> b -> ('Spacer :@: a) b
-spacer_A = WithAttributes
+-- spacer_A :: ('Spacer <?> a) b => a -> b -> ('Spacer :@: a) b
+-- spacer_A = WithAttributes
 
 span_ :: ('Span ?> a) => a -> 'Span > a
 span_ = WithAttributes ()
@@ -730,11 +730,11 @@ span_ = WithAttributes ()
 span_A :: ('Span <?> a) b => a -> b -> ('Span :@: a) b
 span_A = WithAttributes
 
-strike_ :: ('Strike ?> a) => a -> 'Strike > a
-strike_ = WithAttributes ()
+-- strike_ :: ('Strike ?> a) => a -> 'Strike > a
+-- strike_ = WithAttributes ()
 
-strike_A :: ('Strike <?> a) b => a -> b -> ('Strike :@: a) b
-strike_A = WithAttributes
+-- strike_A :: ('Strike <?> a) b => a -> b -> ('Strike :@: a) b
+-- strike_A = WithAttributes
 
 strong_ :: ('Strong ?> a) => a -> 'Strong > a
 strong_ = WithAttributes ()
@@ -766,11 +766,11 @@ sup_ = WithAttributes ()
 sup_A :: ('Sup <?> a) b => a -> b -> ('Sup :@: a) b
 sup_A = WithAttributes
 
-svg_ :: ('Svg ?> a) => a -> 'Svg > a
-svg_ = WithAttributes ()
+-- svg_ :: ('Svg ?> a) => a -> 'Svg > a
+-- svg_ = WithAttributes ()
 
-svg_A :: ('Svg <?> a) b => a -> b -> ('Svg :@: a) b
-svg_A = WithAttributes
+-- svg_A :: ('Svg <?> a) b => a -> b -> ('Svg :@: a) b
+-- svg_A = WithAttributes
 
 table_ :: ('Table ?> a) => a -> 'Table > a
 table_ = WithAttributes ()
@@ -844,11 +844,11 @@ track_ = WithAttributes () ()
 track_A :: ('Track <?> a) () => a -> ('Track :@: a) ()
 track_A = flip WithAttributes ()
 
-tt_ :: ('Tt ?> a) => a -> 'Tt > a
-tt_ = WithAttributes ()
+-- tt_ :: ('Tt ?> a) => a -> 'Tt > a
+-- tt_ = WithAttributes ()
 
-tt_A :: ('Tt <?> a) b => a -> b -> ('Tt :@: a) b
-tt_A = WithAttributes
+-- tt_A :: ('Tt <?> a) b => a -> b -> ('Tt :@: a) b
+-- tt_A = WithAttributes
 
 u_ :: ('U ?> a) => a -> 'U > a
 u_ = WithAttributes ()
@@ -880,8 +880,8 @@ wbr_ = WithAttributes () ()
 wbr_A :: ('Wbr <?> a) () => a -> ('Wbr :@: a) ()
 wbr_A = flip WithAttributes ()
 
-xmp_ :: ('Xmp ?> a) => a -> 'Xmp > a
-xmp_ = WithAttributes ()
+-- xmp_ :: ('Xmp ?> a) => a -> 'Xmp > a
+-- xmp_ = WithAttributes ()
 
-xmp_A :: ('Xmp <?> a) b => a -> b -> ('Xmp :@: a) b
-xmp_A = WithAttributes
+-- xmp_A :: ('Xmp <?> a) b => a -> b -> ('Xmp :@: a) b
+-- xmp_A = WithAttributes

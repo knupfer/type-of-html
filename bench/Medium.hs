@@ -54,7 +54,7 @@ attrShort x =
   i_A (A.accesskey_ "a")
   ( i_A (A.class_ "b")
     ( i_A (A.contenteditable_ "c")
-      ( i_A (A.contextmenu_ "d")
+      ( i_A (A.translate_ "d")
         ( i_A (A.dir_ "e")
           ( i_A (A.draggable_ "f")
             ( i_A A.hidden_
@@ -69,7 +69,7 @@ attrLong x =
   i_A ( A.accesskey_       "a"
       # A.class_           "b"
       # A.contenteditable_ "c"
-      # A.contextmenu_     "d"
+      # A.translate_     "d"
       # A.dir_             "e"
       # A.draggable_       "f"
       # A.hidden_

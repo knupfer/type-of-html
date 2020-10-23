@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE PolyKinds     #-}
 
 module Html.Attribute where
 
