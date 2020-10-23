@@ -1479,7 +1479,7 @@ type family Check f a b :: Constraint where
   Check f a (Maybe b)               = Check f a b
   Check f a (Either b c)            = (Check f a b, Check f a c)
   Check f a (b -> c)                = TypeError (TagE a :<>: Text " can't contain a function.")
-  Check CheckElement a ((b :@: _) _)      = MaybeTypeError a b (CheckContentCategory (GetElementName b) ((GetElementContentModel a)) (GetElementCategories b))
+  Check CheckElement a ((b :@: _) _)      = MaybeTypeError a b (CheckContentCategory (GetElementName b) (GetElementContentModel a) (GetElementCategories b))
   Check CheckElement a (f ((b :@: c) d))  = Check CheckElement a ((b :@: c) d)
   Check CheckElement a (f (b # c))        = Check CheckElement a (b # c)
   Check CheckElement a (b := c)           = TypeError (TagE a :<>: Text " can't contain an attribute." :$$: Text "Try '" :<>: TextE a :<>: Text "_A' instead.")
