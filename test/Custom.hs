@@ -5,7 +5,5 @@ module Custom where
 
 import Html
 
-import qualified Html.Attribute as A
-
-hxPost_ :: a -> 'CustomA "hx-post" := a
-hxPost_ = A.custom_
+hxPost_ :: a -> Lawless ("hx-post" := a)
+hxPost_ x = Lawless (CustomA := x)

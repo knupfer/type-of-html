@@ -13,7 +13,7 @@
 module Main where
 
 import Html
-import qualified Html.Attribute as A
+
 import qualified Small          as S
 import qualified Medium         as M
 import qualified Big            as B
@@ -32,18 +32,18 @@ main = mainWith $ do
   f "Proxy"                id (Proxy :: Proxy "a")              [   280 ,  -16 ,   16 ,     0 ,    0 ]
   f "oneElement Proxy"     S.oneElement (Proxy :: Proxy "b")    [   280 ,  -16 ,   16 ,     0 ,    0 ]
   f "oneElement ()"        S.oneElement ()                      [   280 ,  -16 ,   16 ,     0 ,    0 ]
-  f "oneAttribute ()"      A.class_ ()                          [   280 ,  -16 ,   16 ,     0 ,    0 ]
-  f "oneAttribute Proxy"   A.class_ (Proxy :: Proxy "c")        [   280 ,  -16 ,   16 ,     0 ,    0 ]
+  f "oneAttribute ()"      (ClassA :=) ()                          [   280 ,  -16 ,   16 ,     0 ,    0 ]
+  f "oneAttribute Proxy"   (ClassA :=) (Proxy :: Proxy "c")        [   280 ,  -16 ,   16 ,     0 ,    0 ]
   f "listElement"          S.listElement ()                     [   608 ,    0 ,    0 ,     0 ,    0 ]
   f "Double"               id (123456789 :: Double)             [   360 ,    0 ,    0 ,     0 ,  -32 ]
   f "oneElement"           S.oneElement ""                      [   368 ,    0 ,    0 ,     0 ,    0 ]
   f "nestedElement"        S.nestedElement ""                   [   368 ,    0 ,    0 ,     0 ,    0 ]
-  f "listOfAttributes"     (\x -> [A.class_ x, A.class_ x]) ()  [   712 ,    0 ,    0 ,     0 ,    0 ]
+  f "listOfAttributes"     (\x -> [ClassA := x, ClassA := x]) ()  [   712 ,    0 ,    0 ,     0 ,    0 ]
   f "Float"                id (123456789 :: Float)              [   400 ,    0 ,    0 ,     0 ,  -72 ]
-  f "oneAttribute"         A.class_ ""                          [   520 ,    0 ,    0 ,     0 ,    0 ]
+  f "oneAttribute"         (ClassA :=) ""                          [   520 ,    0 ,    0 ,     0 ,    0 ]
   f "parallelElement"      S.parallelElement ""                 [   520 ,    0 ,    0 ,   -16 ,    0 ]
-  f "parallelAttribute"    (\x -> A.class_ x # A.id_ x) ""      [   736 ,    0 ,    0 ,     0 ,    0 ]
-  f "elementWithAttribute" (\x -> div_A (A.class_ x) x) ""      [   696 ,    0 ,    0 ,     0 ,    0 ]
+  f "parallelAttribute"    (\x -> ClassA := x # IdA := x) ""      [   736 ,    0 ,    0 ,     0 ,    0 ]
+  f "elementWithAttribute" (\x -> div_A (ClassA := x) x) ""      [   696 ,    0 ,    0 ,     0 ,    0 ]
   f "listOfListOf"         (\x -> div_ [i_ [span_ x]]) ()       [  1200 ,    0 ,   64 ,     0 ,    0 ]
   f "helloWorld"           M.helloWorld ()                      [  1232 ,  -16 ,   16 ,     0 ,    0 ]
   f "page"                 M.page ()                            [  1416 ,  -16 , -144 ,     0 ,    0 ]

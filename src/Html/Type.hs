@@ -7,13 +7,14 @@ module Html.Type
   , (#)
   , type (?>)
   , type (<?>)
-  , type (:=)(..)
+  , (:=)(..)
   , Raw(..)
-  , Attribute(..)
   , Element(..)
+  , Attribute(..)
   , CompactHTML
   , Put(..)
   , V(..)
+  , Lawless(..)
   , Retrievable
   , Retrieve
   , Variables

@@ -7,90 +7,88 @@ module Big where
 import Html
 import Medium (attrShort, attrLong, table)
 
-import qualified Html.Attribute as A
-
 page x =
   html_
     ( body_
-      ( h1_A (A.id_ "a")
+      ( h1_A (IdA := "a")
         ( img_
-        # strong_A (A.class_ "b") (0 :: Int)
+        # strong_A (ClassA := "b") (0 :: Int)
         )
       # div_
-        ( div_A (A.id_ "c") (1 :: Int)
+        ( div_A (IdA := "c") (1 :: Int)
         )
       # attrShort ""
       # attrLong ""
       # table (3,3)
       # div_
-        ( form_A (A.class_ "d")
+        ( form_A (ClassA := "d")
           ( fieldset_
-            ( div_A (A.id_ "e")
+            ( div_A (IdA := "e")
               ( div_
-                ( label_A (A.class_ "f") "g"
+                ( label_A (ClassA := "f") "g"
                 # select_
-                  ( option_A (A.id_ "h") "i"
+                  ( option_A (IdA := "h") "i"
                   # option_ "j"
                   )
-                # div_A (A.class_ "k") "l"
+                # div_A (ClassA := "k") "l"
                 )
               # i_ x
               )
-            # button_A (A.id_ "m") (i_ "n")
+            # button_A (IdA := "m") (i_ "n")
             )
           )
         )
       # div_
-        ( form_A (A.class_ "o")
+        ( form_A (ClassA := "o")
           ( fieldset_
-            ( div_A (A.id_ "p")
+            ( div_A (IdA := "p")
               ( div_
-                ( label_A (A.class_ "q") "r"
+                ( label_A (ClassA := "q") "r"
                 # select_
-                  ( option_A (A.id_ "s") "4"
+                  ( option_A (IdA := "s") "4"
                   # option_ "u"
                   )
-                # div_A (A.class_ "v") "w"
+                # div_A (ClassA := "v") "w"
                 )
               # i_ x
               )
-            # button_A (A.id_ "x") (i_ "y")
+            # button_A (IdA := "x") (i_ "y")
             )
           )
         )
       # div_
-        ( form_A (A.class_ "z")
+        ( form_A (ClassA := "z")
           ( fieldset_
-            ( div_A (A.id_ "A")
+            ( div_A (IdA := "A")
               ( div_
-                ( label_A (A.class_ "B") "C"
+                ( label_A (ClassA := "B") "C"
                 # select_
-                  ( option_A (A.id_ "D") "E"
+                  ( option_A (IdA := "D") "E"
                   # option_ "F"
                   )
-                # div_A (A.class_ "G") "H"
+                # div_A (ClassA := "G") "H"
                 )
               # i_ x
               )
-            # button_A (A.id_ "I") (i_ "J")
+            # button_A (IdA := "I") (i_ "J")
             )
           )
         )
       # div_
-        ( form_A (A.class_ "K")
+        ( form_A (ClassA := "K")
           ( fieldset_
-            ( div_A (A.id_ "L")
+            ( div_A (IdA := "L")
               ( div_
-                ( label_A (A.class_ "M") "N"
+                ( label_A (ClassA := "M") "N"
                 # select_
-                  ( option_A (A.id_ "O") "P"
+                  ( option_A (IdA := "O") "P"
                   # option_ "Q"
                   )
-                # div_A (A.class_ "R") "S"
+                # div_A (ClassA := "R") "S"
                 )
               # i_ x
               )
-            # button_A (A.id_ "T") (i_ "U")
+            # button_A (IdA := "T") (i_ "U")
             )
           )
         )

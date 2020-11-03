@@ -8,7 +8,7 @@
 module Main where
 
 import Html
-import qualified Html.Attribute as A
+
 import qualified Blaze          as BL
 import qualified Small          as S
 import qualified Medium         as M
@@ -52,13 +52,13 @@ small = bgroup "Small"
   , bench "oneElement Proxy"             $ nf (renderByteString . S.oneElement) (Proxy :: Proxy "abc")
   , bench "()"                           $ nf renderByteString ()
   , bench "oneElement ()"                $ nf (renderByteString . S.oneElement) ()
-  , bench "oneAttribute"                 $ nf (renderByteString . A.class_) ""
-  , bench "oneAttribute ()"              $ nf (renderByteString . A.class_)  ()
-  , bench "oneAttribute Proxy"           $ nf (renderByteString . A.class_)  (Proxy :: Proxy "abc")
-  , bench "parallelAttribute"            $ nf (\x -> renderByteString $ A.class_ x # A.id_ x) ""
-  , bench "elementWithAttribute"         $ nf (\x -> renderByteString $ div_A (A.class_ x) x) ""
-  , bench "elementWithParallelAttribute" $ nf (\x -> renderByteString $ div_A (A.class_ x # A.id_ x) x) ""
-  , bench "listOfAttributes"             $ nf (\x -> renderByteString [A.class_ x, A.class_ x]) ""
+  , bench "oneAttribute"                 $ nf (renderByteString . (ClassA :=)) ""
+  , bench "oneAttribute ()"              $ nf (renderByteString . (ClassA :=))  ()
+  , bench "oneAttribute Proxy"           $ nf (renderByteString . (ClassA :=))  (Proxy :: Proxy "abc")
+  , bench "parallelAttribute"            $ nf (\x -> renderByteString $ ClassA := x # IdA := x) ""
+  , bench "elementWithAttribute"         $ nf (\x -> renderByteString $ div_A (ClassA := x) x) ""
+  , bench "elementWithParallelAttribute" $ nf (\x -> renderByteString $ div_A (ClassA := x # IdA := x) x) ""
+  , bench "listOfAttributes"             $ nf (\x -> renderByteString [ClassA := x, ClassA := x]) ""
   , bench "listOfListOf"                 $ nf (\x -> renderByteString $ div_ [i_ [span_ x]]) ""
   ]
 

@@ -112,107 +112,107 @@ data ContentCategory
   | Scripting
 
 -- | \ 3.2.6 Global attributes
-type GlobalAttributes =
-  [ AccesskeyA
-  , AutocapitalizeA
-  , AutofocusA
-  , ContenteditableA
-  , DirA
-  , DraggableA
-  , EnterkeyhintA
-  , HiddenA
-  , InputmodeA
-  , IsA
-  , ItemidA
-  , ItempropA
-  , ItemrefA
-  , ItemscopeA
-  , ItemtypeA
-  , LangA
-  , NonceA
-  , SpellcheckA
-  , StyleA
-  , TabindexA
-  , TitleA
-  , TranslateA
+type GlobalAttributes
+  = AccesskeyA
+  & AutocapitalizeA
+  & AutofocusA
+  & ContenteditableA
+  & DirA
+  & DraggableA
+  & EnterkeyhintA
+  & HiddenA
+  & InputmodeA
+  & IsA
+  & ItemidA
+  & ItempropA
+  & ItemrefA
+  & ItemscopeA
+  & ItemtypeA
+  & LangA
+  & NonceA
+  & SpellcheckA
+  & StyleA
+  & TabindexA
+  & TitleA
+  & TranslateA
   -- user agent requirements
-  , ClassA
-  , IdA
-  , SlotA
+  & ClassA
+  & IdA
+  & SlotA
   -- event handler content attributes
-  , OnabortA
-  , OnauxclickA
-  , OnblurA
-  , OncancelA
-  , OncanplayA
-  , OncanplaythroughA
-  , OnchangeA
-  , OnclickA
-  , OncloseA
-  , OncontextmenuA
-  , OncopyA
-  , OncuechangeA
-  , OncutA
-  , OndblclickA
-  , OndragA
-  , OndragendA
-  , OndragenterA
-  , OndragleaveA
-  , OndragoverA
-  , OndragstartA
-  , OndropA
-  , OndurationchangeA
-  , OnemptiedA
-  , OnendedA
-  , OnerrorA
-  , OnfocusA
-  , OnformdataA
-  , OninputA
-  , OninvalidA
-  , OnkeydownA
-  , OnkeypressA
-  , OnkeyupA
-  , OnloadA
-  , OnloadeddataA
-  , OnloadedmetadataA
-  , OnloadstartA
-  , OnmousedownA
-  , OnmouseenterA
-  , OnmouseleaveA
-  , OnmousemoveA
-  , OnmouseoutA
-  , OnmouseoverA
-  , OnmouseupA
-  , OnpasteA
-  , OnpauseA
-  , OnplayA
-  , OnplayingA
-  , OnprogressA
-  , OnratechangeA
-  , OnresetA
-  , OnresizeA
-  , OnscrollA
-  , OnsecuritypolicyviolationA
-  , OnseekedA
-  , OnseekingA
-  , OnselectA
-  , OnslotchangeA
-  , OnstalledA
-  , OnsubmitA
-  , OnsuspendA
-  , OntimeupdateA
-  , OntoggleA
-  , OnvolumechangeA
-  , OnwaitingA
-  , OnwheelA
+  & OnabortA
+  & OnauxclickA
+  & OnblurA
+  & OncancelA
+  & OncanplayA
+  & OncanplaythroughA
+  & OnchangeA
+  & OnclickA
+  & OncloseA
+  & OncontextmenuA
+  & OncopyA
+  & OncuechangeA
+  & OncutA
+  & OndblclickA
+  & OndragA
+  & OndragendA
+  & OndragenterA
+  & OndragleaveA
+  & OndragoverA
+  & OndragstartA
+  & OndropA
+  & OndurationchangeA
+  & OnemptiedA
+  & OnendedA
+  & OnerrorA
+  & OnfocusA
+  & OnformdataA
+  & OninputA
+  & OninvalidA
+  & OnkeydownA
+  & OnkeypressA
+  & OnkeyupA
+  & OnloadA
+  & OnloadeddataA
+  & OnloadedmetadataA
+  & OnloadstartA
+  & OnmousedownA
+  & OnmouseenterA
+  & OnmouseleaveA
+  & OnmousemoveA
+  & OnmouseoutA
+  & OnmouseoverA
+  & OnmouseupA
+  & OnpasteA
+  & OnpauseA
+  & OnplayA
+  & OnplayingA
+  & OnprogressA
+  & OnratechangeA
+  & OnresetA
+  & OnresizeA
+  & OnscrollA
+  & OnsecuritypolicyviolationA
+  & OnseekedA
+  & OnseekingA
+  & OnselectA
+  & OnslotchangeA
+  & OnstalledA
+  & OnsubmitA
+  & OnsuspendA
+  & OntimeupdateA
+  & OntoggleA
+  & OnvolumechangeA
+  & OnwaitingA
+  & OnwheelA
 
   -- ... aria ?
   -- ... data ?
+  & '[]
 
-  ]
 
 -- | 4 The elements of HTML
-data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel :: ContentCategory) (contentAttributes :: [Attribute]) where
+data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel :: ContentCategory) (contentAttributes :: [Symbol]) where
 
   DOCTYPE
     :: Element
@@ -229,7 +229,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     '[]
     -- A head element followed by a body element.
     (Elements ["head", "body"])
-    '[ManifestA]
+    (ManifestA & '[])
 
   -- | \ 4.2 Document metadata
   --     4.2.1
@@ -262,7 +262,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "base"
     '[Metadata]
     None
-    '[HrefA, TargetA]
+    (HrefA & TargetA & '[])
 
   -- | \ 4.2.4
   Link
@@ -270,7 +270,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "link"
     '[Metadata, Flow, Phrasing]
     None
-    '[HrefA, CrossoriginA, RelA, MediaA, IntegrityA, HreflangA, TypeA, ReferrerpolicyA, SizesA, ImagesrcsetA, ImagesizesA, AsA, RelA, ColorA, DisabledA]
+    (HrefA & CrossoriginA & RelA & MediaA & IntegrityA & HreflangA & TypeA & ReferrerpolicyA & SizesA & ImagesrcsetA & ImagesizesA & AsA & RelA & ColorA & DisabledA & '[])
 
   -- | \ 4.2.5
   Meta
@@ -278,7 +278,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "meta"
     '[Metadata, Flow, Phrasing]
     None
-    '[NameA, HttpEquivA, ContentA, CharsetA]
+    (NameA & HttpEquivA & ContentA & CharsetA & '[])
 
   -- | \ 4.2.6
   Style
@@ -287,7 +287,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     '[Metadata]
     -- Text that gives a conformant style sheet.
     OnlyText
-    '[MediaA]
+    (MediaA & '[])
 
   -- | \ 4.3 Sections
   --     4.3.1
@@ -296,7 +296,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "body"
     '[]
     Flow
-    '[OnafterprintA, OnbeforeprintA, OnbeforeunloadA, OnhashchangeA, OnlanguagechangeA, OnmessageA, OnmessageerrorA, OnofflineA, OnonlineA, OnpagehideA, OnpageshowA, OnpopstateA, OnrejectionhandledA, OnstorageA, OnunhandledrefectionA, OnunloadA]
+    (OnafterprintA & OnbeforeprintA & OnbeforeunloadA & OnhashchangeA & OnlanguagechangeA & OnmessageA & OnmessageerrorA & OnofflineA & OnonlineA & OnpagehideA & OnpageshowA & OnpopstateA & OnrejectionhandledA & OnstorageA & OnunhandledrejectionA & OnunloadA & '[])
 
   -- | \ 4.3.2
   Article
@@ -441,7 +441,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "blockquote"
     '[Flow, Palpable]
     Flow
-    '[CiteA]
+    (CiteA & '[])
 
   -- | \ 4.4.5
   Ol
@@ -449,7 +449,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "ol"
     '[Flow, Palpable]
     (Elements '["li"] :|: Scripting)
-    '[ReversedA, StartA, TypeA]
+    (ReversedA & StartA & TypeA & '[])
 
   -- | \ 4.4.6
   Ul
@@ -473,7 +473,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "li"
     '[]
     Flow
-    '[ValueA]
+    (ValueA & '[])
 
   -- | \ 4.4.9
   Dl
@@ -548,7 +548,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     -- descendant, a element descendant, or descendant with the
     -- tabindex attribute specified.
     ((Flow :|: Phrasing :|: Palpable) :&: NOT (Elements '["a"]))
-    '[HrefA, TargetA, DownloadA, PingA, RelA, HreflangA, TypeA, ReferrerpolicyA]
+    (HrefA & TargetA & DownloadA & PingA & RelA & HreflangA & TypeA & ReferrerpolicyA & '[])
 
   -- | \ 4.5.2
   Em
@@ -596,7 +596,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "q"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    '[CiteA]
+    (CiteA & '[])
 
   -- | \ 4.5.8
   Dfn
@@ -644,7 +644,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "data"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    '[ValueA]
+    (ValueA & '[])
 
   -- | \ 4.5.14
   Time
@@ -652,7 +652,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "time"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    '[DatetimeA]
+    (DatetimeA & '[])
 
   -- | \ 4.5.15
   Code
@@ -780,7 +780,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "ins"
     '[Flow, Phrasing, Palpable]
     (Flow :|: Phrasing :|: Palpable)
-    '[CiteA, DatetimeA]
+    (CiteA & DatetimeA & '[])
 
   -- | \ 4.7.2
   Del
@@ -788,7 +788,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "del"
     '[Flow, Phrasing]
     (Flow :|: Phrasing)
-    '[CiteA, DatetimeA]
+    (CiteA & DatetimeA & '[])
 
   -- | \ 4.8 Embedded content
   --     4.8.1
@@ -805,7 +805,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "source"
     '[]
     None
-    '[SrcA, TypeA, SrcsetA, SizesA, MediaA]
+    (SrcA & TypeA & SrcsetA & SizesA & MediaA & '[])
 
   -- | \ 4.8.3
   Img
@@ -813,7 +813,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "img"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     None
-    '[AltA, SrcA, SrcsetA, SizesA, CrossoriginA, UsemapA, IsmapA, WidthA, HeightA, ReferrerpolicyA, DecodingA, LoadingA]
+    (AltA & SrcA & SrcsetA & SizesA & CrossoriginA & UsemapA & IsmapA & WidthA & HeightA & ReferrerpolicyA & DecodingA & LoadingA & '[])
 
   -- | \ 4.8.5
   Iframe
@@ -821,7 +821,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "iframe"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     None
-    '[SrcA, SrcdocA, NameA, SandboxA, AllowA, AllowfullscreenA, WidthA, HeightA, ReferrerpolicyA, LoadingA]
+    (SrcA & SrcdocA & NameA & SandboxA & AllowA & AllowfullscreenA & WidthA & HeightA & ReferrerpolicyA & LoadingA & '[])
 
   -- | \ 4.8.6
   Embed
@@ -829,7 +829,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "embed"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     None
-    '[SrcA, TypeA, WidthA, HeightA]
+    (SrcA & TypeA & WidthA & HeightA & '[])
 
   -- | \ 4.8.7
   Object
@@ -837,7 +837,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "object"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     (Elements '["param"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable)
-    '[DataA, TypeA, NameA, UsemapA, FormA, WidthA, HeightA]
+    (DataA & TypeA & NameA & UsemapA & FormA & WidthA & HeightA & '[])
 
   -- | \ 4.8.8
   Param
@@ -845,7 +845,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "param"
     '[]
     None
-    '[NameA, ValueA]
+    (NameA & ValueA & '[])
 
   -- | \ 4.8.9
   Video
@@ -853,7 +853,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "video"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     ((Elements ["track", "source"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable) :&: NOT (Elements ["audio", "video"]))
-    '[SrcA, CrossoriginA, PosterA, PreloadA, AutoplayA, PlaysinlineA, LoopA, MutedA, ControlsA, WidthA, HeightA]
+    (SrcA & CrossoriginA & PosterA & PreloadA & AutoplayA & PlaysinlineA & LoopA & MutedA & ControlsA & WidthA & HeightA & '[])
 
   -- | \ 4.8.10
   Audio
@@ -861,7 +861,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "audio"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     ((Elements ["track", "source"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable) :&: NOT (Elements ["audio", "video"]))
-    '[SrcA, CrossoriginA, PreloadA, AutoplayA, LoopA, MutedA, ControlsA]
+    (SrcA & CrossoriginA & PreloadA & AutoplayA & LoopA & MutedA & ControlsA & '[])
 
   -- | \ 4.8.11
   Track
@@ -869,7 +869,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "track"
     '[]
     None
-    '[KindA, SrcA, SrclangA, LabelA, DefaultA]
+    (KindA & SrcA & SrclangA & LabelA & DefaultA & '[])
 
   -- | \ 4.8.13
   Map
@@ -877,7 +877,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "map"
     '[Flow, Phrasing, Palpable]
     (Flow :|: Phrasing :|: Palpable)
-    '[NameA]
+    (NameA & '[])
 
   -- | \ 4.8.14
   Area
@@ -885,7 +885,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "area"
     '[Flow, Phrasing]
     None
-    '[AltA, CoordsA, ShapeA, HrefA, TargetA, DownloadA, PingA, RelA, ReferrerpolicyA]
+    (AltA & CoordsA & ShapeA & HrefA & TargetA & DownloadA & PingA & RelA & ReferrerpolicyA & '[])
 
   -- | \ 4.9 Tabular data
   --     4.9.1
@@ -910,7 +910,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "colgroup"
     '[]
     (Elements ["col", "template"])
-    '[SpanA]
+    (SpanA & '[])
 
   -- | \ 4.9.4
   Col
@@ -918,7 +918,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "col"
     '[]
     None
-    '[SpanA]
+    (SpanA & '[])
 
   -- | \ 4.9.5
   Tbody
@@ -958,7 +958,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "td"
     '[]
     Flow
-    '[ColspanA, RowspanA, HeadersA]
+    (ColspanA & RowspanA & HeadersA & '[])
 
   -- | \ 4.9.10
   Th
@@ -966,7 +966,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "th"
     '[]
     (Flow :&: NOT (Elements ["header", "footer"] :|: Sectioning :|: Heading))
-    '[ColspanA, RowspanA, HeadersA, ScopeA, AbbrA]
+    (ColspanA & RowspanA & HeadersA & ScopeA & AbbrA & '[])
 
   -- | \ 4.10 Forms
   --     4.10.3
@@ -975,7 +975,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "form"
     '[Flow, Palpable]
     (Flow :&: NOT (Elements '["form"]))
-    '[AcceptCharsetA, ActionA, AutocompleteA, EnctypeA, MethodA, NameA, NovalidateA, TargetA, RelA]
+    (AcceptCharsetA & ActionA & AutocompleteA & EnctypeA & MethodA & NameA & NovalidateA & TargetA & RelA & '[])
 
   -- | \ 4.10.4
   Label
@@ -983,7 +983,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "label"
     '[Flow, Phrasing, Interactive, Palpable]
     (Phrasing :&: NOT (Elements '["label"]))
-    '[ForA]
+    (ForA & '[])
 
   -- | \ 4.10.5
   Input
@@ -991,7 +991,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "input"
     '[Flow, Phrasing, Interactive, Palpable]
     None
-    '[AcceptA, AltA, AutocompleteA, CheckedA, DirnameA, DisabledA, FormA, FormactionA, FormenctypeA, FormmethodA, FormnovalidateA, FormtargetA, HeightA, ListA, MaxA, MaxlengthA, MinA, MinlengthA, MultipleA, NameA, PatternA, PlaceholderA, ReadonlyA, RequiredA, SizeA, SrcA, StepA, TypeA, ValueA, WidthA]
+    (AcceptA & AltA & AutocompleteA & CheckedA & DirnameA & DisabledA & FormA & FormactionA & FormenctypeA & FormmethodA & FormnovalidateA & FormtargetA & HeightA & ListA & MaxA & MaxlengthA & MinA & MinlengthA & MultipleA & NameA & PatternA & PlaceholderA & ReadonlyA & RequiredA & SizeA & SrcA & StepA & TypeA & ValueA & WidthA & '[])
 
   -- | \ 4.10.6
   Button
@@ -999,7 +999,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "button"
     '[Flow, Phrasing, Interactive, Palpable]
     (Phrasing :&: NOT Interactive)
-    '[DisabledA, FormA, FormactionA, FormenctypeA, FormmethodA, FormnovalidateA, FormtargetA, NameA, TypeA, ValueA]
+    (DisabledA & FormA & FormactionA & FormenctypeA & FormmethodA & FormnovalidateA & FormtargetA & NameA & TypeA & ValueA & '[])
 
   -- | \ 4.10.7
   Select
@@ -1007,7 +1007,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "select"
     '[Flow, Phrasing, Interactive, Palpable]
     (Elements ["option", "optgroup"] :|: Scripting)
-    '[AutocompleteA, DisabledA, FormA, MultipleA, NameA, RequiredA, SizeA]
+    (AutocompleteA & DisabledA & FormA & MultipleA & NameA & RequiredA & SizeA & '[])
 
   -- | \ 4.10.8
   Datalist
@@ -1023,7 +1023,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "optgroup"
     '[]
     (Elements '["option"] :|: Scripting)
-    '[DisabledA, LabelA]
+    (DisabledA & LabelA & '[])
 
   -- | \ 4.10.10
   Option
@@ -1031,7 +1031,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "option"
     '[]
     OnlyText
-    '[DisabledA, LabelA, SelectedA, ValueA]
+    (DisabledA & LabelA & SelectedA & ValueA & '[])
 
   -- | \ 4.10.11
   Textarea
@@ -1039,7 +1039,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "textarea"
     '[Flow, Phrasing, Interactive, Palpable]
     OnlyText
-    '[AutocompleteA, ColsA, DirnameA, DisabledA, FormA, MaxlengthA, MinlengthA, NameA, PlaceholderA, ReadonlyA, RequiredA, RowsA, WrapA]
+    (AutocompleteA & ColsA & DirnameA & DisabledA & FormA & MaxlengthA & MinlengthA & NameA & PlaceholderA & ReadonlyA & RequiredA & RowsA & WrapA & '[])
 
   -- | \ 4.10.12
   Output
@@ -1047,7 +1047,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "output"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    '[ForA, FormA, NameA]
+    (ForA & FormA & NameA & '[])
 
   -- | \ 4.10.13
   Progress
@@ -1055,7 +1055,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "progress"
     '[Flow, Phrasing, Palpable]
     (Phrasing :&: NOT (Elements '["progress"]))
-    '[ValueA, MaxA]
+    (ValueA & MaxA & '[])
 
   -- | \ 4.10.14
   Meter
@@ -1063,7 +1063,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "meter"
     '[Flow, Phrasing, Palpable]
     (Phrasing :&: NOT (Elements '["meter"]))
-    '[ValueA, MinA, MaxA, LowA, HighA, OptimumA]
+    (ValueA & MinA & MaxA & LowA & HighA & OptimumA & '[])
 
   -- | \ 4.10.15
   Fieldset
@@ -1071,7 +1071,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "fieldset"
     '[Flow, Palpable]
     (Elements '["legend"] :|: Flow)
-    '[DisabledA, FormA, NameA]
+    (DisabledA & FormA & NameA & '[])
 
   -- | \ 4.10.16
   Legend
@@ -1088,7 +1088,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "details"
     '[Flow, Interactive, Palpable]
     (Elements '["summary"] :|: Flow)
-    '[OpenA]
+    (OpenA & '[])
 
   -- | \ 4.11.2
   Summary
@@ -1104,7 +1104,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "dialog"
     '[Flow]
     Flow
-    '[OpenA]
+    (OpenA & '[])
 
   -- | \ 4.12 Scripting
   --     4.12.1
@@ -1113,7 +1113,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "script"
     '[Metadata, Flow, Phrasing, Scripting]
     OnlyText
-    '[SrcA, TypeA, NomoduleA, AsyncA, DeferA, CrossoriginA, IntegrityA, ReferrerpolicyA]
+    (SrcA & TypeA & NomoduleA & AsyncA & DeferA & CrossoriginA & IntegrityA & ReferrerpolicyA & '[])
 
   -- | \ 4.12.2
   Noscript
@@ -1137,7 +1137,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "slot"
     '[Flow, Phrasing]
     (Flow :|: Phrasing)
-    '[NameA]
+    (NameA & '[])
 
   -- | \ 4.12.5
   Canvas
@@ -1145,7 +1145,7 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     "canvas"
     '[Flow, Phrasing, Embedded, Palpable]
     (((Flow :|: Phrasing :|: Embedded :|: Palpable) :&: NOT Interactive) :|: Elements ["a", "img", "button", "input", "select"])
-    '[WidthA, HeightA]
+    (WidthA & HeightA & '[])
 
   -- | \ 4.13 Custom elements
   CustomElement
@@ -1155,274 +1155,285 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     contentModel
     contentAttributes
 
--- | Index
---   Attributes
-data Attribute
-  = RoleA
-  | AriaActivedescendantA
-  | AriaAtomicA
-  | AriaAutocompleteA
-  | AriaBusyA
-  | AriaCheckedA
-  | AriaControlsA
-  | AriaDescribedbyA
-  | AriaDisabledA
-  | AriaDropeffectA
-  | AriaExpandedA
-  | AriaFlowtoA
-  | AriaGrabbedA
-  | AriaHaspopupA
-  | AriaHiddenA
-  | AriaInvalidA
-  | AriaLabelA
-  | AriaLabelledByA
-  | AriaLevelA
-  | AriaLiveA
-  | AriaMultilineA
-  | AriaMultiselectableA
-  | AriaOwnsA
-  | AriaPosinsetA
-  | AriaPressedA
-  | AriaReadonlyA
-  | AriaRelevantA
-  | AriaRequiredA
-  | AriaSelectedA
-  | AriaSetsizeA
-  | AriaSortA
-  | AriaValuemaxA
-  | AriaValueminA
-  | AriaValuenowA
-  | AriaValuetextA
+type GetAttributeName (e :: Attribute a boolean) = a
 
-  | AbbrA
-  | AcceptA
-  | AcceptCharsetA
-  | AccesskeyA
-  | ActionA
-  | AllowA
-  | AllowfullscreenA
-  | AllowpaymentrequestA
-  | AlignA
-  | AltA
-  | AsA
-  | AsyncA
-  | AutocapitalizeA
-  | AutocompleteA
-  | AutofocusA
-  | AutoplayA
-  | AutosaveA
-  | BgcolorA
-  | BorderA
-  | BufferedA
-  | ChallengeA
-  | CharsetA
-  | CheckedA
-  | CiteA
-  | ClassA
-  | CodeA
-  | CodebaseA
-  | ColorA
-  | ColsA
-  | ColspanA
-  | ContentA
-  | ContenteditableA
-  | ContextmenuA
-  | ControlsA
-  | CoordsA
-  | CrossoriginA
-  | DataA
-  | DatetimeA
-  | DecodingA
-  | DefaultA
-  | DeferA
-  | DirA
-  | DirnameA
-  | DisabledA
-  | DownloadA
-  | DraggableA
-  | DropzoneA
-  | EnctypeA
-  | EnterkeyhintA
-  | ForA
-  | FormA
-  | FormactionA
-  | FormenctypeA
-  | FormmethodA
-  | FormnovalidateA
-  | FormtargetA
-  | HeadersA
-  | HeightA
-  | HiddenA
-  | HighA
-  | HrefA
-  | HreflangA
-  | HttpEquivA
-  | IconA
-  | IdA
-  | ImagesrcsetA
-  | ImagesizesA
-  | InputmodeA
-  | IntegrityA
-  | IsA
-  | IsmapA
-  | ItemidA
-  | ItempropA
-  | ItemrefA
-  | ItemscopeA
-  | ItemtypeA
-  | KeytypeA
-  | KindA
-  | LabelA
-  | LangA
-  | LanguageA
-  | ListA
-  | LoadingA
-  | LongdescA
-  | LoopA
-  | LowA
-  | ManifestA
-  | MaxA
-  | MaxlengthA
-  | MediaA
-  | MethodA
-  | MinA
-  | MinlengthA
-  | MultipleA
-  | MutedA
-  | NameA
-  | NomoduleA
-  | NonceA
-  | NovalidateA
-  | OnafterprintA
-  | OnbeforeprintA
-  | OnbeforeunloadA
-  | OnhashchangeA
-  | OnlanguagechangeA
-  | OnmessageA
-  | OnmessageerrorA
-  | OnofflineA
-  | OnonlineA
-  | OnpagehideA
-  | OnpageshowA
-  | OnpopstateA
-  | OnrejectionhandledA
-  | OnstorageA
-  | OnunhandledrefectionA
-  | OnunloadA
-  | OpenA
-  | OptimumA
-  | PatternA
-  | PingA
-  | PlaceholderA
-  | PlaysinlineA
-  | PosterA
-  | PreloadA
-  | RadiogroupA
-  | ReadonlyA
-  | ReferrerpolicyA
-  | RelA
-  | RequiredA
-  | RevA
-  | ReversedA
-  | RowsA
-  | RowspanA
-  | SandboxA
-  | ScopeA
-  | ScopedA
-  | SeamlessA
-  | SelectedA
-  | ShapeA
-  | SizeA
-  | SizesA
-  | SlotA
-  | SpanA
-  | SpellcheckA
-  | SrcA
-  | SrcdocA
-  | SrclangA
-  | SrcsetA
-  | StartA
-  | StepA
-  | StyleA
-  | SummaryA
-  | TabindexA
-  | TargetA
-  | TitleA
-  | TranslateA
-  | TypeA
-  | TypemustmatchA
-  | UsemapA
-  | ValueA
-  | WidthA
-  | WrapA
+type (&) k b = GetAttributeName k ': b
 
-  | OnabortA
-  | OnauxclickA
-  | OnblurA
-  | OncancelA
-  | OncanplayA
-  | OncanplaythroughA
-  | OnchangeA
-  | OnclickA
-  | OncloseA
-  | OncontextmenuA
-  | OncopyA
-  | OncuechangeA
-  | OncutA
-  | OndblclickA
-  | OndragA
-  | OndragendA
-  | OndragenterA
-  | OndragleaveA
-  | OndragoverA
-  | OndragstartA
-  | OndropA
-  | OndurationchangeA
-  | OnemptiedA
-  | OnendedA
-  | OnerrorA
-  | OnfocusA
-  | OnformdataA
-  | OninputA
-  | OninvalidA
-  | OnkeydownA
-  | OnkeypressA
-  | OnkeyupA
-  | OnloadA
-  | OnloadeddataA
-  | OnloadedmetadataA
-  | OnloadstartA
-  | OnmousedownA
-  | OnmouseenterA
-  | OnmouseleaveA
-  | OnmousemoveA
-  | OnmouseoutA
-  | OnmouseoverA
-  | OnmouseupA
-  | OnpasteA
-  | OnpauseA
-  | OnplayA
-  | OnplayingA
-  | OnprogressA
-  | OnratechangeA
-  | OnresetA
-  | OnresizeA
-  | OnscrollA
-  | OnsecuritypolicyviolationA
-  | OnseekedA
-  | OnseekingA
-  | OnselectA
-  | OnslotchangeA
-  | OnstalledA
-  | OnsubmitA
-  | OnsuspendA
-  | OntimeupdateA
-  | OntoggleA
-  | OnvolumechangeA
-  | OnwaitingA
-  | OnwheelA
+newtype Lawless a = Lawless a
 
-  | CustomA Symbol
+infixr 5 &
+
+data (:=) a v = (:=) (Attribute a False) v
+
+data Attribute a boolean where
+  CustomA                     :: Attribute a boolean
+
+  -- List of attributes (excluding event handler content attributes)
+  AbbrA                       :: Attribute "abbr" False
+  AcceptA                     :: Attribute "accept" False
+  AcceptCharsetA              :: Attribute "accept-charset" False
+  AccesskeyA                  :: Attribute "accesskey" False
+  ActionA                     :: Attribute "action" False
+  AllowA                      :: Attribute "allow" False
+  AllowfullscreenA            :: Attribute "allowfullscreen" True
+  AltA                        :: Attribute "alt" False
+  AsA                         :: Attribute "as" False
+  AsyncA                      :: Attribute "async" True
+  AutocapitalizeA             :: Attribute "autocapitalize" False
+  AutocompleteA               :: Attribute "autocomplete" False
+  AutofocusA                  :: Attribute "autofocus" True
+  AutoplayA                   :: Attribute "autoplay" True
+  CharsetA                    :: Attribute "charset" False
+  CheckedA                    :: Attribute "checked" True
+  CiteA                       :: Attribute "cite" False
+  ClassA                      :: Attribute "class" False
+  ColorA                      :: Attribute "color" False
+  ColsA                       :: Attribute "cols" False
+  ColspanA                    :: Attribute "colspan" False
+  ContentA                    :: Attribute "content" False
+  ContenteditableA            :: Attribute "contenteditable" False
+  ControlsA                   :: Attribute "controls" True
+  CoordsA                     :: Attribute "coords" False
+  CrossoriginA                :: Attribute "crossorigin" False
+  DataA                       :: Attribute "data" False
+  DatetimeA                   :: Attribute "datetime" False
+  DecodingA                   :: Attribute "decoding" False
+  DefaultA                    :: Attribute "default" True
+  DeferA                      :: Attribute "defer" True
+  DirA                        :: Attribute "dir" False
+  DirnameA                    :: Attribute "dirname" False
+  DisabledA                   :: Attribute "disabled" True
+  DownloadA                   :: Attribute "download" False
+  DraggableA                  :: Attribute "draggable" False
+  EnctypeA                    :: Attribute "enctype" False
+  EnterkeyhintA               :: Attribute "enterkeyhint" False
+  ForA                        :: Attribute "for" False
+  FormA                       :: Attribute "form" False
+  FormactionA                 :: Attribute "formaction" False
+  FormenctypeA                :: Attribute "formenctype" False
+  FormmethodA                 :: Attribute "formmethod" False
+  FormnovalidateA             :: Attribute "formnovalidate" True
+  FormtargetA                 :: Attribute "formtarget" False
+  HeadersA                    :: Attribute "headers" False
+  HeightA                     :: Attribute "height" False
+  HiddenA                     :: Attribute "hidden" True
+  HighA                       :: Attribute "high" False
+  HrefA                       :: Attribute "href" False
+  HreflangA                   :: Attribute "hreflang" False
+  HttpEquivA                  :: Attribute "httpEquiv" False
+  IdA                         :: Attribute "id" False
+  ImagesizesA                 :: Attribute "imagesizes" False
+  ImagesrcsetA                :: Attribute "imagesrcset" False
+  InputmodeA                  :: Attribute "inputmode" False
+  IntegrityA                  :: Attribute "integrity" False
+  IsA                         :: Attribute "is" False
+  IsmapA                      :: Attribute "ismap" True
+  ItemidA                     :: Attribute "itemid" False
+  ItempropA                   :: Attribute "itemprop" False
+  ItemrefA                    :: Attribute "itemref" False
+  ItemscopeA                  :: Attribute "itemscope" True
+  ItemtypeA                   :: Attribute "itemtype" False
+  KindA                       :: Attribute "kind" False
+  LabelA                      :: Attribute "label" False
+  LangA                       :: Attribute "lang" False
+  ListA                       :: Attribute "list" False
+  LoadingA                    :: Attribute "loading" False
+  LoopA                       :: Attribute "loop" True
+  LowA                        :: Attribute "low" False
+  ManifestA                   :: Attribute "manifest" False
+  MaxA                        :: Attribute "max" False
+  MaxlengthA                  :: Attribute "maxlength" False
+  MediaA                      :: Attribute "media" False
+  MethodA                     :: Attribute "method" False
+  MinA                        :: Attribute "min" False
+  MinlengthA                  :: Attribute "minlength" False
+  MultipleA                   :: Attribute "multiple" True
+  MutedA                      :: Attribute "muted" True
+  NameA                       :: Attribute "name" False
+  NomoduleA                   :: Attribute "nomodule" True
+  NonceA                      :: Attribute "nonce" False
+  NovalidateA                 :: Attribute "novalidate" True
+  OpenA                       :: Attribute "open" True
+  OptimumA                    :: Attribute "optimum" False
+  PatternA                    :: Attribute "pattern" False
+  PingA                       :: Attribute "ping" False
+  PlaceholderA                :: Attribute "placeholder" False
+  PlaysinlineA                :: Attribute "playsinline" True
+  PosterA                     :: Attribute "poster" False
+  PreloadA                    :: Attribute "preload" False
+  ReadonlyA                   :: Attribute "readonly" True
+  ReferrerpolicyA             :: Attribute "referrerpolicy" False
+  RelA                        :: Attribute "rel" False
+  RequiredA                   :: Attribute "required" True
+  ReversedA                   :: Attribute "reversed" True
+  RowsA                       :: Attribute "rows" False
+  RowspanA                    :: Attribute "rowspan" False
+  SandboxA                    :: Attribute "sandbox" False
+  ScopeA                      :: Attribute "scope" False
+  SelectedA                   :: Attribute "selected" True
+  ShapeA                      :: Attribute "shape" False
+  SizeA                       :: Attribute "size" False
+  SizesA                      :: Attribute "sizes" False
+  SlotA                       :: Attribute "slot" False
+  SpanA                       :: Attribute "span" False
+  SpellcheckA                 :: Attribute "spellcheck" False
+  SrcA                        :: Attribute "src" False
+  SrcdocA                     :: Attribute "srcdoc" False
+  SrclangA                    :: Attribute "srclang" False
+  SrcsetA                     :: Attribute "srcset" False
+  StartA                      :: Attribute "start" False
+  StepA                       :: Attribute "step" False
+  StyleA                      :: Attribute "style" False
+  TabindexA                   :: Attribute "tabindex" False
+  TargetA                     :: Attribute "target" False
+  TitleA                      :: Attribute "title" False
+  TranslateA                  :: Attribute "translate" False
+  TypeA                       :: Attribute "type" False
+  UsemapA                     :: Attribute "usemap" False
+  ValueA                      :: Attribute "value" False
+  WidthA                      :: Attribute "width" False
+  WrapA                       :: Attribute "wrap" False
+
+  -- List of event handler content attributes
+  OnabortA                    :: Attribute "onabort" False
+  OnauxclickA                 :: Attribute "onauxclick" False
+  OnafterprintA               :: Attribute "onafterprint" False
+  OnbeforeprintA              :: Attribute "onbeforeprint" False
+  OnbeforeunloadA             :: Attribute "onbeforeunload" False
+  OnblurA                     :: Attribute "onblur" False
+  OncancelA                   :: Attribute "oncancel" False
+  OncanplayA                  :: Attribute "oncanplay" False
+  OncanplaythroughA           :: Attribute "oncanplaythrough" False
+  OnchangeA                   :: Attribute "onchange" False
+  OnclickA                    :: Attribute "onclick" False
+  OncloseA                    :: Attribute "onclose" False
+  OncontextmenuA              :: Attribute "oncontextmenu" False
+  OncopyA                     :: Attribute "oncopy" False
+  OncuechangeA                :: Attribute "oncuechange" False
+  OncutA                      :: Attribute "oncut" False
+  OndblclickA                 :: Attribute "ondblclick" False
+  OndragA                     :: Attribute "ondrag" False
+  OndragendA                  :: Attribute "ondragend" False
+  OndragenterA                :: Attribute "ondragenter" False
+  OndragleaveA                :: Attribute "ondragleave" False
+  OndragoverA                 :: Attribute "ondragover" False
+  OndragstartA                :: Attribute "ondragstart" False
+  OndropA                     :: Attribute "ondrop" False
+  OndurationchangeA           :: Attribute "ondurationchange" False
+  OnemptiedA                  :: Attribute "onemptied" False
+  OnendedA                    :: Attribute "onended" False
+  OnerrorA                    :: Attribute "onerror" False
+  OnfocusA                    :: Attribute "onfocus" False
+  OnformdataA                 :: Attribute "onformdata" False
+  OnhashchangeA               :: Attribute "onhashchange" False
+  OninputA                    :: Attribute "oninput" False
+  OninvalidA                  :: Attribute "oninvalid" False
+  OnkeydownA                  :: Attribute "onkeydown" False
+  OnkeypressA                 :: Attribute "onkeypress" False
+  OnkeyupA                    :: Attribute "onkeyup" False
+  OnlanguagechangeA           :: Attribute "onlanguagechange" False
+  OnloadA                     :: Attribute "onload" False
+  OnloadeddataA               :: Attribute "onloadeddata" False
+  OnloadedmetadataA           :: Attribute "onloadedmetadata" False
+  OnloadstartA                :: Attribute "onloadstart" False
+  OnmessageA                  :: Attribute "onmessage" False
+  OnmessageerrorA             :: Attribute "onmessageerror" False
+  OnmousedownA                :: Attribute "onmousedown" False
+  OnmouseenterA               :: Attribute "onmouseenter" False
+  OnmouseleaveA               :: Attribute "onmouseleave" False
+  OnmousemoveA                :: Attribute "onmousemove" False
+  OnmouseoutA                 :: Attribute "onmouseout" False
+  OnmouseoverA                :: Attribute "onmouseover" False
+  OnmouseupA                  :: Attribute "onmouseup" False
+  OnofflineA                  :: Attribute "onoffline" False
+  OnonlineA                   :: Attribute "ononline" False
+  OnpagehideA                 :: Attribute "onpagehide" False
+  OnpageshowA                 :: Attribute "onpageshow" False
+  OnpasteA                    :: Attribute "onpaste" False
+  OnpauseA                    :: Attribute "onpause" False
+  OnplayA                     :: Attribute "onplay" False
+  OnplayingA                  :: Attribute "onplaying" False
+  OnpopstateA                 :: Attribute "onpopstate" False
+  OnprogressA                 :: Attribute "onprogress" False
+  OnratechangeA               :: Attribute "onratechange" False
+  OnresetA                    :: Attribute "onreset" False
+  OnresizeA                   :: Attribute "onresize" False
+  OnrejectionhandledA         :: Attribute "onrejectionhandled" False
+  OnscrollA                   :: Attribute "onscroll" False
+  OnsecuritypolicyviolationA  :: Attribute "onsecuritypolicyviolation" False
+  OnseekedA                   :: Attribute "onseeked" False
+  OnseekingA                  :: Attribute "onseeking" False
+  OnselectA                   :: Attribute "onselect" False
+  OnslotchangeA               :: Attribute "onslotchange" False
+  OnstalledA                  :: Attribute "onstalled" False
+  OnstorageA                  :: Attribute "onstorage" False
+  OnsubmitA                   :: Attribute "onsubmit" False
+  OnsuspendA                  :: Attribute "onsuspend" False
+  OntimeupdateA               :: Attribute "ontimeupdate" False
+  OntoggleA                   :: Attribute "ontoggle" False
+  OnunhandledrejectionA       :: Attribute "onunhandledrejection" False
+  OnunloadA                   :: Attribute "onunload" False
+  OnvolumechangeA             :: Attribute "onvolumechange" False
+  OnwaitingA                  :: Attribute "onwaiting" False
+  OnwheelA                    :: Attribute "onwheel" False
+
+  -- [2020-11-03] ARIA https://w3c.github.io/aria/#states_and_properties
+  RoleA                       :: Attribute "role" False
+
+  -- 6.7 Definitios of States and Properties (all aria-* attributes)
+  AriaActivedescendantA       :: Attribute "aria-activedescendant" False
+  AriaAtomicA                 :: Attribute "aria-atomic" False
+  AriaAutocompleteA           :: Attribute "aria-autocomplete" False
+  AriaBraillelableA           :: Attribute "aria-braillelable" False
+  AriaBrailleroledescriptionA :: Attribute "aria-brailleroledescription" False
+  AriaBusyA                   :: Attribute "aria-busy" False
+  AriaCheckedA                :: Attribute "aria-checked" False
+  AriaColcountA               :: Attribute "aria-colcount" False
+  AriaColindexA               :: Attribute "aria-colindex" False
+  AriaColindextextA           :: Attribute "aria-colindextext" False
+  AriaColspanA                :: Attribute "aria-colspan" False
+  AriaControlsA               :: Attribute "aria-controls" False
+  AriaCurrentA                :: Attribute "aria-current" False
+  AriaDescribedbyA            :: Attribute "aria-describedby" False
+  AriaDescriptionA            :: Attribute "aria-description" False
+  AriaDetailsA                :: Attribute "aria-details" False
+  AriaDisabledA               :: Attribute "aria-disabled" False
+  AriaDropeffectA             :: Attribute "aria-dropeffect" False
+  AriaErrormessageA           :: Attribute "aria-errormessage" False
+  AriaExpandedA               :: Attribute "aria-expanded" False
+  AriaFlowtoA                 :: Attribute "aria-flowto" False
+  AriaGrabbedA                :: Attribute "aria-grabbed" False
+  AriaHaspopupA               :: Attribute "aria-haspopup" False
+  AriaHiddenA                 :: Attribute "aria-hidden" False
+  AriaInvalidA                :: Attribute "aria-invalid" False
+  AriaKeyshortcutsA           :: Attribute "aria-keyshortcuts" False
+  AriaLabelA                  :: Attribute "aria-label" False
+  AriaLabelledByA             :: Attribute "aria-labelledBy" False
+  AriaLevelA                  :: Attribute "aria-level" False
+  AriaLiveA                   :: Attribute "aria-live" False
+  AriaModalA                  :: Attribute "aria-modal" False
+  AriaMultilineA              :: Attribute "aria-multiline" False
+  AriaMultiselectableA        :: Attribute "aria-multiselectable" False
+  AriaOrientationA            :: Attribute "aria-orientation" False
+  AriaOwnsA                   :: Attribute "aria-owns" False
+  AriaPlaceholderA            :: Attribute "aria-placeholder" False
+  AriaPosinsetA               :: Attribute "aria-posinset" False
+  AriaPressedA                :: Attribute "aria-pressed" False
+  AriaReadonlyA               :: Attribute "aria-readonly" False
+  AriaRelevantA               :: Attribute "aria-relevant" False
+  AriaRequiredA               :: Attribute "aria-required" False
+  AriaRoledescriptionA        :: Attribute "aria-roledescription" False
+  AriaRowcountA               :: Attribute "aria-rowcount" False
+  AriaRowindexA               :: Attribute "aria-rowindex" False
+  AriaRowindextextA           :: Attribute "aria-rowindextext" False
+  AriaRowspanA                :: Attribute "aria-rowspan" False
+  AriaSelectedA               :: Attribute "aria-selected" False
+  AriaSetsizeA                :: Attribute "aria-setsize" False
+  AriaSortA                   :: Attribute "aria-sort" False
+  AriaValuemaxA               :: Attribute "aria-valuemax" False
+  AriaValueminA               :: Attribute "aria-valuemin" False
+  AriaValuenowA               :: Attribute "aria-valuenow" False
+  AriaValuetextA              :: Attribute "aria-valuetext" False
 
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
 -- and snoc(O1) but append(On).  Optimal would be a FingerTree.
@@ -1446,49 +1457,56 @@ type CloseTag e = AppendSymbol "</" (AppendSymbol (GetElementName e) ">")
 -- | Flatten a document into a type list of tags.
 type family ToList a :: List where
   ToList (a # b)         = ToList a >< ToList b
+  ToList (Lawless a)     = ToList a
   ToList ((a :@: ()) ()) = 'List '[] (If (HasContent (GetElementContentModel a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
   ToList ((a :@: b) ())  = AppendSymbol "<" (GetElementName a) <| ToList b |> If (HasContent (GetElementContentModel a)) (AppendSymbol ">" (CloseTag a)) ">"
   ToList ((a :@: ()) b)  = OpenTag a <| ToList b |> CloseTag a
   ToList ((a :@: b) c)   = (AppendSymbol "<" (GetElementName a) <| ToList b) >< (">" <| ToList c |> CloseTag a)
-  ToList (a := ())       = 'List '[] (AppendSymbol " " (ShowAttribute a))
-  ToList (a := b)        = AppendSymbol " " (AppendSymbol (ShowAttribute a) "=\"") <| ToList b |> "\""
+  ToList (Attribute a True) = 'List '[] (AppendSymbol " " a)
+  ToList (a := ())       = 'List '[] (AppendSymbol " " a)
+  ToList (a := b)        = AppendSymbol " " (AppendSymbol a "=\"") <| ToList b |> "\""
   ToList ()              = 'List '[] ""
   ToList (Proxy x)       = 'List '[] x
   ToList x               = 'List '[""] ""
 
-newtype (:=) (a :: Attribute) b = AT b
-
 -- | Check whether `b` is a valid child of `a`.
-type a ?> b = Check CheckElement a b
+type a ?> b = Check False CheckElement a b
 
 -- | Check whether `a` is a valid attribute and `b` is a valid child of `p`.
-type (<?>) p a b = (Check CheckAttribute p a, Check CheckElement p b)
+type (<?>) p a b = (Check False CheckAttribute p a, Check False CheckElement p b)
 
 type TextE a = Text (GetElementName a)
-type TextA a = Text (ShowAttribute a)
 type TagE a = Text "<" :<>: TextE a :<>: Text ">"
 
 data CheckData
   = CheckElement
   | CheckAttribute
 
-type family Check f a b :: Constraint where
-  Check _ _ ()                      = ()
-  Check _ _ (Raw _)                 = ()
-  Check f a (b # c)                 = (Check f a b, Check f a c)
-  Check f a (Maybe b)               = Check f a b
-  Check f a (Either b c)            = (Check f a b, Check f a c)
-  Check f a (b -> c)                = TypeError (TagE a :<>: Text " can't contain a function.")
-  Check CheckElement a ((b :@: _) _)      = MaybeTypeError a b (CheckContentCategory (GetElementName b) (GetElementContentModel a) (GetElementCategories b))
-  Check CheckElement a (f ((b :@: c) d))  = Check CheckElement a ((b :@: c) d)
-  Check CheckElement a (f (b # c))        = Check CheckElement a (b # c)
-  Check CheckElement a (b := c)           = TypeError (TagE a :<>: Text " can't contain an attribute." :$$: Text "Try '" :<>: TextE a :<>: Text "_A' instead.")
-  Check CheckElement a b                  = CheckString a b
-  Check CheckAttribute a (CustomA z := _) = ()
-  Check CheckAttribute a (b := _)         = If (Elem b (Append (GetElementAttributes a) GlobalAttributes))
+type family Check lawless f a b :: Constraint where
+  Check _ _ _ ()                      = ()
+  Check _ _ _ (Raw _)                 = ()
+  Check _ f a (Lawless x)             = Check True f a x
+  Check l f a (b # c)                 = (Check l f a b, Check l f a c)
+  Check l f a (Maybe b)               = Check l f a b
+  Check l f a (Either b c)            = (Check l f a b, Check l f a c)
+  Check _ f a (b -> c)                = TypeError (TagE a :<>: Text " can't contain a function.")
+  Check True CheckElement a ((b :@: _) _)      = ()
+  Check False CheckElement a ((b :@: _) _)      = MaybeTypeError a b (CheckContentCategory (GetElementName b) (GetElementContentModel a) (GetElementCategories b))
+  Check l CheckElement a (f ((b :@: c) d))  = Check l CheckElement a ((b :@: c) d)
+  Check l CheckElement a (f (b # c))        = Check l CheckElement a (b # c)
+  Check _ CheckElement a (b := c)           = TypeError (TagE a :<>: Text " can't contain an attribute." :$$: Text "Try '" :<>: TextE a :<>: Text "_A' instead.")
+  Check True CheckElement a b                  = ()
+  Check False CheckElement a b                  = CheckString a b
+  Check True CheckAttribute a (Attribute b True) = ()
+  Check False CheckAttribute a (Attribute b True) = If (Elem b (Append (GetElementAttributes a) GlobalAttributes))
                                         (() :: Constraint)
-                                        (TypeError (TextA b :<>: Text " is not a valid attribute of " :<>: TagE a :<>: Text "."))
-  Check CheckAttribute _ b                = TypeError (ShowType b :<>: Text " is not an attribute.")
+                                        (TypeError (Text b :<>: Text " is not a valid attribute of " :<>: TagE a :<>: Text "."))
+
+  Check True CheckAttribute a (b := _) = ()
+  Check False CheckAttribute a (b := _)         = If (Elem b (Append (GetElementAttributes a) GlobalAttributes))
+                                        (() :: Constraint)
+                                        (TypeError (Text b :<>: Text " is not a valid attribute of " :<>: TagE a :<>: Text "."))
+  Check _ CheckAttribute _ b                = TypeError (ShowType b :<>: Text " is not an attribute.")
 
 -- | Combine two elements or attributes sequentially.
 --
@@ -1532,7 +1550,9 @@ type family Null xs where
 type family Length c where
   Length (a # b)       = Length a + Length b
   Length ((_ :@: b) c) = Length b + Length c
+  Length (Attribute a True) = 0
   Length (_ := b)      = Length b
+  Length (Lawless a)   = Length a
   Length ()            = 0
   Length (Proxy _)     = 0
   Length _             = 1
@@ -1629,172 +1649,3 @@ type family Elem (a :: k) (xs :: [k]) where
   Elem a '[]      = False
 
 newtype T (proxies :: k) target = T target
-
--- | Get type list of valid elements for a given attribute.  An empty list signifies global attribute.
-type family ShowAttribute a where
-
-  ShowAttribute RoleA                 = "role"
-  ShowAttribute AriaActivedescendantA = "aria-activedescendant"
-  ShowAttribute AriaAtomicA           = "aria-atomic"
-  ShowAttribute AriaAutocompleteA     = "aria-autocomplete"
-  ShowAttribute AriaBusyA             = "aria-busy"
-  ShowAttribute AriaCheckedA          = "aria-checked"
-  ShowAttribute AriaControlsA         = "aria-controls"
-  ShowAttribute AriaDescribedbyA      = "aria-describedby"
-  ShowAttribute AriaDisabledA         = "aria-disabled"
-  ShowAttribute AriaDropeffectA       = "aria-dropeffect"
-  ShowAttribute AriaExpandedA         = "aria-expanded"
-  ShowAttribute AriaFlowtoA           = "aria-flowto"
-  ShowAttribute AriaGrabbedA          = "aria-grabbed"
-  ShowAttribute AriaHaspopupA         = "aria-haspopup"
-  ShowAttribute AriaHiddenA           = "aria-hidden"
-  ShowAttribute AriaInvalidA          = "aria-invalid"
-  ShowAttribute AriaLabelA            = "aria-label"
-  ShowAttribute AriaLabelledByA       = "aria-labelledBy"
-  ShowAttribute AriaLevelA            = "aria-level"
-  ShowAttribute AriaLiveA             = "aria-live"
-  ShowAttribute AriaMultilineA        = "aria-multiline"
-  ShowAttribute AriaMultiselectableA  = "aria-multiselectable"
-  ShowAttribute AriaOwnsA             = "aria-owns"
-  ShowAttribute AriaPosinsetA         = "aria-posinset"
-  ShowAttribute AriaPressedA          = "aria-pressed"
-  ShowAttribute AriaReadonlyA         = "aria-readonly"
-  ShowAttribute AriaRelevantA         = "aria-relevant"
-  ShowAttribute AriaRequiredA         = "aria-required"
-  ShowAttribute AriaSelectedA         = "aria-selected"
-  ShowAttribute AriaSetsizeA          = "aria-setsize"
-  ShowAttribute AriaSortA             = "aria-sort"
-  ShowAttribute AriaValuemaxA         = "aria-valuemax"
-  ShowAttribute AriaValueminA         = "aria-valuemin"
-  ShowAttribute AriaValuenowA         = "aria-valuenow"
-  ShowAttribute AriaValuetextA        = "aria-valuetext"
-
-  ShowAttribute AcceptA               = "accept"
-  ShowAttribute AcceptCharsetA        = "accept-charset"
-  ShowAttribute AccesskeyA            = "accesskey"
-  ShowAttribute ActionA               = "action"
-  ShowAttribute AllowfullscreenA      = "allowfullscreen"
-  ShowAttribute AllowpaymentrequestA  = "allowpaymentrequest"
-  ShowAttribute AlignA                = "align"
-  ShowAttribute AltA                  = "alt"
-  ShowAttribute AsyncA                = "async"
-  ShowAttribute AutocompleteA         = "autocomplete"
-  ShowAttribute AutofocusA            = "autofocus"
-  ShowAttribute AutoplayA             = "autoplay"
-  ShowAttribute AutosaveA             = "autosave"
-  ShowAttribute BgcolorA              = "bgcolor"
-  ShowAttribute BorderA               = "border"
-  ShowAttribute BufferedA             = "buffered"
-  ShowAttribute ChallengeA            = "challenge"
-  ShowAttribute CharsetA              = "charset"
-  ShowAttribute CheckedA              = "checked"
-  ShowAttribute CiteA                 = "cite"
-  ShowAttribute ClassA                = "class"
-  ShowAttribute CodeA                 = "code"
-  ShowAttribute CodebaseA             = "codebase"
-  ShowAttribute ColorA                = "color"
-  ShowAttribute ColsA                 = "cols"
-  ShowAttribute ColspanA              = "colspan"
-  ShowAttribute ContentA              = "content"
-  ShowAttribute ContenteditableA      = "contenteditable"
-  ShowAttribute ContextmenuA          = "contextmenu"
-  ShowAttribute ControlsA             = "controls"
-  ShowAttribute CoordsA               = "coords"
-  ShowAttribute CrossoriginA          = "crossorigin"
-  ShowAttribute DataA                 = "data"
-  ShowAttribute DatetimeA             = "datetime"
-  ShowAttribute DefaultA              = "default"
-  ShowAttribute DeferA                = "defer"
-  ShowAttribute DirA                  = "dir"
-  ShowAttribute DirnameA              = "dirname"
-  ShowAttribute DisabledA             = "disabled"
-  ShowAttribute DownloadA             = "download"
-  ShowAttribute DraggableA            = "draggable"
-  ShowAttribute DropzoneA             = "dropzone"
-  ShowAttribute EnctypeA              = "enctype"
-  ShowAttribute ForA                  = "for"
-  ShowAttribute FormA                 = "form"
-  ShowAttribute FormactionA           = "formaction"
-  ShowAttribute FormenctypeA          = "formenctype"
-  ShowAttribute FormmethodA           = "formmethod"
-  ShowAttribute FormnovalidateA       = "formnovalidate"
-  ShowAttribute FormtargetA           = "formtarget"
-  ShowAttribute HeadersA              = "headers"
-  ShowAttribute HeightA               = "height"
-  ShowAttribute HiddenA               = "hidden"
-  ShowAttribute HighA                 = "high"
-  ShowAttribute HrefA                 = "href"
-  ShowAttribute HreflangA             = "hreflang"
-  ShowAttribute HttpEquivA            = "httpEquiv"
-  ShowAttribute IconA                 = "icon"
-  ShowAttribute IdA                   = "id"
-  ShowAttribute IntegrityA            = "integrity"
-  ShowAttribute IsmapA                = "ismap"
-  ShowAttribute ItempropA             = "itemprop"
-  ShowAttribute KeytypeA              = "keytype"
-  ShowAttribute KindA                 = "kind"
-  ShowAttribute LabelA                = "label"
-  ShowAttribute LangA                 = "lang"
-  ShowAttribute LanguageA             = "language"
-  ShowAttribute ListA                 = "list"
-  ShowAttribute LongdescA             = "longdesc"
-  ShowAttribute LoopA                 = "loop"
-  ShowAttribute LowA                  = "low"
-  ShowAttribute ManifestA             = "manifest"
-  ShowAttribute MaxA                  = "max"
-  ShowAttribute MaxlengthA            = "maxlength"
-  ShowAttribute MediaA                = "media"
-  ShowAttribute MethodA               = "method"
-  ShowAttribute MinA                  = "min"
-  ShowAttribute MinlengthA            = "minlength"
-  ShowAttribute MultipleA             = "multiple"
-  ShowAttribute MutedA                = "muted"
-  ShowAttribute NameA                 = "name"
-  ShowAttribute NonceA                = "nonce"
-  ShowAttribute NovalidateA           = "novalidate"
-  ShowAttribute OpenA                 = "open"
-  ShowAttribute OptimumA              = "optimum"
-  ShowAttribute PatternA              = "pattern"
-  ShowAttribute PingA                 = "ping"
-  ShowAttribute PlaceholderA          = "placeholder"
-  ShowAttribute PosterA               = "poster"
-  ShowAttribute PreloadA              = "preload"
-  ShowAttribute RadiogroupA           = "radiogroup"
-  ShowAttribute ReadonlyA             = "readonly"
-  ShowAttribute ReferrerpolicyA       = "referrerpolicy"
-  ShowAttribute RelA                  = "rel"
-  ShowAttribute RequiredA             = "required"
-  ShowAttribute RevA                  = "rev"
-  ShowAttribute ReversedA             = "reversed"
-  ShowAttribute RowsA                 = "rows"
-  ShowAttribute RowspanA              = "rowspan"
-  ShowAttribute SandboxA              = "sandbox"
-  ShowAttribute ScopeA                = "scope"
-  ShowAttribute ScopedA               = "scoped"
-  ShowAttribute SeamlessA             = "seamless"
-  ShowAttribute SelectedA             = "selected"
-  ShowAttribute ShapeA                = "shape"
-  ShowAttribute SizeA                 = "size"
-  ShowAttribute SizesA                = "sizes"
-  ShowAttribute SlotA                 = "slot"
-  ShowAttribute SpanA                 = "span"
-  ShowAttribute SpellcheckA           = "spellcheck"
-  ShowAttribute SrcA                  = "src"
-  ShowAttribute SrcdocA               = "srcdoc"
-  ShowAttribute SrclangA              = "srclang"
-  ShowAttribute SrcsetA               = "srcset"
-  ShowAttribute StartA                = "start"
-  ShowAttribute StepA                 = "step"
-  ShowAttribute StyleA                = "style"
-  ShowAttribute SummaryA              = "summary"
-  ShowAttribute TabindexA             = "tabindex"
-  ShowAttribute TargetA               = "target"
-  ShowAttribute TitleA                = "title"
-  ShowAttribute TranslateA            = "translate"
-  ShowAttribute TypeA                 = "type"
-  ShowAttribute TypemustmatchA        = "typemustmatch"
-  ShowAttribute UsemapA               = "usemap"
-  ShowAttribute ValueA                = "value"
-  ShowAttribute WidthA                = "width"
-  ShowAttribute WrapA                 = "wrap"
-  ShowAttribute (CustomA x)           = x

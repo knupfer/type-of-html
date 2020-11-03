@@ -18,11 +18,10 @@
 module Main where
 
 import Html
-import qualified Html.Attribute as A
 
 main = print p9
 
-p1 = div_A (A.id_ 'a') 'b'
+p1 = div_A (IdA := 'a') 'b'
 
 p2 = div_ (p1 # p1)
 

@@ -7,8 +7,6 @@ module Main where
 
 import Html
 
-import qualified Html.Attribute as A
-
 import Data.Proxy
 import Test.Hspec
 import Test.QuickCheck
@@ -163,7 +161,7 @@ spec = parallel $ do
        `shouldBe`
         "<div>a ä € 𝄞</div>"
 
-      renderString (img_A (A.id_ "a ä € 𝄞"))
+      renderString (img_A (IdA := "a ä € 𝄞"))
        `shouldBe`
         "<img id=\"a ä € 𝄞\">"
 
@@ -184,7 +182,7 @@ spec = parallel $ do
        `shouldBe`
         "42"
 
-      renderString (div_A (Just (A.id_ "a")) "b")
+      renderString (div_A (Just (IdA := "a")) "b")
        `shouldBe`
         "<div id=\"a\">b</div>"
 
@@ -198,33 +196,33 @@ spec = parallel $ do
        `shouldBe`
         "<div><div>a</div></div>"
 
-      renderString (div_A (if True then Right (A.id_ "a") else Left (A.class_ "a")) "b")
+      renderString (div_A (if True then Right (IdA := "a") else Left (ClassA := "a")) "b")
        `shouldBe`
         "<div id=\"a\">b</div>"
 
     it "handles attributes" $ do
 
-      renderString (div_A (A.id_ "a") "b" # "c")
+      renderString (div_A (IdA := "a") "b" # "c")
        `shouldBe`
         "<div id=\"a\">b</div>c"
 
-      renderString (div_A (A.id_ ()) "a")
+      renderString (div_A (IdA := ()) "a")
        `shouldBe`
         "<div id>a</div>"
 
-      renderString (div_A A.hidden_ "a")
+      renderString (div_A HiddenA "a")
        `shouldBe`
         "<div hidden>a</div>"
 
-      renderString (div_A A.hidden_ ())
+      renderString (div_A HiddenA ())
        `shouldBe`
         "<div hidden></div>"
 
-      renderString (div_A A.hidden_ () # "a")
+      renderString (div_A HiddenA () # "a")
        `shouldBe`
         "<div hidden></div>a"
 
-      renderString (div_A A.hidden_ () # img_)
+      renderString (div_A HiddenA () # img_)
        `shouldBe`
         "<div hidden></div><img>"
 
@@ -271,7 +269,7 @@ spec = parallel $ do
        `shouldBe`
         "12"
 
-      renderString (div_ () # td_ (Proxy @"1" # "2" # div_ () # i_A (A.id_ (Proxy @"3")) "4"))
+      renderString (div_ () # td_ (Proxy @"1" # "2" # div_ () # i_A (IdA := (Proxy @"3")) "4"))
        `shouldBe`
         "<div></div><td>12<div></div><i id=\"3\">4</i></td>"
 

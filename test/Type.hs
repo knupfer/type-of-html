@@ -27,15 +27,15 @@ type Test =
     == 'List '["<a>"] "</a>"
   , ToList ('A > Char # 'Div > Int)
     == 'List '["<a>", "</a><div>"] "</div>"
-  , ToList (('Div :@: ('ClassA := Int)) Int)
+  , ToList (('Div :@: ("class" := Int)) Int)
     == 'List '["<div class=\"","\">"] "</div>"
-  , ToList (('Div :@: ('ClassA := ())) Int)
+  , ToList (('Div :@: ("class" := ())) Int)
     == 'List '["<div class>"] "</div>"
-  , ToList (('Div :@: ('ClassA := ())) ())
+  , ToList (('Div :@: ("class" := ())) ())
     == 'List '[] "<div class></div>"
-  , ToList (('Div :@: ('ClassA := () # 'IdA := ())) ())
+  , ToList (('Div :@: ("class" := () # "id" := ())) ())
     == 'List '[] "<div class id></div>"
-  , ToList (('Div :@: ('ClassA := () # 'IdA := Proxy "ab")) ())
+  , ToList (('Div :@: ("class" := () # "id" := Proxy "ab")) ())
     == 'List '[] "<div class id=\"ab\"></div>"
   )
 

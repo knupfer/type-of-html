@@ -96,7 +96,7 @@ instance
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] (a := b)) where
-  render (T (AT x)) = render (One (Proxy @ s)) <> render (T x :: T '[ "" ] b)
+  render (T (_ := x)) = render (One (Proxy @ s)) <> render (T x :: T '[ "" ] b)
 
 instance {-# INCOHERENT #-}
   ( R u (T '[ "" ] val)
@@ -141,6 +141,12 @@ instance
   render (T ~(a :#: b))
     = render (T a :: T (Take (Length a) ps) a)
     <> render (T b :: T (Drop (Length a) ps) b)
+
+instance
+  ( R u (T ps a)
+  ) => R u (T ps (Lawless a)) where
+  render (T ~(Lawless a))
+    = render (T a :: T  ps a)
 
 instance
   ( R u (T (ToList a) a)

@@ -5,7 +5,6 @@
 module Medium where
 
 import Html
-import qualified Html.Attribute as A
 
 helloWorld x =
   html_
@@ -51,61 +50,61 @@ page x =
     )
 
 attrShort x =
-  i_A (A.accesskey_ "a")
-  ( i_A (A.class_ "b")
-    ( i_A (A.contenteditable_ "c")
-      ( i_A (A.translate_ "d")
-        ( i_A (A.dir_ "e")
-          ( i_A (A.draggable_ "f")
-            ( i_A A.hidden_
-              ( i_A (A.id_ "h")
-                ( i_A (A.itemprop_ "i")
-                  ( i_A (A.lang_ "j")
-                    ( i_A (A.spellcheck_ "k")
-                      ( i_A (A.style_ "l")
-                        ( i_A (A.title_ x) "m"))))))))))))
+  i_A (AccesskeyA := "a")
+  ( i_A (ClassA := "b")
+    ( i_A (ContenteditableA := "c")
+      ( i_A (TranslateA := "d")
+        ( i_A (DirA := "e")
+          ( i_A (DraggableA := "f")
+            ( i_A HiddenA
+              ( i_A (IdA := "h")
+                ( i_A (ItempropA := "i")
+                  ( i_A (LangA := "j")
+                    ( i_A (SpellcheckA := "k")
+                      ( i_A (StyleA := "l")
+                        ( i_A (TitleA := x) "m"))))))))))))
 
 attrLong x =
-  i_A ( A.accesskey_       "a"
-      # A.class_           "b"
-      # A.contenteditable_ "c"
-      # A.translate_     "d"
-      # A.dir_             "e"
-      # A.draggable_       "f"
-      # A.hidden_
-      # A.id_              "h"
-      # A.itemprop_        "i"
-      # A.lang_            "j"
-      # A.spellcheck_      "k"
-      # A.style_           "l"
-      # A.title_           x
+  i_A ( AccesskeyA :=       "a"
+      # ClassA :=           "b"
+      # ContenteditableA := "c"
+      # TranslateA :=     "d"
+      # DirA :=             "e"
+      # DraggableA :=       "f"
+      # HiddenA
+      # IdA :=              "h"
+      # ItempropA :=        "i"
+      # LangA :=            "j"
+      # SpellcheckA :=      "k"
+      # StyleA :=           "l"
+      # TitleA :=           x
       ) "m"
 
 pageA x =
   html_
     ( body_
-      ( h1_A (A.id_ "a")
+      ( h1_A (IdA := "a")
         ( img_
-        # strong_A (A.class_ "b") (0 :: Int)
+        # strong_A (ClassA := "b") (0 :: Int)
         )
       # div_
-        ( div_A (A.id_ "c") (1 :: Int)
+        ( div_A (IdA := "c") (1 :: Int)
         )
       # div_
-        ( form_A (A.class_ "d")
+        ( form_A (ClassA := "d")
           ( fieldset_
-            ( div_A (A.id_ "e")
+            ( div_A (IdA := "e")
               ( div_
-                ( label_A (A.class_ "f") "h"
+                ( label_A (ClassA := "f") "h"
                 # select_
-                  ( option_A (A.id_ "i") "j"
+                  ( option_A (IdA := "i") "j"
                   # option_ "k"
                   )
-                # div_A (A.class_ "l") "m"
+                # div_A (ClassA := "l") "m"
                 )
               # i_ x
               )
-            # button_A (A.id_ "n") (i_ "o")
+            # button_A (IdA := "n") (i_ "o")
             )
           )
         )
