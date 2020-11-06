@@ -1,7 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
-{-# LANGUAGE FlexibleInstances #-}
-
 {-# LANGUAGE TypeFamilyDependencies #-}
 {-# LANGUAGE UndecidableInstances   #-}
 {-# LANGUAGE ScopedTypeVariables    #-}
@@ -9,6 +7,7 @@
 {-# LANGUAGE TypeApplications       #-}
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
+{-# LANGUAGE TypeInType             #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE GADTs                  #-}
