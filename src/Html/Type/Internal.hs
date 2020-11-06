@@ -1321,10 +1321,10 @@ type family ToList a :: List where
 
 -- | Combine two elements or attributes sequentially.
 --
--- >>> i_ () # div_ ()
+-- >>> I # Div
 -- <i></i><div></div>
 --
--- >>> i_A (A.id_ "a" # A.class_ "b") "c"
+-- >>> I :@ (IdA:="a" # ClassA:="b") :> "c"
 -- <i id="a" class="b">c</i>
 data (#) a b = (:#:) a b
 {-# INLINE (#) #-}
