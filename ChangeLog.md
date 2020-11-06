@@ -1,5 +1,12 @@
 # Revision history for type-of-html
 
+## 1.6.0.0  -- 2020-11-06
+
+* major overhaul
+* encode more info at the type level
+* use constructors of Element and Attribute directly
+* reduce amount of value level functions
+
 ## 1.5.2.0  -- 2020-10-10
 
 * make error messages nicer
