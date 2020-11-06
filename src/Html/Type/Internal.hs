@@ -23,53 +23,8 @@ import Data.Proxy
 import Data.Type.Bool
 import Data.ByteString (ByteString)
 
--- | Data for declaring variables in a html document which will be compacted.
-data V (n :: Symbol) = V
-
-newtype One a = One a
-
--- | Unique set of variables in a html document in the order of occurence.
-type Variables a = Dedupe (GetV a)
-
--- | A compacted html documented with it's variables annoted as a list of Symbols.
-data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)] deriving Show
-
-type family GetV a :: [Symbol] where
-  GetV (a # b)       = Append (GetV a) (GetV b)
-  GetV (a :> b)      = Append (GetV a) (GetV b)
-  GetV (a :@ b)      = Append (GetV a) (GetV b)
-  GetV (a := b)      = GetV b
-  GetV (Maybe a)     = GetV a
-  GetV [a]           = GetV a
-  GetV (Either a b)  = Append (GetV a) (GetV b)
-  GetV (V v)         = '[v]
-  GetV x             = '[]
-
-type family Reverse xs where
-  Reverse xs = Reverse' xs '[]
-
-type family Reverse' xs ys where
-  Reverse' (x':xs) ys = Reverse' xs (x':ys)
-  Reverse' '[] ys = ys
-
-type family Dedupe xs :: [Symbol] where
-  Dedupe (x ': xs) = x ': Dedupe (Delete x xs)
-  Dedupe '[] = '[]
-
-type family Delete x xs :: [Symbol] where
-  Delete x (x ': xs) = Delete x xs
-  Delete x (y ': xs) = y ': Delete x xs
-  Delete _ _ = '[]
-
-class ShowTypeList a where
-  showTypeList :: [String]
-
-instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList (x ': xs) where
-  showTypeList = symbolVal (Proxy @ x) : showTypeList @ xs
-
-instance ShowTypeList '[] where
-  showTypeList = []
-
+-- |
+-- = Type level modelling of html
 -- The following types and docs are from the following source:
 -- [2020-10-16] https://html.spec.whatwg.org/ Copyright © WHATWG
 -- HTML - Living Standard
@@ -107,162 +62,6 @@ data ContentCategory
   | Palpable
   -- | \ 3.2.5.2.9 Script-supporting elements
   | Scripting
-
--- | \ 3.2.6 Global attributes
-type GlobalAttributes
-  = AccesskeyA
-  & AutocapitalizeA
-  & AutofocusA
-  & ContenteditableA
-  & DirA
-  & DraggableA
-  & EnterkeyhintA
-  & HiddenA
-  & InputmodeA
-  & IsA
-  & ItemidA
-  & ItempropA
-  & ItemrefA
-  & ItemscopeA
-  & ItemtypeA
-  & LangA
-  & NonceA
-  & SpellcheckA
-  & StyleA
-  & TabindexA
-  & TitleA
-  & TranslateA
-  -- user agent requirements
-  & ClassA
-  & IdA
-  & SlotA
-  -- event handler content attributes
-  & OnabortA
-  & OnauxclickA
-  & OnblurA
-  & OncancelA
-  & OncanplayA
-  & OncanplaythroughA
-  & OnchangeA
-  & OnclickA
-  & OncloseA
-  & OncontextmenuA
-  & OncopyA
-  & OncuechangeA
-  & OncutA
-  & OndblclickA
-  & OndragA
-  & OndragendA
-  & OndragenterA
-  & OndragleaveA
-  & OndragoverA
-  & OndragstartA
-  & OndropA
-  & OndurationchangeA
-  & OnemptiedA
-  & OnendedA
-  & OnerrorA
-  & OnfocusA
-  & OnformdataA
-  & OninputA
-  & OninvalidA
-  & OnkeydownA
-  & OnkeypressA
-  & OnkeyupA
-  & OnloadA
-  & OnloadeddataA
-  & OnloadedmetadataA
-  & OnloadstartA
-  & OnmousedownA
-  & OnmouseenterA
-  & OnmouseleaveA
-  & OnmousemoveA
-  & OnmouseoutA
-  & OnmouseoverA
-  & OnmouseupA
-  & OnpasteA
-  & OnpauseA
-  & OnplayA
-  & OnplayingA
-  & OnprogressA
-  & OnratechangeA
-  & OnresetA
-  & OnresizeA
-  & OnscrollA
-  & OnsecuritypolicyviolationA
-  & OnseekedA
-  & OnseekingA
-  & OnselectA
-  & OnslotchangeA
-  & OnstalledA
-  & OnsubmitA
-  & OnsuspendA
-  & OntimeupdateA
-  & OntoggleA
-  & OnvolumechangeA
-  & OnwaitingA
-  & OnwheelA
-
-  & AriaAttributes
-
-type AriaAttributes
-  = RoleA
-
-  & AriaActivedescendantA
-  & AriaAtomicA
-  & AriaAutocompleteA
-  & AriaBraillelableA
-  & AriaBrailleroledescriptionA
-  & AriaBusyA
-  & AriaCheckedA
-  & AriaColcountA
-  & AriaColindexA
-  & AriaColindextextA
-  & AriaColspanA
-  & AriaControlsA
-  & AriaCurrentA
-  & AriaDescribedbyA
-  & AriaDescriptionA
-  & AriaDetailsA
-  & AriaDisabledA
-  & AriaDropeffectA
-  & AriaErrormessageA
-  & AriaExpandedA
-  & AriaFlowtoA
-  & AriaGrabbedA
-  & AriaHaspopupA
-  & AriaHiddenA
-  & AriaInvalidA
-  & AriaKeyshortcutsA
-  & AriaLabelA
-  & AriaLabelledByA
-  & AriaLevelA
-  & AriaLiveA
-  & AriaModalA
-  & AriaMultilineA
-  & AriaMultiselectableA
-  & AriaOrientationA
-  & AriaOwnsA
-  & AriaPlaceholderA
-  & AriaPosinsetA
-  & AriaPressedA
-  & AriaReadonlyA
-  & AriaRelevantA
-  & AriaRequiredA
-  & AriaRoledescriptionA
-  & AriaRowcountA
-  & AriaRowindexA
-  & AriaRowindextextA
-  & AriaRowspanA
-  & AriaSelectedA
-  & AriaSetsizeA
-  & AriaSortA
-  & AriaValuemaxA
-  & AriaValueminA
-  & AriaValuenowA
-  & AriaValuetextA
-  & '[]
-
 
 -- | 4 The elements of HTML
 data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel :: ContentCategory) (contentAttributes :: [Symbol]) where
@@ -1208,283 +1007,286 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     contentModel
     contentAttributes
 
-type GetAttributeName (e :: Attribute a boolean) = a
+data Attribute name global boolean where
+  CustomA                     :: Attribute name global boolean
+
+  -- List of attributes (excluding event handler content attributes)
+  AbbrA                       :: Attribute "abbr"                        False False
+  AcceptA                     :: Attribute "accept"                      False False
+  AcceptCharsetA              :: Attribute "accept-charset"              False False
+  AccesskeyA                  :: Attribute "accesskey"                   True  False
+  ActionA                     :: Attribute "action"                      False False
+  AllowA                      :: Attribute "allow"                       False False
+  AllowfullscreenA            :: Attribute "allowfullscreen"             False True
+  AltA                        :: Attribute "alt"                         False False
+  AsA                         :: Attribute "as"                          False False
+  AsyncA                      :: Attribute "async"                       False True
+  AutocapitalizeA             :: Attribute "autocapitalize"              True  False
+  AutocompleteA               :: Attribute "autocomplete"                False False
+  AutofocusA                  :: Attribute "autofocus"                   True  True
+  AutoplayA                   :: Attribute "autoplay"                    False True
+  CharsetA                    :: Attribute "charset"                     False False
+  CheckedA                    :: Attribute "checked"                     False True
+  CiteA                       :: Attribute "cite"                        False False
+  ClassA                      :: Attribute "class"                       True  False
+  ColorA                      :: Attribute "color"                       False False
+  ColsA                       :: Attribute "cols"                        False False
+  ColspanA                    :: Attribute "colspan"                     False False
+  ContentA                    :: Attribute "content"                     False False
+  ContenteditableA            :: Attribute "contenteditable"             True  False
+  ControlsA                   :: Attribute "controls"                    False True
+  CoordsA                     :: Attribute "coords"                      False False
+  CrossoriginA                :: Attribute "crossorigin"                 False False
+  DataA                       :: Attribute "data"                        False False
+  DatetimeA                   :: Attribute "datetime"                    False False
+  DecodingA                   :: Attribute "decoding"                    False False
+  DefaultA                    :: Attribute "default"                     False True
+  DeferA                      :: Attribute "defer"                       False True
+  DirA                        :: Attribute "dir"                         True  False
+  DirnameA                    :: Attribute "dirname"                     False False
+  DisabledA                   :: Attribute "disabled"                    False True
+  DownloadA                   :: Attribute "download"                    False False
+  DraggableA                  :: Attribute "draggable"                   True  False
+  EnctypeA                    :: Attribute "enctype"                     False False
+  EnterkeyhintA               :: Attribute "enterkeyhint"                True  False
+  ForA                        :: Attribute "for"                         False False
+  FormA                       :: Attribute "form"                        False False
+  FormactionA                 :: Attribute "formaction"                  False False
+  FormenctypeA                :: Attribute "formenctype"                 False False
+  FormmethodA                 :: Attribute "formmethod"                  False False
+  FormnovalidateA             :: Attribute "formnovalidate"              False True
+  FormtargetA                 :: Attribute "formtarget"                  False False
+  HeadersA                    :: Attribute "headers"                     False False
+  HeightA                     :: Attribute "height"                      False False
+  HiddenA                     :: Attribute "hidden"                      True  True
+  HighA                       :: Attribute "high"                        False False
+  HrefA                       :: Attribute "href"                        False False
+  HreflangA                   :: Attribute "hreflang"                    False False
+  HttpEquivA                  :: Attribute "httpEquiv"                   False False
+  IdA                         :: Attribute "id"                          True  False
+  ImagesizesA                 :: Attribute "imagesizes"                  False False
+  ImagesrcsetA                :: Attribute "imagesrcset"                 False False
+  InputmodeA                  :: Attribute "inputmode"                   True  False
+  IntegrityA                  :: Attribute "integrity"                   False False
+  IsA                         :: Attribute "is"                          True  False
+  IsmapA                      :: Attribute "ismap"                       False True
+  ItemidA                     :: Attribute "itemid"                      True  False
+  ItempropA                   :: Attribute "itemprop"                    True  False
+  ItemrefA                    :: Attribute "itemref"                     True  False
+  ItemscopeA                  :: Attribute "itemscope"                   True  True
+  ItemtypeA                   :: Attribute "itemtype"                    True  False
+  KindA                       :: Attribute "kind"                        False False
+  LabelA                      :: Attribute "label"                       False False
+  LangA                       :: Attribute "lang"                        True  False
+  ListA                       :: Attribute "list"                        False False
+  LoadingA                    :: Attribute "loading"                     False False
+  LoopA                       :: Attribute "loop"                        False True
+  LowA                        :: Attribute "low"                         False False
+  ManifestA                   :: Attribute "manifest"                    False False
+  MaxA                        :: Attribute "max"                         False False
+  MaxlengthA                  :: Attribute "maxlength"                   False False
+  MediaA                      :: Attribute "media"                       False False
+  MethodA                     :: Attribute "method"                      False False
+  MinA                        :: Attribute "min"                         False False
+  MinlengthA                  :: Attribute "minlength"                   False False
+  MultipleA                   :: Attribute "multiple"                    False True
+  MutedA                      :: Attribute "muted"                       False True
+  NameA                       :: Attribute "name"                        False False
+  NomoduleA                   :: Attribute "nomodule"                    False True
+  NonceA                      :: Attribute "nonce"                       True  False
+  NovalidateA                 :: Attribute "novalidate"                  False True
+  OpenA                       :: Attribute "open"                        False True
+  OptimumA                    :: Attribute "optimum"                     False False
+  PatternA                    :: Attribute "pattern"                     False False
+  PingA                       :: Attribute "ping"                        False False
+  PlaceholderA                :: Attribute "placeholder"                 False False
+  PlaysinlineA                :: Attribute "playsinline"                 False True
+  PosterA                     :: Attribute "poster"                      False False
+  PreloadA                    :: Attribute "preload"                     False False
+  ReadonlyA                   :: Attribute "readonly"                    False True
+  ReferrerpolicyA             :: Attribute "referrerpolicy"              False False
+  RelA                        :: Attribute "rel"                         False False
+  RequiredA                   :: Attribute "required"                    False True
+  ReversedA                   :: Attribute "reversed"                    False True
+  RowsA                       :: Attribute "rows"                        False False
+  RowspanA                    :: Attribute "rowspan"                     False False
+  SandboxA                    :: Attribute "sandbox"                     False False
+  ScopeA                      :: Attribute "scope"                       False False
+  SelectedA                   :: Attribute "selected"                    False True
+  ShapeA                      :: Attribute "shape"                       False False
+  SizeA                       :: Attribute "size"                        False False
+  SizesA                      :: Attribute "sizes"                       False False
+  SlotA                       :: Attribute "slot"                        True  False
+  SpanA                       :: Attribute "span"                        False False
+  SpellcheckA                 :: Attribute "spellcheck"                  True  False
+  SrcA                        :: Attribute "src"                         False False
+  SrcdocA                     :: Attribute "srcdoc"                      False False
+  SrclangA                    :: Attribute "srclang"                     False False
+  SrcsetA                     :: Attribute "srcset"                      False False
+  StartA                      :: Attribute "start"                       False False
+  StepA                       :: Attribute "step"                        False False
+  StyleA                      :: Attribute "style"                       True  False
+  TabindexA                   :: Attribute "tabindex"                    True  False
+  TargetA                     :: Attribute "target"                      False False
+  TitleA                      :: Attribute "title"                       True  False
+  TranslateA                  :: Attribute "translate"                   True  False
+  TypeA                       :: Attribute "type"                        False False
+  UsemapA                     :: Attribute "usemap"                      False False
+  ValueA                      :: Attribute "value"                       False False
+  WidthA                      :: Attribute "width"                       False False
+  WrapA                       :: Attribute "wrap"                        False False
+
+  -- List of event handler content attributes
+  OnabortA                    :: Attribute "onabort"                     True  False
+  OnauxclickA                 :: Attribute "onauxclick"                  True  False
+  OnafterprintA               :: Attribute "onafterprint"                False False
+  OnbeforeprintA              :: Attribute "onbeforeprint"               False False
+  OnbeforeunloadA             :: Attribute "onbeforeunload"              False False
+  OnblurA                     :: Attribute "onblur"                      True  False
+  OncancelA                   :: Attribute "oncancel"                    True  False
+  OncanplayA                  :: Attribute "oncanplay"                   True  False
+  OncanplaythroughA           :: Attribute "oncanplaythrough"            True  False
+  OnchangeA                   :: Attribute "onchange"                    True  False
+  OnclickA                    :: Attribute "onclick"                     True  False
+  OncloseA                    :: Attribute "onclose"                     True  False
+  OncontextmenuA              :: Attribute "oncontextmenu"               True  False
+  OncopyA                     :: Attribute "oncopy"                      True  False
+  OncuechangeA                :: Attribute "oncuechange"                 True  False
+  OncutA                      :: Attribute "oncut"                       True  False
+  OndblclickA                 :: Attribute "ondblclick"                  True  False
+  OndragA                     :: Attribute "ondrag"                      True  False
+  OndragendA                  :: Attribute "ondragend"                   True  False
+  OndragenterA                :: Attribute "ondragenter"                 True  False
+  OndragleaveA                :: Attribute "ondragleave"                 True  False
+  OndragoverA                 :: Attribute "ondragover"                  True  False
+  OndragstartA                :: Attribute "ondragstart"                 True  False
+  OndropA                     :: Attribute "ondrop"                      True  False
+  OndurationchangeA           :: Attribute "ondurationchange"            True  False
+  OnemptiedA                  :: Attribute "onemptied"                   True  False
+  OnendedA                    :: Attribute "onended"                     True  False
+  OnerrorA                    :: Attribute "onerror"                     True  False
+  OnfocusA                    :: Attribute "onfocus"                     True  False
+  OnformdataA                 :: Attribute "onformdata"                  True  False
+  OnhashchangeA               :: Attribute "onhashchange"                False False
+  OninputA                    :: Attribute "oninput"                     True  False
+  OninvalidA                  :: Attribute "oninvalid"                   True  False
+  OnkeydownA                  :: Attribute "onkeydown"                   True  False
+  OnkeypressA                 :: Attribute "onkeypress"                  True  False
+  OnkeyupA                    :: Attribute "onkeyup"                     True  False
+  OnlanguagechangeA           :: Attribute "onlanguagechange"            False False
+  OnloadA                     :: Attribute "onload"                      True  False
+  OnloadeddataA               :: Attribute "onloadeddata"                True  False
+  OnloadedmetadataA           :: Attribute "onloadedmetadata"            True  False
+  OnloadstartA                :: Attribute "onloadstart"                 True  False
+  OnmessageA                  :: Attribute "onmessage"                   False False
+  OnmessageerrorA             :: Attribute "onmessageerror"              False False
+  OnmousedownA                :: Attribute "onmousedown"                 True  False
+  OnmouseenterA               :: Attribute "onmouseenter"                True  False
+  OnmouseleaveA               :: Attribute "onmouseleave"                True  False
+  OnmousemoveA                :: Attribute "onmousemove"                 True  False
+  OnmouseoutA                 :: Attribute "onmouseout"                  True  False
+  OnmouseoverA                :: Attribute "onmouseover"                 True  False
+  OnmouseupA                  :: Attribute "onmouseup"                   True  False
+  OnofflineA                  :: Attribute "onoffline"                   False False
+  OnonlineA                   :: Attribute "ononline"                    False False
+  OnpagehideA                 :: Attribute "onpagehide"                  False False
+  OnpageshowA                 :: Attribute "onpageshow"                  False False
+  OnpasteA                    :: Attribute "onpaste"                     True  False
+  OnpauseA                    :: Attribute "onpause"                     True  False
+  OnplayA                     :: Attribute "onplay"                      True  False
+  OnplayingA                  :: Attribute "onplaying"                   True  False
+  OnpopstateA                 :: Attribute "onpopstate"                  False False
+  OnprogressA                 :: Attribute "onprogress"                  True  False
+  OnratechangeA               :: Attribute "onratechange"                True  False
+  OnresetA                    :: Attribute "onreset"                     True  False
+  OnresizeA                   :: Attribute "onresize"                    True  False
+  OnrejectionhandledA         :: Attribute "onrejectionhandled"          False False
+  OnscrollA                   :: Attribute "onscroll"                    True  False
+  OnsecuritypolicyviolationA  :: Attribute "onsecuritypolicyviolation"   True  False
+  OnseekedA                   :: Attribute "onseeked"                    True  False
+  OnseekingA                  :: Attribute "onseeking"                   True  False
+  OnselectA                   :: Attribute "onselect"                    True  False
+  OnslotchangeA               :: Attribute "onslotchange"                True  False
+  OnstalledA                  :: Attribute "onstalled"                   True  False
+  OnstorageA                  :: Attribute "onstorage"                   False False
+  OnsubmitA                   :: Attribute "onsubmit"                    True  False
+  OnsuspendA                  :: Attribute "onsuspend"                   True  False
+  OntimeupdateA               :: Attribute "ontimeupdate"                True  False
+  OntoggleA                   :: Attribute "ontoggle"                    True  False
+  OnunhandledrejectionA       :: Attribute "onunhandledrejection"        False False
+  OnunloadA                   :: Attribute "onunload"                    False False
+  OnvolumechangeA             :: Attribute "onvolumechange"              True  False
+  OnwaitingA                  :: Attribute "onwaiting"                   True  False
+  OnwheelA                    :: Attribute "onwheel"                     True  False
+
+  -- [2020-11-03] ARIA https://w3c.github.io/aria/#states_and_properties
+  RoleA                       :: Attribute "role"                        True  False
+
+  -- 6.7 Definitios of States and Properties (all aria-* attributes)
+  AriaActivedescendantA       :: Attribute "aria-activedescendant"       True  False
+  AriaAtomicA                 :: Attribute "aria-atomic"                 True  False
+  AriaAutocompleteA           :: Attribute "aria-autocomplete"           True  False
+  AriaBraillelableA           :: Attribute "aria-braillelable"           True  False
+  AriaBrailleroledescriptionA :: Attribute "aria-brailleroledescription" True  False
+  AriaBusyA                   :: Attribute "aria-busy"                   True  False
+  AriaCheckedA                :: Attribute "aria-checked"                True  False
+  AriaColcountA               :: Attribute "aria-colcount"               True  False
+  AriaColindexA               :: Attribute "aria-colindex"               True  False
+  AriaColindextextA           :: Attribute "aria-colindextext"           True  False
+  AriaColspanA                :: Attribute "aria-colspan"                True  False
+  AriaControlsA               :: Attribute "aria-controls"               True  False
+  AriaCurrentA                :: Attribute "aria-current"                True  False
+  AriaDescribedbyA            :: Attribute "aria-describedby"            True  False
+  AriaDescriptionA            :: Attribute "aria-description"            True  False
+  AriaDetailsA                :: Attribute "aria-details"                True  False
+  AriaDisabledA               :: Attribute "aria-disabled"               True  False
+  AriaDropeffectA             :: Attribute "aria-dropeffect"             True  False
+  AriaErrormessageA           :: Attribute "aria-errormessage"           True  False
+  AriaExpandedA               :: Attribute "aria-expanded"               True  False
+  AriaFlowtoA                 :: Attribute "aria-flowto"                 True  False
+  AriaGrabbedA                :: Attribute "aria-grabbed"                True  False
+  AriaHaspopupA               :: Attribute "aria-haspopup"               True  False
+  AriaHiddenA                 :: Attribute "aria-hidden"                 True  False
+  AriaInvalidA                :: Attribute "aria-invalid"                True  False
+  AriaKeyshortcutsA           :: Attribute "aria-keyshortcuts"           True  False
+  AriaLabelA                  :: Attribute "aria-label"                  True  False
+  AriaLabelledByA             :: Attribute "aria-labelledBy"             True  False
+  AriaLevelA                  :: Attribute "aria-level"                  True  False
+  AriaLiveA                   :: Attribute "aria-live"                   True  False
+  AriaModalA                  :: Attribute "aria-modal"                  True  False
+  AriaMultilineA              :: Attribute "aria-multiline"              True  False
+  AriaMultiselectableA        :: Attribute "aria-multiselectable"        True  False
+  AriaOrientationA            :: Attribute "aria-orientation"            True  False
+  AriaOwnsA                   :: Attribute "aria-owns"                   True  False
+  AriaPlaceholderA            :: Attribute "aria-placeholder"            True  False
+  AriaPosinsetA               :: Attribute "aria-posinset"               True  False
+  AriaPressedA                :: Attribute "aria-pressed"                True  False
+  AriaReadonlyA               :: Attribute "aria-readonly"               True  False
+  AriaRelevantA               :: Attribute "aria-relevant"               True  False
+  AriaRequiredA               :: Attribute "aria-required"               True  False
+  AriaRoledescriptionA        :: Attribute "aria-roledescription"        True  False
+  AriaRowcountA               :: Attribute "aria-rowcount"               True  False
+  AriaRowindexA               :: Attribute "aria-rowindex"               True  False
+  AriaRowindextextA           :: Attribute "aria-rowindextext"           True  False
+  AriaRowspanA                :: Attribute "aria-rowspan"                True  False
+  AriaSelectedA               :: Attribute "aria-selected"               True  False
+  AriaSetsizeA                :: Attribute "aria-setsize"                True  False
+  AriaSortA                   :: Attribute "aria-sort"                   True  False
+  AriaValuemaxA               :: Attribute "aria-valuemax"               True  False
+  AriaValueminA               :: Attribute "aria-valuemin"               True  False
+  AriaValuenowA               :: Attribute "aria-valuenow"               True  False
+  AriaValuetextA              :: Attribute "aria-valuetext"              True  False
+
+-- |
+-- = Utilities
+
+type GetAttributeName (e :: Attribute a global boolean) = a
 
 type (&) k b = GetAttributeName k ': b
 
 newtype Lawless a = Lawless a
 
 infixr 5 &
-
-data Attribute a boolean where
-  CustomA                     :: Attribute a boolean
-
-  -- List of attributes (excluding event handler content attributes)
-  AbbrA                       :: Attribute "abbr" False
-  AcceptA                     :: Attribute "accept" False
-  AcceptCharsetA              :: Attribute "accept-charset" False
-  AccesskeyA                  :: Attribute "accesskey" False
-  ActionA                     :: Attribute "action" False
-  AllowA                      :: Attribute "allow" False
-  AllowfullscreenA            :: Attribute "allowfullscreen" True
-  AltA                        :: Attribute "alt" False
-  AsA                         :: Attribute "as" False
-  AsyncA                      :: Attribute "async" True
-  AutocapitalizeA             :: Attribute "autocapitalize" False
-  AutocompleteA               :: Attribute "autocomplete" False
-  AutofocusA                  :: Attribute "autofocus" True
-  AutoplayA                   :: Attribute "autoplay" True
-  CharsetA                    :: Attribute "charset" False
-  CheckedA                    :: Attribute "checked" True
-  CiteA                       :: Attribute "cite" False
-  ClassA                      :: Attribute "class" False
-  ColorA                      :: Attribute "color" False
-  ColsA                       :: Attribute "cols" False
-  ColspanA                    :: Attribute "colspan" False
-  ContentA                    :: Attribute "content" False
-  ContenteditableA            :: Attribute "contenteditable" False
-  ControlsA                   :: Attribute "controls" True
-  CoordsA                     :: Attribute "coords" False
-  CrossoriginA                :: Attribute "crossorigin" False
-  DataA                       :: Attribute "data" False
-  DatetimeA                   :: Attribute "datetime" False
-  DecodingA                   :: Attribute "decoding" False
-  DefaultA                    :: Attribute "default" True
-  DeferA                      :: Attribute "defer" True
-  DirA                        :: Attribute "dir" False
-  DirnameA                    :: Attribute "dirname" False
-  DisabledA                   :: Attribute "disabled" True
-  DownloadA                   :: Attribute "download" False
-  DraggableA                  :: Attribute "draggable" False
-  EnctypeA                    :: Attribute "enctype" False
-  EnterkeyhintA               :: Attribute "enterkeyhint" False
-  ForA                        :: Attribute "for" False
-  FormA                       :: Attribute "form" False
-  FormactionA                 :: Attribute "formaction" False
-  FormenctypeA                :: Attribute "formenctype" False
-  FormmethodA                 :: Attribute "formmethod" False
-  FormnovalidateA             :: Attribute "formnovalidate" True
-  FormtargetA                 :: Attribute "formtarget" False
-  HeadersA                    :: Attribute "headers" False
-  HeightA                     :: Attribute "height" False
-  HiddenA                     :: Attribute "hidden" True
-  HighA                       :: Attribute "high" False
-  HrefA                       :: Attribute "href" False
-  HreflangA                   :: Attribute "hreflang" False
-  HttpEquivA                  :: Attribute "httpEquiv" False
-  IdA                         :: Attribute "id" False
-  ImagesizesA                 :: Attribute "imagesizes" False
-  ImagesrcsetA                :: Attribute "imagesrcset" False
-  InputmodeA                  :: Attribute "inputmode" False
-  IntegrityA                  :: Attribute "integrity" False
-  IsA                         :: Attribute "is" False
-  IsmapA                      :: Attribute "ismap" True
-  ItemidA                     :: Attribute "itemid" False
-  ItempropA                   :: Attribute "itemprop" False
-  ItemrefA                    :: Attribute "itemref" False
-  ItemscopeA                  :: Attribute "itemscope" True
-  ItemtypeA                   :: Attribute "itemtype" False
-  KindA                       :: Attribute "kind" False
-  LabelA                      :: Attribute "label" False
-  LangA                       :: Attribute "lang" False
-  ListA                       :: Attribute "list" False
-  LoadingA                    :: Attribute "loading" False
-  LoopA                       :: Attribute "loop" True
-  LowA                        :: Attribute "low" False
-  ManifestA                   :: Attribute "manifest" False
-  MaxA                        :: Attribute "max" False
-  MaxlengthA                  :: Attribute "maxlength" False
-  MediaA                      :: Attribute "media" False
-  MethodA                     :: Attribute "method" False
-  MinA                        :: Attribute "min" False
-  MinlengthA                  :: Attribute "minlength" False
-  MultipleA                   :: Attribute "multiple" True
-  MutedA                      :: Attribute "muted" True
-  NameA                       :: Attribute "name" False
-  NomoduleA                   :: Attribute "nomodule" True
-  NonceA                      :: Attribute "nonce" False
-  NovalidateA                 :: Attribute "novalidate" True
-  OpenA                       :: Attribute "open" True
-  OptimumA                    :: Attribute "optimum" False
-  PatternA                    :: Attribute "pattern" False
-  PingA                       :: Attribute "ping" False
-  PlaceholderA                :: Attribute "placeholder" False
-  PlaysinlineA                :: Attribute "playsinline" True
-  PosterA                     :: Attribute "poster" False
-  PreloadA                    :: Attribute "preload" False
-  ReadonlyA                   :: Attribute "readonly" True
-  ReferrerpolicyA             :: Attribute "referrerpolicy" False
-  RelA                        :: Attribute "rel" False
-  RequiredA                   :: Attribute "required" True
-  ReversedA                   :: Attribute "reversed" True
-  RowsA                       :: Attribute "rows" False
-  RowspanA                    :: Attribute "rowspan" False
-  SandboxA                    :: Attribute "sandbox" False
-  ScopeA                      :: Attribute "scope" False
-  SelectedA                   :: Attribute "selected" True
-  ShapeA                      :: Attribute "shape" False
-  SizeA                       :: Attribute "size" False
-  SizesA                      :: Attribute "sizes" False
-  SlotA                       :: Attribute "slot" False
-  SpanA                       :: Attribute "span" False
-  SpellcheckA                 :: Attribute "spellcheck" False
-  SrcA                        :: Attribute "src" False
-  SrcdocA                     :: Attribute "srcdoc" False
-  SrclangA                    :: Attribute "srclang" False
-  SrcsetA                     :: Attribute "srcset" False
-  StartA                      :: Attribute "start" False
-  StepA                       :: Attribute "step" False
-  StyleA                      :: Attribute "style" False
-  TabindexA                   :: Attribute "tabindex" False
-  TargetA                     :: Attribute "target" False
-  TitleA                      :: Attribute "title" False
-  TranslateA                  :: Attribute "translate" False
-  TypeA                       :: Attribute "type" False
-  UsemapA                     :: Attribute "usemap" False
-  ValueA                      :: Attribute "value" False
-  WidthA                      :: Attribute "width" False
-  WrapA                       :: Attribute "wrap" False
-
-  -- List of event handler content attributes
-  OnabortA                    :: Attribute "onabort" False
-  OnauxclickA                 :: Attribute "onauxclick" False
-  OnafterprintA               :: Attribute "onafterprint" False
-  OnbeforeprintA              :: Attribute "onbeforeprint" False
-  OnbeforeunloadA             :: Attribute "onbeforeunload" False
-  OnblurA                     :: Attribute "onblur" False
-  OncancelA                   :: Attribute "oncancel" False
-  OncanplayA                  :: Attribute "oncanplay" False
-  OncanplaythroughA           :: Attribute "oncanplaythrough" False
-  OnchangeA                   :: Attribute "onchange" False
-  OnclickA                    :: Attribute "onclick" False
-  OncloseA                    :: Attribute "onclose" False
-  OncontextmenuA              :: Attribute "oncontextmenu" False
-  OncopyA                     :: Attribute "oncopy" False
-  OncuechangeA                :: Attribute "oncuechange" False
-  OncutA                      :: Attribute "oncut" False
-  OndblclickA                 :: Attribute "ondblclick" False
-  OndragA                     :: Attribute "ondrag" False
-  OndragendA                  :: Attribute "ondragend" False
-  OndragenterA                :: Attribute "ondragenter" False
-  OndragleaveA                :: Attribute "ondragleave" False
-  OndragoverA                 :: Attribute "ondragover" False
-  OndragstartA                :: Attribute "ondragstart" False
-  OndropA                     :: Attribute "ondrop" False
-  OndurationchangeA           :: Attribute "ondurationchange" False
-  OnemptiedA                  :: Attribute "onemptied" False
-  OnendedA                    :: Attribute "onended" False
-  OnerrorA                    :: Attribute "onerror" False
-  OnfocusA                    :: Attribute "onfocus" False
-  OnformdataA                 :: Attribute "onformdata" False
-  OnhashchangeA               :: Attribute "onhashchange" False
-  OninputA                    :: Attribute "oninput" False
-  OninvalidA                  :: Attribute "oninvalid" False
-  OnkeydownA                  :: Attribute "onkeydown" False
-  OnkeypressA                 :: Attribute "onkeypress" False
-  OnkeyupA                    :: Attribute "onkeyup" False
-  OnlanguagechangeA           :: Attribute "onlanguagechange" False
-  OnloadA                     :: Attribute "onload" False
-  OnloadeddataA               :: Attribute "onloadeddata" False
-  OnloadedmetadataA           :: Attribute "onloadedmetadata" False
-  OnloadstartA                :: Attribute "onloadstart" False
-  OnmessageA                  :: Attribute "onmessage" False
-  OnmessageerrorA             :: Attribute "onmessageerror" False
-  OnmousedownA                :: Attribute "onmousedown" False
-  OnmouseenterA               :: Attribute "onmouseenter" False
-  OnmouseleaveA               :: Attribute "onmouseleave" False
-  OnmousemoveA                :: Attribute "onmousemove" False
-  OnmouseoutA                 :: Attribute "onmouseout" False
-  OnmouseoverA                :: Attribute "onmouseover" False
-  OnmouseupA                  :: Attribute "onmouseup" False
-  OnofflineA                  :: Attribute "onoffline" False
-  OnonlineA                   :: Attribute "ononline" False
-  OnpagehideA                 :: Attribute "onpagehide" False
-  OnpageshowA                 :: Attribute "onpageshow" False
-  OnpasteA                    :: Attribute "onpaste" False
-  OnpauseA                    :: Attribute "onpause" False
-  OnplayA                     :: Attribute "onplay" False
-  OnplayingA                  :: Attribute "onplaying" False
-  OnpopstateA                 :: Attribute "onpopstate" False
-  OnprogressA                 :: Attribute "onprogress" False
-  OnratechangeA               :: Attribute "onratechange" False
-  OnresetA                    :: Attribute "onreset" False
-  OnresizeA                   :: Attribute "onresize" False
-  OnrejectionhandledA         :: Attribute "onrejectionhandled" False
-  OnscrollA                   :: Attribute "onscroll" False
-  OnsecuritypolicyviolationA  :: Attribute "onsecuritypolicyviolation" False
-  OnseekedA                   :: Attribute "onseeked" False
-  OnseekingA                  :: Attribute "onseeking" False
-  OnselectA                   :: Attribute "onselect" False
-  OnslotchangeA               :: Attribute "onslotchange" False
-  OnstalledA                  :: Attribute "onstalled" False
-  OnstorageA                  :: Attribute "onstorage" False
-  OnsubmitA                   :: Attribute "onsubmit" False
-  OnsuspendA                  :: Attribute "onsuspend" False
-  OntimeupdateA               :: Attribute "ontimeupdate" False
-  OntoggleA                   :: Attribute "ontoggle" False
-  OnunhandledrejectionA       :: Attribute "onunhandledrejection" False
-  OnunloadA                   :: Attribute "onunload" False
-  OnvolumechangeA             :: Attribute "onvolumechange" False
-  OnwaitingA                  :: Attribute "onwaiting" False
-  OnwheelA                    :: Attribute "onwheel" False
-
-  -- [2020-11-03] ARIA https://w3c.github.io/aria/#states_and_properties
-  RoleA                       :: Attribute "role" False
-
-  -- 6.7 Definitios of States and Properties (all aria-* attributes)
-  AriaActivedescendantA       :: Attribute "aria-activedescendant" False
-  AriaAtomicA                 :: Attribute "aria-atomic" False
-  AriaAutocompleteA           :: Attribute "aria-autocomplete" False
-  AriaBraillelableA           :: Attribute "aria-braillelable" False
-  AriaBrailleroledescriptionA :: Attribute "aria-brailleroledescription" False
-  AriaBusyA                   :: Attribute "aria-busy" False
-  AriaCheckedA                :: Attribute "aria-checked" False
-  AriaColcountA               :: Attribute "aria-colcount" False
-  AriaColindexA               :: Attribute "aria-colindex" False
-  AriaColindextextA           :: Attribute "aria-colindextext" False
-  AriaColspanA                :: Attribute "aria-colspan" False
-  AriaControlsA               :: Attribute "aria-controls" False
-  AriaCurrentA                :: Attribute "aria-current" False
-  AriaDescribedbyA            :: Attribute "aria-describedby" False
-  AriaDescriptionA            :: Attribute "aria-description" False
-  AriaDetailsA                :: Attribute "aria-details" False
-  AriaDisabledA               :: Attribute "aria-disabled" False
-  AriaDropeffectA             :: Attribute "aria-dropeffect" False
-  AriaErrormessageA           :: Attribute "aria-errormessage" False
-  AriaExpandedA               :: Attribute "aria-expanded" False
-  AriaFlowtoA                 :: Attribute "aria-flowto" False
-  AriaGrabbedA                :: Attribute "aria-grabbed" False
-  AriaHaspopupA               :: Attribute "aria-haspopup" False
-  AriaHiddenA                 :: Attribute "aria-hidden" False
-  AriaInvalidA                :: Attribute "aria-invalid" False
-  AriaKeyshortcutsA           :: Attribute "aria-keyshortcuts" False
-  AriaLabelA                  :: Attribute "aria-label" False
-  AriaLabelledByA             :: Attribute "aria-labelledBy" False
-  AriaLevelA                  :: Attribute "aria-level" False
-  AriaLiveA                   :: Attribute "aria-live" False
-  AriaModalA                  :: Attribute "aria-modal" False
-  AriaMultilineA              :: Attribute "aria-multiline" False
-  AriaMultiselectableA        :: Attribute "aria-multiselectable" False
-  AriaOrientationA            :: Attribute "aria-orientation" False
-  AriaOwnsA                   :: Attribute "aria-owns" False
-  AriaPlaceholderA            :: Attribute "aria-placeholder" False
-  AriaPosinsetA               :: Attribute "aria-posinset" False
-  AriaPressedA                :: Attribute "aria-pressed" False
-  AriaReadonlyA               :: Attribute "aria-readonly" False
-  AriaRelevantA               :: Attribute "aria-relevant" False
-  AriaRequiredA               :: Attribute "aria-required" False
-  AriaRoledescriptionA        :: Attribute "aria-roledescription" False
-  AriaRowcountA               :: Attribute "aria-rowcount" False
-  AriaRowindexA               :: Attribute "aria-rowindex" False
-  AriaRowindextextA           :: Attribute "aria-rowindextext" False
-  AriaRowspanA                :: Attribute "aria-rowspan" False
-  AriaSelectedA               :: Attribute "aria-selected" False
-  AriaSetsizeA                :: Attribute "aria-setsize" False
-  AriaSortA                   :: Attribute "aria-sort" False
-  AriaValuemaxA               :: Attribute "aria-valuemax" False
-  AriaValueminA               :: Attribute "aria-valuemin" False
-  AriaValuenowA               :: Attribute "aria-valuenow" False
-  AriaValuetextA              :: Attribute "aria-valuetext" False
 
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
 -- and snoc(O1) but append(On).  Optimal would be a FingerTree.
@@ -1507,12 +1309,13 @@ type family ToList a :: List where
   ToList ((Element name categories contentModel contentAttributes :@ at) :> b)   = AppendSymbol "<" name <| ToList at >< (">" <| ToList b) |> AppendSymbol "</" (AppendSymbol name ">")
   ToList (Element name categories None contentAttributes)   = 'List '[] (AppendSymbol "<" (AppendSymbol name ">"))
   ToList (Element name categories contentModel contentAttributes)   = ToList (Element name categories contentModel contentAttributes :> ())
-  ToList (Element name categories contentModel contentAttributes :@ at)   = AppendSymbol "<" name <| ToList at |> ">"
+  ToList (Element name categories None contentAttributes :@ at)   = AppendSymbol "<" name <| ToList at |> ">"
+  ToList (Element name categories contentModel contentAttributes :@ at)   = AppendSymbol "<" name <| ToList at |> AppendSymbol "></" (AppendSymbol name ">")
   ToList (a # b)         = ToList a >< ToList b
   ToList (Lawless a)     = ToList a
-  ToList (Attribute a True) = 'List '[] (AppendSymbol " " a)
-  ToList (a := ())       = 'List '[] (AppendSymbol " " a)
-  ToList (a := b)        = AppendSymbol " " (AppendSymbol a "=\"") <| ToList b |> "\""
+  ToList (Attribute a global boolean) = 'List '[] (AppendSymbol " " a)
+  ToList (Attribute a global boolean := ())       = 'List '[] (AppendSymbol " " a)
+  ToList (Attribute a global boolean := b)        = AppendSymbol " " (AppendSymbol a "=\"") <| ToList b |> "\""
   ToList ()              = 'List '[] ""
   ToList (Proxy x)       = 'List '[] x
   ToList x               = 'List '[""] ""
@@ -1537,29 +1340,38 @@ type family Lawful relationship father child :: Constraint where
   Lawful relation x (Maybe y) = Lawful relation x y
   Lawful relation x (Either y1 y2) = (Lawful relation x y1, Lawful relation x y2)
   Lawful relation x [y] = Lawful relation x y
+  Lawful relation x (c :@ _) = Lawful relation x c
+  Lawful relation x (c :> _) = Lawful relation x c
+  Lawful relation x (c := _) = Lawful relation x c
+
+  Lawful AttributeValue (Attribute name1 global1 boolean1) (Attribute name2 global2 boolean2) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the attribute " :<>: Text name2 :<>: Text ".")
+  Lawful AttributeValue (Attribute name1 global1 boolean1) (Element name2 categories contentModel contentAttributes) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the element " :<>: Text name2 :<>: Text ".")
+  Lawful AttributeValue (Attribute name global boolean) v = If boolean (TypeError (Text "The attribute " :<>: Text name :<>: Text " is boolean and can't contain a value.")) (() :: Constraint)
+  Lawful AttributeValue x v = TypeError (ShowType x :<>: Text " is not an attribute.")
 
   Lawful Fatherhood (e :@ _) c = Lawful Fatherhood e c
   Lawful Fatherhood (Element name categories None contentAttributes) _ = TypeError (Text name :<>: Text " can't have children.")
-
-  Lawful Fatherhood father (c :@ _) = Lawful Fatherhood father c
-  Lawful Fatherhood father (c :> _) = Lawful Fatherhood father c
 
   Lawful Fatherhood (Element name1 categories1 contentModel1 contentAttributes1)
                (Element name2 categories2 contentModel2 contentAttributes2) = MaybeTypeError name1 (Text name2) (CheckContentCategory name2 contentModel1 categories2)
   Lawful Fatherhood (Element name categories contentModel contentAttributes) string = MaybeTypeError name (ShowType string) (CheckContentCategory "" contentModel '[OnlyText, Flow, Phrasing])
   Lawful Fatherhood _ _ = TypeError (Text "Only Elements and Elements with Attributes can father children.")
 
-  Lawful Attribution e (Attribute a boolean) = Lawful Attribution e (a := ())
-  Lawful Attribution (Element name categories contentModel contentAttributes) (a := _)
-    = If (Elem a (Append contentAttributes GlobalAttributes))
+  Lawful Attribution (Element name categories contentModel contentAttributes) (Attribute a global boolean)
+    = If (global || Elem a contentAttributes)
     (() :: Constraint)
     (TypeError (Text a :<>: Text " is not a valid attribute of " :<>: Text name :<>: Text "."))
   Lawful Attribution (Element name categories contentModel contentAttributes) a = TypeError (ShowType a :<>: Text " is not a valid attribute of " :<>: Text name :<>: Text ".")
   Lawful Attribution a _ = TypeError (ShowType a :<>: Text " is not an attributable element.")
 
+type family MaybeTypeError a b c where
+  MaybeTypeError a b c = If c (() :: Constraint)
+   (TypeError (b :<>: Text " is not a valid child of " :<>: Text a :<>: Text "."))
+
 data Relationship
   = Fatherhood
   | Attribution
+  | AttributeValue
 
 data (:>) father child where
   (:>) :: Lawful Fatherhood f c => f -> c -> f :> c
@@ -1567,7 +1379,8 @@ data (:>) father child where
 data (:@) element attribution where
   (:@) :: Lawful Attribution e a => e -> a -> e :@ a
 
-data (:=) a v = (:=) (Attribute a False) v
+data (:=) a v where
+  (:=) :: Lawful AttributeValue a v => a -> v -> a := v
 
 infixr 6 :>
 infixr 9 :@
@@ -1585,7 +1398,7 @@ type family Length c where
   Length (a :@ b) = Length b
   Length (Element name categories contentModel contentAttributes) = 0
   Length (a # b)       = Length a + Length b
-  Length (Attribute a True) = 0
+  Length (Attribute a global True) = 0
   Length (_ := b)      = Length b
   Length (Lawless a)   = Length a
   Length ()            = 0
@@ -1663,13 +1476,56 @@ type family CheckContentCategory (name :: Symbol) (a :: ContentCategory) (b :: [
 infixr 2 :|:
 infixr 3 :&:
 
-type family MaybeTypeError a b c where
-  MaybeTypeError a b c = If c (() :: Constraint)
-   (TypeError (b :<>: Text " is not a valid child of " :<>: Text a :<>: Text "."))
-
 type family Elem (a :: k) (xs :: [k]) where
   Elem a (a : xs) = True
   Elem a (_ : xs) = Elem a xs
   Elem a '[]      = False
 
 newtype T (proxies :: k) target = T target
+
+-- | Data for declaring variables in a html document which will be compacted.
+data V (n :: Symbol) = V
+
+newtype One a = One a
+
+-- | Unique set of variables in a html document in the order of occurence.
+type Variables a = Dedupe (GetV a)
+
+-- | A compacted html documented with it's variables annoted as a list of Symbols.
+data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)] deriving Show
+
+type family GetV a :: [Symbol] where
+  GetV (a # b)       = Append (GetV a) (GetV b)
+  GetV (a :> b)      = Append (GetV a) (GetV b)
+  GetV (a :@ b)      = Append (GetV a) (GetV b)
+  GetV (a := b)      = GetV b
+  GetV (Maybe a)     = GetV a
+  GetV [a]           = GetV a
+  GetV (Either a b)  = Append (GetV a) (GetV b)
+  GetV (V v)         = '[v]
+  GetV x             = '[]
+
+type family Reverse xs where
+  Reverse xs = Reverse' xs '[]
+
+type family Reverse' xs ys where
+  Reverse' (x':xs) ys = Reverse' xs (x':ys)
+  Reverse' '[] ys = ys
+
+type family Dedupe xs :: [Symbol] where
+  Dedupe (x ': xs) = x ': Dedupe (Delete x xs)
+  Dedupe '[] = '[]
+
+type family Delete x xs :: [Symbol] where
+  Delete x (x ': xs) = Delete x xs
+  Delete x (y ': xs) = y ': Delete x xs
+  Delete _ _ = '[]
+
+class ShowTypeList a where
+  showTypeList :: [String]
+
+instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList (x ': xs) where
+  showTypeList = symbolVal (Proxy @ x) : showTypeList @ xs
+
+instance ShowTypeList '[] where
+  showTypeList = []

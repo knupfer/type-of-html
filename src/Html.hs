@@ -110,5 +110,5 @@ instance Document (a # b) => Show (a # b) where show = renderString
 
 instance Document (a :@ b) => Show (a :@ b) where show = renderString
 instance Document (a :> b) => Show (a :> b) where show = renderString
-instance Document (Attribute a 'True) => Show (Attribute a 'True) where show = renderString
-instance Document (Element name categories contentModel contentAttributes) => Show (Element name categories contentModel contentAttributes)      where show = renderString
+instance Document (Attribute a global boolean) => Show (Attribute a global boolean) where show = renderString
+instance Document (Element name categories contentModel contentAttributes) => Show (Element name categories contentModel contentAttributes) where show = renderString
