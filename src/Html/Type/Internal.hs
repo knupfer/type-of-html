@@ -1350,6 +1350,7 @@ type family Lawful relationship father child :: Constraint where
   Lawful AttributeValue x v = TypeError (ShowType x :<>: Text " is not an attribute.")
 
   Lawful Fatherhood (e :@ _) c = Lawful Fatherhood e c
+  Lawful Fatherhood (Element name categories contentModel contentAttributes) (Attribute name2 global boolean) = TypeError (Text name :<>: Text " can't have an attribute as children.")
   Lawful Fatherhood (Element name categories None contentAttributes) _ = TypeError (Text name :<>: Text " can't have children.")
 
   Lawful Fatherhood (Element name1 categories1 contentModel1 contentAttributes1)
@@ -1396,11 +1397,11 @@ type family Null xs where
 type family Length c where
   Length (a :> b) = Length a + Length b
   Length (a :@ b) = Length b
-  Length (Element name categories contentModel contentAttributes) = 0
   Length (a # b)       = Length a + Length b
-  Length (Attribute a global True) = 0
   Length (_ := b)      = Length b
   Length (Lawless a)   = Length a
+  Length (Attribute a global boolean) = 0
+  Length (Element name categories contentModel contentAttributes) = 0
   Length ()            = 0
   Length (Proxy _)     = 0
   Length _             = 1
