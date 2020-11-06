@@ -30,15 +30,15 @@ type Test =
     == 'List '["<a>"] "</a>"
   , ToList (Demote 'A :> Char # Demote 'Div :> Int)
     == 'List '["<a>", "</a><div>"] "</div>"
-  , ToList ((Demote 'Div :@ ("class" := Int)) :> Int)
+  , ToList ((Demote 'Div :@ (Demote 'ClassA := Int)) :> Int)
     == 'List '["<div class=\"","\">"] "</div>"
-  , ToList ((Demote 'Div :@ ("class" := ())) :> Int)
+  , ToList ((Demote 'Div :@ (Demote 'ClassA := ())) :> Int)
     == 'List '["<div class>"] "</div>"
-  , ToList ((Demote 'Div :@ ("class" := ())) :> ())
+  , ToList ((Demote 'Div :@ (Demote 'ClassA := ())) :> ())
     == 'List '[] "<div class></div>"
-  , ToList ((Demote 'Div :@ ("class" := () # "id" := ())) :> ())
+  , ToList ((Demote 'Div :@ (Demote 'ClassA := () # Demote 'IdA := ())) :> ())
     == 'List '[] "<div class id></div>"
-  , ToList ((Demote 'Div :@ ("class" := () # "id" := Proxy "ab")) :> ())
+  , ToList ((Demote 'Div :@ (Demote 'ClassA := () # Demote 'IdA := Proxy "ab")) :> ())
     == 'List '[] "<div class id=\"ab\"></div>"
   )
 

@@ -228,7 +228,7 @@ spec = parallel $ do
 
     it "handles custom attributes" $ do
 
-      renderString (Div :@ (hxPost_ "x") :> "y")
+      renderString (Div :@ (hxPost := "x") :> "y")
         `shouldBe`
         "<div hx-post=\"x\">y</div>"
 
