@@ -7,42 +7,42 @@ module Medium where
 import Html
 
 helloWorld x =
-  html_
-    ( head_
-      ( title_ x
+  Html :>
+    ( Head :>
+      ( Title :> x
       )
-    # body_
-      ( p_ "Hello World!"
+    # Body :>
+      ( P :> "Hello World!"
       )
     )
 
-table (n, m) = table_ . replicate n . tr_ $ map td_ [(1::Int)..m]
+table (n, m) = (Table :>) . replicate n . (Tr :>) $ map (Td :>) [(1::Int)..m]
 
 page x =
-  html_
-    ( body_
-      ( h1_
-        ( img_
-        # strong_ (0 :: Int)
+  Html :>
+    ( Body :>
+      ( H1 :>
+        ( Img
+        # Strong :> (0 :: Int)
         )
-      # div_
-        ( div_ (1 :: Int)
+      # Div :>
+        ( Div :> (1 :: Int)
         )
-      # div_
-        ( form_
-          ( fieldset_
-            ( div_
-              ( div_
-                ( label_ "a"
-                # select_
-                  ( option_ "b"
-                  # option_ "c"
+      # Div :>
+        ( Form :>
+          ( Fieldset :>
+            ( Div :>
+              ( Div :>
+                ( Label :> "a"
+                # Select :>
+                  ( Option :> "b"
+                  # Option :> "c"
                   )
-                # div_ "d"
+                # Div :> "d"
                 )
-              # i_ x
+              # I :> x
               )
-            # button_ (i_ "e")
+            # Button :> (I :> "e")
             )
           )
         )
@@ -50,22 +50,22 @@ page x =
     )
 
 attrShort x =
-  i_A (AccesskeyA := "a")
-  ( i_A (ClassA := "b")
-    ( i_A (ContenteditableA := "c")
-      ( i_A (TranslateA := "d")
-        ( i_A (DirA := "e")
-          ( i_A (DraggableA := "f")
-            ( i_A HiddenA
-              ( i_A (IdA := "h")
-                ( i_A (ItempropA := "i")
-                  ( i_A (LangA := "j")
-                    ( i_A (SpellcheckA := "k")
-                      ( i_A (StyleA := "l")
-                        ( i_A (TitleA := x) "m"))))))))))))
+  I :@ (AccesskeyA := "a") :>
+  ( I :@ (ClassA := "b") :>
+    ( I :@ (ContenteditableA := "c") :>
+      ( I :@ (TranslateA := "d") :>
+        ( I :@ (DirA := "e") :>
+          ( I :@ (DraggableA := "f") :>
+            ( I :@ HiddenA :>
+              ( I :@ (IdA := "h") :>
+                ( I :@ (ItempropA := "i") :>
+                  ( I :@ (LangA := "j") :>
+                    ( I :@ (SpellcheckA := "k") :>
+                      ( I :@ (StyleA := "l") :>
+                        ( I :@ (TitleA := x) :> "m"))))))))))))
 
 attrLong x =
-  i_A ( AccesskeyA :=       "a"
+  I :@ ( AccesskeyA :=       "a"
       # ClassA :=           "b"
       # ContenteditableA := "c"
       # TranslateA :=     "d"
@@ -78,33 +78,33 @@ attrLong x =
       # SpellcheckA :=      "k"
       # StyleA :=           "l"
       # TitleA :=           x
-      ) "m"
+      ) :> "m"
 
 pageA x =
-  html_
-    ( body_
-      ( h1_A (IdA := "a")
-        ( img_
-        # strong_A (ClassA := "b") (0 :: Int)
+  Html :>
+    ( Body :>
+      ( H1 :@ (IdA := "a") :>
+        ( Img
+        # Strong :@ (ClassA := "b") :> (0 :: Int)
         )
-      # div_
-        ( div_A (IdA := "c") (1 :: Int)
+      # Div :>
+        ( Div :@ (IdA := "c") :> (1 :: Int)
         )
-      # div_
-        ( form_A (ClassA := "d")
-          ( fieldset_
-            ( div_A (IdA := "e")
-              ( div_
-                ( label_A (ClassA := "f") "h"
-                # select_
-                  ( option_A (IdA := "i") "j"
-                  # option_ "k"
+      # Div :>
+        ( Form :@ (ClassA := "d") :>
+          ( Fieldset :>
+            ( Div :@ (IdA := "e") :>
+              ( Div :>
+                ( Label :@ (ClassA := "f") :> "h"
+                # Select :>
+                  ( Option :@ (IdA := "i") :> "j"
+                  # Option :> "k"
                   )
-                # div_A (ClassA := "l") "m"
+                # Div :@ (ClassA := "l") :> "m"
                 )
-              # i_ x
+              # I :> x
               )
-            # button_A (IdA := "n") (i_ "o")
+            # Button :@ (IdA := "n") :> (I :> "o")
             )
           )
         )

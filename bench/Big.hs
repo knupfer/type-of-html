@@ -8,87 +8,87 @@ import Html
 import Medium (attrShort, attrLong, table)
 
 page x =
-  html_
-    ( body_
-      ( h1_A (IdA := "a")
-        ( img_
-        # strong_A (ClassA := "b") (0 :: Int)
+  Html :>
+    ( Body :>
+      ( H1 :@ (IdA := "a") :>
+        ( Img
+        # Strong :@ (ClassA := "b") :> (0 :: Int)
         )
-      # div_
-        ( div_A (IdA := "c") (1 :: Int)
+      # Div :>
+        ( Div :@ (IdA := "c") :> (1 :: Int)
         )
       # attrShort ""
       # attrLong ""
       # table (3,3)
-      # div_
-        ( form_A (ClassA := "d")
-          ( fieldset_
-            ( div_A (IdA := "e")
-              ( div_
-                ( label_A (ClassA := "f") "g"
-                # select_
-                  ( option_A (IdA := "h") "i"
-                  # option_ "j"
+      # Div :>
+        ( Form :@ (ClassA := "d") :>
+          ( Fieldset :>
+            ( Div :@ (IdA := "e") :>
+              ( Div :>
+                ( Label :@ (ClassA := "f") :> "g"
+                # Select :>
+                  ( Option :@ (IdA := "h") :> "i"
+                  # Option :> "j"
                   )
-                # div_A (ClassA := "k") "l"
+                # Div :@ (ClassA := "k") :> "l"
                 )
-              # i_ x
+              # I :> x
               )
-            # button_A (IdA := "m") (i_ "n")
+            # Button :@ (IdA := "m") :> (I :> "n")
             )
           )
         )
-      # div_
-        ( form_A (ClassA := "o")
-          ( fieldset_
-            ( div_A (IdA := "p")
-              ( div_
-                ( label_A (ClassA := "q") "r"
-                # select_
-                  ( option_A (IdA := "s") "4"
-                  # option_ "u"
+      # Div :>
+        ( Form :@ (ClassA := "o") :>
+          ( Fieldset :>
+            ( Div :@ (IdA := "p") :>
+              ( Div :>
+                ( Label :@ (ClassA := "q") :> "r"
+                # Select :>
+                  ( Option :@ (IdA := "s") :> "4"
+                  # Option :> "u"
                   )
-                # div_A (ClassA := "v") "w"
+                # Div :@ (ClassA := "v") :> "w"
                 )
-              # i_ x
+              # I :> x
               )
-            # button_A (IdA := "x") (i_ "y")
+            # Button :@ (IdA := "x") :> (I :> "y")
             )
           )
         )
-      # div_
-        ( form_A (ClassA := "z")
-          ( fieldset_
-            ( div_A (IdA := "A")
-              ( div_
-                ( label_A (ClassA := "B") "C"
-                # select_
-                  ( option_A (IdA := "D") "E"
-                  # option_ "F"
+      # Div :>
+        ( Form :@ (ClassA := "z") :>
+          ( Fieldset :>
+            ( Div :@ (IdA := "A") :>
+              ( Div :>
+                ( Label :@ (ClassA := "B") :> "C"
+                # Select :>
+                  ( Option :@ (IdA := "D") :> "E"
+                  # Option :> "F"
                   )
-                # div_A (ClassA := "G") "H"
+                # Div :@ (ClassA := "G") :> "H"
                 )
-              # i_ x
+              # I :> x
               )
-            # button_A (IdA := "I") (i_ "J")
+            # Button :@ (IdA := "I") :> (I :> "J")
             )
           )
         )
-      # div_
-        ( form_A (ClassA := "K")
-          ( fieldset_
-            ( div_A (IdA := "L")
-              ( div_
-                ( label_A (ClassA := "M") "N"
-                # select_
-                  ( option_A (IdA := "O") "P"
-                  # option_ "Q"
+      # Div :>
+        ( Form :@ (ClassA := "K") :>
+          ( Fieldset :>
+            ( Div :@ (IdA := "L") :>
+              ( Div :>
+                ( Label :@ (ClassA := "M") :> "N"
+                # Select :>
+                  ( Option :@ (IdA := "O") :> "P"
+                  # Option :> "Q"
                   )
-                # div_A (ClassA := "R") "S"
+                # Div :@ (ClassA := "R") :> "S"
                 )
-              # i_ x
+              # I :> x
               )
-            # button_A (IdA := "T") (i_ "U")
+            # Button :@ (IdA := "T") :> (I :> "U")
             )
           )
         )

@@ -26,7 +26,6 @@ library
   exposed-modules:    Html
                     , Html.Type
                     , Html.Convert
-                    , Html.Element
                     , Html.Element.Obsolete
   other-modules:      Html.Type.Internal
                     , Html.Reify

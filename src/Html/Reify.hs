@@ -8,7 +8,6 @@
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
-{-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE GADTs                  #-}
@@ -125,15 +124,6 @@ instance
   render (T t) = render (T t :: T xs val) <> render (One (Proxy @ x))
 
 instance
-  ( R u (T (Take (Length b) ps) b)
-  , R u (T (Drop (Length b) ps) c)
-  , Semigroup (RenderOutput u)
-  ) => R u (T ps ((a :@: b) c)) where
-  render (T ~(WithAttributes b c))
-    = render (T b :: T (Take (Length b) ps) b)
-    <> render (T c :: T (Drop (Length b) ps) c)
-
-instance
   ( R u (T (Take (Length a) ps) a)
   , R u (T (Drop (Length a) ps) b)
   , Semigroup (RenderOutput u)
@@ -141,6 +131,21 @@ instance
   render (T ~(a :#: b))
     = render (T a :: T (Take (Length a) ps) a)
     <> render (T b :: T (Drop (Length a) ps) b)
+
+instance
+  ( R u (T (Take (Length a) ps) a)
+  , R u (T (Drop (Length a) ps) b)
+  , Semigroup (RenderOutput u)
+  ) => R u (T ps (a :> b)) where
+  render (T ~(a :> b))
+    = render (T a :: T (Take (Length a) ps) a)
+    <> render (T b :: T (Drop (Length a) ps) b)
+
+instance
+  ( R u (T (Drop 0 ps) b)
+  ) => R u (T ps (a :@ b)) where
+  render (T ~(_ :@ b))
+    = render (T b :: T (Drop 0 ps) b)
 
 instance
   ( R u (T ps a)

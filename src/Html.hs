@@ -13,7 +13,6 @@
 module Html
   ( module Html.Type
   , module Html.Convert
-  , module Html.Element
   , renderString
   , renderText
   , renderByteString
@@ -29,7 +28,6 @@ module Html
 
 import Html.Reify
 import Html.Convert
-import Html.Element
 import Html.Type
 import Html.Type.Internal
 
@@ -107,6 +105,10 @@ compactHTML html
     indexVar _ s = fromJust (elemIndex s (showTypeList @ (Reverse (Variables a))))
 
 -- | Show instances to faciliate ghci development.
-instance Document ((a :@: b) c) => Show ((a :@: b) c) where show = renderString
-instance Document (a := b)      => Show (a := b)      where show = renderString
-instance Document (a # b)       => Show (a # b)       where show = renderString
+instance Document (a := b) => Show (a := b) where show = renderString
+instance Document (a # b) => Show (a # b) where show = renderString
+
+instance Document (a :@ b) => Show (a :@ b) where show = renderString
+instance Document (a :> b) => Show (a :> b) where show = renderString
+instance Document (Attribute a 'True) => Show (Attribute a 'True) where show = renderString
+instance Document (Element name categories contentModel contentAttributes) => Show (Element name categories contentModel contentAttributes)      where show = renderString

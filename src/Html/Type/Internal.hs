@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
 
+{-# LANGUAGE FlexibleInstances #-}
+
 {-# LANGUAGE TypeFamilyDependencies #-}
 {-# LANGUAGE UndecidableInstances   #-}
 {-# LANGUAGE ScopedTypeVariables    #-}
@@ -7,7 +9,6 @@
 {-# LANGUAGE TypeApplications       #-}
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
-{-# LANGUAGE TypeFamilies           #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE GADTs                  #-}
@@ -35,7 +36,8 @@ data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)] 
 
 type family GetV a :: [Symbol] where
   GetV (a # b)       = Append (GetV a) (GetV b)
-  GetV ((a :@: b) c) = Append (GetV b) (GetV c)
+  GetV (a :> b)      = Append (GetV a) (GetV b)
+  GetV (a :@ b)      = Append (GetV a) (GetV b)
   GetV (a := b)      = GetV b
   GetV (Maybe a)     = GetV a
   GetV [a]           = GetV a
@@ -67,11 +69,6 @@ instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList (x ': xs) where
 
 instance ShowTypeList '[] where
   showTypeList = []
-
-type GetElementName         (e :: Element name categories contentModel contentAttributes) = name
-type GetElementCategories   (e :: Element name categories contentModel contentAttributes) = categories
-type GetElementContentModel (e :: Element name categories contentModel contentAttributes) = contentModel
-type GetElementAttributes   (e :: Element name categories contentModel contentAttributes) = contentAttributes
 
 -- The following types and docs are from the following source:
 -- [2020-10-16] https://html.spec.whatwg.org/ Copyright © WHATWG
@@ -1163,8 +1160,6 @@ newtype Lawless a = Lawless a
 
 infixr 5 &
 
-data (:=) a v = (:=) (Attribute a False) v
-
 data Attribute a boolean where
   CustomA                     :: Attribute a boolean
 
@@ -1450,63 +1445,21 @@ type family (><) t1 t2 :: List where
   (><) ('List ss r) ('List (s ': ss2) r2) = 'List (Append ss (AppendSymbol r s ': ss2)) r2
   (><) ('List ss r) ('List '[] r2) = 'List ss (AppendSymbol r r2)
 
-type OpenTag e = AppendSymbol "<" (AppendSymbol (GetElementName e) ">")
-
-type CloseTag e = AppendSymbol "</" (AppendSymbol (GetElementName e) ">")
-
 -- | Flatten a document into a type list of tags.
 type family ToList a :: List where
+  ToList (Element name categories contentModel contentAttributes :> b)   = AppendSymbol "<" (AppendSymbol name ">") <| ToList b |> AppendSymbol "</" (AppendSymbol name ">")
+  ToList ((Element name categories contentModel contentAttributes :@ at) :> b)   = AppendSymbol "<" name <| ToList at >< (">" <| ToList b) |> AppendSymbol "</" (AppendSymbol name ">")
+  ToList (Element name categories None contentAttributes)   = 'List '[] (AppendSymbol "<" (AppendSymbol name ">"))
+  ToList (Element name categories contentModel contentAttributes)   = ToList (Element name categories contentModel contentAttributes :> ())
+  ToList (Element name categories contentModel contentAttributes :@ at)   = AppendSymbol "<" name <| ToList at |> ">"
   ToList (a # b)         = ToList a >< ToList b
   ToList (Lawless a)     = ToList a
-  ToList ((a :@: ()) ()) = 'List '[] (If (HasContent (GetElementContentModel a)) (AppendSymbol (OpenTag a) (CloseTag a)) (OpenTag a))
-  ToList ((a :@: b) ())  = AppendSymbol "<" (GetElementName a) <| ToList b |> If (HasContent (GetElementContentModel a)) (AppendSymbol ">" (CloseTag a)) ">"
-  ToList ((a :@: ()) b)  = OpenTag a <| ToList b |> CloseTag a
-  ToList ((a :@: b) c)   = (AppendSymbol "<" (GetElementName a) <| ToList b) >< (">" <| ToList c |> CloseTag a)
   ToList (Attribute a True) = 'List '[] (AppendSymbol " " a)
   ToList (a := ())       = 'List '[] (AppendSymbol " " a)
   ToList (a := b)        = AppendSymbol " " (AppendSymbol a "=\"") <| ToList b |> "\""
   ToList ()              = 'List '[] ""
   ToList (Proxy x)       = 'List '[] x
   ToList x               = 'List '[""] ""
-
--- | Check whether `b` is a valid child of `a`.
-type a ?> b = Check False CheckElement a b
-
--- | Check whether `a` is a valid attribute and `b` is a valid child of `p`.
-type (<?>) p a b = (Check False CheckAttribute p a, Check False CheckElement p b)
-
-type TextE a = Text (GetElementName a)
-type TagE a = Text "<" :<>: TextE a :<>: Text ">"
-
-data CheckData
-  = CheckElement
-  | CheckAttribute
-
-type family Check lawless f a b :: Constraint where
-  Check _ _ _ ()                      = ()
-  Check _ _ _ (Raw _)                 = ()
-  Check _ f a (Lawless x)             = Check True f a x
-  Check l f a (b # c)                 = (Check l f a b, Check l f a c)
-  Check l f a (Maybe b)               = Check l f a b
-  Check l f a (Either b c)            = (Check l f a b, Check l f a c)
-  Check _ f a (b -> c)                = TypeError (TagE a :<>: Text " can't contain a function.")
-  Check True CheckElement a ((b :@: _) _)      = ()
-  Check False CheckElement a ((b :@: _) _)      = MaybeTypeError a b (CheckContentCategory (GetElementName b) (GetElementContentModel a) (GetElementCategories b))
-  Check l CheckElement a (f ((b :@: c) d))  = Check l CheckElement a ((b :@: c) d)
-  Check l CheckElement a (f (b # c))        = Check l CheckElement a (b # c)
-  Check _ CheckElement a (b := c)           = TypeError (TagE a :<>: Text " can't contain an attribute." :$$: Text "Try '" :<>: TextE a :<>: Text "_A' instead.")
-  Check True CheckElement a b                  = ()
-  Check False CheckElement a b                  = CheckString a b
-  Check True CheckAttribute a (Attribute b True) = ()
-  Check False CheckAttribute a (Attribute b True) = If (Elem b (Append (GetElementAttributes a) GlobalAttributes))
-                                        (() :: Constraint)
-                                        (TypeError (Text b :<>: Text " is not a valid attribute of " :<>: TagE a :<>: Text "."))
-
-  Check True CheckAttribute a (b := _) = ()
-  Check False CheckAttribute a (b := _)         = If (Elem b (Append (GetElementAttributes a) GlobalAttributes))
-                                        (() :: Constraint)
-                                        (TypeError (Text b :<>: Text " is not a valid attribute of " :<>: TagE a :<>: Text "."))
-  Check _ CheckAttribute _ b                = TypeError (ShowType b :<>: Text " is not an attribute.")
 
 -- | Combine two elements or attributes sequentially.
 --
@@ -1521,24 +1474,48 @@ data (#) a b = (:#:) a b
 (#) = (:#:)
 infixr 5 #
 
--- | Type synonym for elements without attributes.
-type (>) a b = (:@:) a () b
-infixr 6 >
+type family Lawful relationship father child :: Constraint where
+  Lawful relation x (Raw y) = ()
+  Lawful relation x (Lawless y) = ()
+  Lawful relation x (y1 # y2) = (Lawful relation x y1, Lawful relation x y2)
+  Lawful relation x (Maybe y) = Lawful relation x y
+  Lawful relation x (Either y1 y2) = (Lawful relation x y1, Lawful relation x y2)
+  Lawful relation x [y] = Lawful relation x y
 
--- | Decorate an element with attributes and descend to a valid child.
--- It is recommended to use the predefined elements.
---
--- >>> WithAttributes (A.class_ "bar") "a" :: ('Div :@: ('ClassA := String)) String
--- <div class="bar">a</div>
---
--- >>> div_A (A.class_ "bar") "a"
--- <div class="bar">a</div>
---
--- >>> div_ "a"
--- <div>a</div>
-data (:@:) (a :: Element name categories contentModel contentAttributes) b c where
-  WithAttributes :: (a <?> b) c => b -> c -> (a :@: b) c
-infixr 8 :@:
+  Lawful Fatherhood (e :@ _) c = Lawful Fatherhood e c
+  Lawful Fatherhood (Element name categories None contentAttributes) _ = TypeError (Text name :<>: Text " can't have children.")
+
+  Lawful Fatherhood father (c :@ _) = Lawful Fatherhood father c
+  Lawful Fatherhood father (c :> _) = Lawful Fatherhood father c
+
+  Lawful Fatherhood (Element name1 categories1 contentModel1 contentAttributes1)
+               (Element name2 categories2 contentModel2 contentAttributes2) = MaybeTypeError name1 (Text name2) (CheckContentCategory name2 contentModel1 categories2)
+  Lawful Fatherhood (Element name categories contentModel contentAttributes) string = MaybeTypeError name (ShowType string) (CheckContentCategory "" contentModel '[OnlyText, Flow, Phrasing])
+  Lawful Fatherhood _ _ = TypeError (Text "Only Elements and Elements with Attributes can father children.")
+
+  Lawful Attribution e (Attribute a boolean) = Lawful Attribution e (a := ())
+  Lawful Attribution (Element name categories contentModel contentAttributes) (a := _)
+    = If (Elem a (Append contentAttributes GlobalAttributes))
+    (() :: Constraint)
+    (TypeError (Text a :<>: Text " is not a valid attribute of " :<>: Text name :<>: Text "."))
+  Lawful Attribution (Element name categories contentModel contentAttributes) a = TypeError (ShowType a :<>: Text " is not a valid attribute of " :<>: Text name :<>: Text ".")
+  Lawful Attribution a _ = TypeError (ShowType a :<>: Text " is not an attributable element.")
+
+data Relationship
+  = Fatherhood
+  | Attribution
+
+data (:>) father child where
+  (:>) :: Lawful Fatherhood f c => f -> c -> f :> c
+
+data (:@) element attribution where
+  (:@) :: Lawful Attribution e a => e -> a -> e :@ a
+
+data (:=) a v = (:=) (Attribute a False) v
+
+infixr 6 :>
+infixr 9 :@
+infixr 9 :=
 
 -- | Wrapper for types which won't be escaped.
 newtype Raw a = Raw {fromRaw :: a}
@@ -1548,19 +1525,16 @@ type family Null xs where
   Null _ = False
 
 type family Length c where
+  Length (a :> b) = Length a + Length b
+  Length (a :@ b) = Length b
+  Length (Element name categories contentModel contentAttributes) = 0
   Length (a # b)       = Length a + Length b
-  Length ((_ :@: b) c) = Length b + Length c
   Length (Attribute a True) = 0
   Length (_ := b)      = Length b
   Length (Lawless a)   = Length a
   Length ()            = 0
   Length (Proxy _)     = 0
   Length _             = 1
-
--- | Check whether an element may have content.
-type family HasContent a where
-  HasContent None = False
-  HasContent _    = True
 
 -- | Append two type lists.
 --
@@ -1630,18 +1604,12 @@ type family CheckContentCategory (name :: Symbol) (a :: ContentCategory) (b :: [
   CheckContentCategory n (Elements xs) c = Elem n xs
   CheckContentCategory n a c             = Elem a c
 
--- | Check whether a given element may contain a non document type.
-type family CheckString a b where
-  CheckString a b = If (CheckContentCategory "" (GetElementContentModel a) '[OnlyText, Flow, Phrasing])
-                       (() :: Constraint)
-                       (TypeError (TagE a :<>: Text " can't contain a " :<>: ShowType b))
-
 infixr 2 :|:
 infixr 3 :&:
 
 type family MaybeTypeError a b c where
   MaybeTypeError a b c = If c (() :: Constraint)
-   (TypeError (TagE b :<>: Text " is not a valid child of " :<>: TagE a :<>: Text "."))
+   (TypeError (b :<>: Text " is not a valid child of " :<>: Text a :<>: Text "."))
 
 type family Elem (a :: k) (xs :: [k]) where
   Elem a (a : xs) = True

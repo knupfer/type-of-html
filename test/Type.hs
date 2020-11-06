@@ -16,6 +16,9 @@ main = pure ()
 
   where _x_ = undefined :: Test
 
+type Demote (t :: k) = k
+
+
 type Test =
   ( ToList ()
     == 'List '[] ""
@@ -23,19 +26,19 @@ type Test =
     == 'List '[""] ""
   , ToList (Proxy "a")
     == 'List '[] "a"
-  , ToList ('A > Char)
+  , ToList (Demote 'A :> Char)
     == 'List '["<a>"] "</a>"
-  , ToList ('A > Char # 'Div > Int)
+  , ToList (Demote 'A :> Char # Demote 'Div :> Int)
     == 'List '["<a>", "</a><div>"] "</div>"
-  , ToList (('Div :@: ("class" := Int)) Int)
+  , ToList ((Demote 'Div :@ ("class" := Int)) :> Int)
     == 'List '["<div class=\"","\">"] "</div>"
-  , ToList (('Div :@: ("class" := ())) Int)
+  , ToList ((Demote 'Div :@ ("class" := ())) :> Int)
     == 'List '["<div class>"] "</div>"
-  , ToList (('Div :@: ("class" := ())) ())
+  , ToList ((Demote 'Div :@ ("class" := ())) :> ())
     == 'List '[] "<div class></div>"
-  , ToList (('Div :@: ("class" := () # "id" := ())) ())
+  , ToList ((Demote 'Div :@ ("class" := () # "id" := ())) :> ())
     == 'List '[] "<div class id></div>"
-  , ToList (('Div :@: ("class" := () # "id" := Proxy "ab")) ())
+  , ToList ((Demote 'Div :@ ("class" := () # "id" := Proxy "ab")) :> ())
     == 'List '[] "<div class id=\"ab\"></div>"
   )
 

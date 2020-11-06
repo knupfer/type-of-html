@@ -56,10 +56,10 @@ small = bgroup "Small"
   , bench "oneAttribute ()"              $ nf (renderByteString . (ClassA :=))  ()
   , bench "oneAttribute Proxy"           $ nf (renderByteString . (ClassA :=))  (Proxy :: Proxy "abc")
   , bench "parallelAttribute"            $ nf (\x -> renderByteString $ ClassA := x # IdA := x) ""
-  , bench "elementWithAttribute"         $ nf (\x -> renderByteString $ div_A (ClassA := x) x) ""
-  , bench "elementWithParallelAttribute" $ nf (\x -> renderByteString $ div_A (ClassA := x # IdA := x) x) ""
+  , bench "elementWithAttribute"         $ nf (\x -> renderByteString $ Div :@ (ClassA := x) :> x) ""
+  , bench "elementWithParallelAttribute" $ nf (\x -> renderByteString $ Div :@ (ClassA := x # IdA := x) :> x) ""
   , bench "listOfAttributes"             $ nf (\x -> renderByteString [ClassA := x, ClassA := x]) ""
-  , bench "listOfListOf"                 $ nf (\x -> renderByteString $ div_ [i_ [span_ x]]) ""
+  , bench "listOfListOf"                 $ nf (\x -> renderByteString $ Div :> [I :> [Span :> x]]) ""
   ]
 
 medium :: Benchmark
@@ -160,7 +160,7 @@ scaling = bgroup "Scaling"
     ]
   ]
   where
-    divs2 x = div_ "lorem;" # x # div_ "ipsum<>"
+    divs2 x = Div :> "lorem;" # x # Div :> "ipsum<>"
     divs4 = divs2 . divs2
     divs8 = divs4 . divs4
     divs16 = divs8 . divs8

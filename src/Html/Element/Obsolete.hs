@@ -11,42 +11,95 @@ import Html.Type.Internal
 --
 -- Usage:
 --
--- >>> :set -XTypeApplications
--- >>> obsolete_ @Center "barf"
+-- >>> center :> "barf"
 -- <center>barf</center>
-obsolete_ :: (x ?> a) => a -> x > a
-obsolete_ = WithAttributes ()
 
-obsolete_A :: (x <?> a) b => a -> b -> (x :@: a) b
-obsolete_A = WithAttributes
+type CustomElementDefault x
+  = Element
+  x
+  '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+  '[]
 
-type Applet    = Custom "applet"
-type Acronym   = Custom "acronym"
-type Bgsound   = Custom "bgsound"
-type Dir       = Custom "dir"
-type Frame     = Custom "frame"
-type Frameset  = Custom "frameset"
-type Noframes  = Custom "noframes"
-type Isindex   = Custom "isindex"
-type Keygen    = Custom "keygen"
-type Listing   = Custom "listing"
-type Menuitem  = Custom "menuitem"
-type Nextid    = Custom "nextid"
-type Noembed   = Custom "noembed"
-type Plaintext = Custom "plaintext"
-type Rb        = Custom "rb"
-type Rtc       = Custom "rtc"
-type Strike    = Custom "strike"
-type Xmp       = Custom "xmp"
-type Basefont  = Custom "basefont"
-type Big       = Custom "big"
-type Blink     = Custom "blink"
-type Center    = Custom "center"
-type Font      = Custom "font"
-type Marquee   = Custom "marquee"
-type Multicol  = Custom "multicol"
-type Nobr      = Custom "nobr"
-type Spacer    = Custom "spacer"
-type Tt        = Custom "tt"
+applet :: CustomElementDefault "applet"
+applet = CustomElement
 
-type Custom x = CustomElement :: Element x '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting) '[]
+acronym :: CustomElementDefault "acronym"
+acronym = CustomElement
+
+bgsound :: CustomElementDefault "bgsound"
+bgsound = CustomElement
+
+dir :: CustomElementDefault "dir"
+dir = CustomElement
+
+frame :: CustomElementDefault "frame"
+frame = CustomElement
+
+frameset :: CustomElementDefault "frameset"
+frameset = CustomElement
+
+noframes :: CustomElementDefault "noframes"
+noframes = CustomElement
+
+isindex :: CustomElementDefault "isindex"
+isindex = CustomElement
+
+keygen :: CustomElementDefault "keygen"
+keygen = CustomElement
+
+listing :: CustomElementDefault "listing"
+listing = CustomElement
+
+menuitem :: CustomElementDefault "menuitem"
+menuitem = CustomElement
+
+nextid :: CustomElementDefault "nextid"
+nextid = CustomElement
+
+noembed :: CustomElementDefault "noembed"
+noembed = CustomElement
+
+plaintext :: CustomElementDefault "plaintext"
+plaintext = CustomElement
+
+rb :: CustomElementDefault "rb"
+rb = CustomElement
+
+rtc :: CustomElementDefault "rtc"
+rtc = CustomElement
+
+strike :: CustomElementDefault "strike"
+strike = CustomElement
+
+xmp :: CustomElementDefault "xmp"
+xmp = CustomElement
+
+basefont :: CustomElementDefault "basefont"
+basefont = CustomElement
+
+big :: CustomElementDefault "big"
+big = CustomElement
+
+blink :: CustomElementDefault "blink"
+blink = CustomElement
+
+center :: CustomElementDefault "center"
+center = CustomElement
+
+font :: CustomElementDefault "font"
+font = CustomElement
+
+marquee :: CustomElementDefault "marquee"
+marquee = CustomElement
+
+multicol :: CustomElementDefault "multicol"
+multicol = CustomElement
+
+nobr :: CustomElementDefault "nobr"
+nobr = CustomElement
+
+spacer :: CustomElementDefault "spacer"
+spacer = CustomElement
+
+tt :: CustomElementDefault "tt"
+tt = CustomElement

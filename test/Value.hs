@@ -30,86 +30,86 @@ spec = parallel $ do
     it "handles single elements" $ do
 
       property $ \x ->
-        renderString (div_ (Raw x))
+        renderString (Div :> Raw x)
         ===
         "<div>" ++ x ++ "</div>"
 
     it "handles nested elements" $ do
 
       property $ \x ->
-        renderString (div_ (div_ (Raw x)))
+        renderString (Div :> Div :> Raw x)
         ===
         "<div><div>" ++ x ++ "</div></div>"
 
     it "handles parallel elements" $ do
 
       property $ \x y ->
-        renderString (div_ (Raw x) # div_ (Raw y))
+        renderString (Div :> Raw x # Div :> Raw y)
         ===
         "<div>" ++ x ++ "</div><div>" ++ y ++ "</div>"
 
     it "doesn't use closing tags for empty elements" $ do
 
-      renderString area_
+      renderString Area
         `shouldBe`
         "<area>"
 
-      renderString base_
+      renderString Base
        `shouldBe`
         "<base>"
 
-      renderString br_
+      renderString Br
        `shouldBe`
         "<br>"
 
-      renderString col_
+      renderString Col
        `shouldBe`
         "<col>"
 
-      renderString embed_
+      renderString Embed
        `shouldBe`
         "<embed>"
 
-      renderString hr_
+      renderString Hr
        `shouldBe`
         "<hr>"
 
-      renderString iframe_
+      renderString Iframe
        `shouldBe`
         "<iframe>"
 
-      renderString img_
+      renderString Img
        `shouldBe`
         "<img>"
 
-      renderString link_
+      renderString Link
        `shouldBe`
         "<link>"
 
-      renderString meta_
+      renderString Meta
        `shouldBe`
         "<meta>"
 
-      renderString param_
+      renderString Param
        `shouldBe`
         "<param>"
 
-      renderString source_
+      renderString Source
        `shouldBe`
         "<source>"
 
-      renderString track_
+      renderString Track
        `shouldBe`
         "<track>"
 
-      renderString wbr_
+      renderString Wbr
        `shouldBe`
         "<wbr>"
 
     it "handles trailing text" $ do
 
       property $ \x y ->
-        renderString (td_ (Raw x) # (Raw y))
+        renderString (Td :> (Raw x) # (Raw y))
         ===
         "<td>" ++ x ++ "</td>" ++ y
 
@@ -121,60 +121,60 @@ spec = parallel $ do
 
     it "handles trailing compile time text" $ do
 
-      renderString (div_ "a" # (Proxy :: Proxy "b"))
+      renderString (Div :> "a" # (Proxy :: Proxy "b"))
        `shouldBe`
         "<div>a</div>b"
 
     it "handles nested compile time text" $ do
 
-      renderString (div_ (Proxy :: Proxy "a"))
+      renderString (Div :> (Proxy :: Proxy "a"))
        `shouldBe`
         "<div>a</div>"
 
     it "handles an empty list" $ do
 
-      renderString (tail [td_ "a"])
+      renderString (tail [Td :> "a"])
        `shouldBe`
         ""
 
     it "handles a list with a single element" $ do
 
-      renderString [td_ "a"]
+      renderString [Td :> "a"]
        `shouldBe`
         "<td>a</td>"
 
     it "handles tags in a list with parallel elements" $ do
 
-      renderString [div_ "a" # i_ "b"]
+      renderString [Div :> "a" # I :> "b"]
        `shouldBe`
         "<div>a</div><i>b</i>"
 
     it "handles nested lists" $ do
 
-      renderString (div_ [div_ [div_ (4 :: Int)]])
+      renderString (Div :> [Div :> [Div :> (4 :: Int)]])
        `shouldBe`
         "<div><div><div>4</div></div></div>"
 
     it "handles utf8 correctly" $ do
 
-      renderString (div_ "a ä € 𝄞")
+      renderString (Div :> "a ä € 𝄞")
        `shouldBe`
         "<div>a ä € 𝄞</div>"
 
-      renderString (img_A (IdA := "a ä € 𝄞"))
+      renderString (Img :@ (IdA := "a ä € 𝄞"))
        `shouldBe`
         "<img id=\"a ä € 𝄞\">"
 
     it "handles Chars" $ do
 
       property $ \x ->
-        renderString (div_ [x :: Char])
+        renderString (Div :> [x :: Char])
         ===
-        renderString (div_ x)
+        renderString (Div :> x)
 
     it "handles maybes" $ do
 
-      renderString (div_ (Just (div_ "a")))
+      renderString (Div :> (Just (Div :> "a")))
        `shouldBe`
         "<div><div>a</div></div>"
 
@@ -182,82 +182,82 @@ spec = parallel $ do
        `shouldBe`
         "42"
 
-      renderString (div_A (Just (IdA := "a")) "b")
+      renderString (Div :@ (Just (IdA := "a")) :> "b")
        `shouldBe`
         "<div id=\"a\">b</div>"
 
-      renderString (div_ (if True then Nothing else Just (div_ "a")))
+      renderString (Div :> (if True then Nothing else Just (Div :> "a")))
        `shouldBe`
         "<div></div>"
 
     it "handles eithers" $ do
 
-      renderString (div_ (if True then Left (div_ "a") else Right "b"))
+      renderString (Div :> (if True then Left (Div :> "a") else Right "b"))
        `shouldBe`
         "<div><div>a</div></div>"
 
-      renderString (div_A (if True then Right (IdA := "a") else Left (ClassA := "a")) "b")
+      renderString (Div :@ (if True then Right (IdA := "a") else Left (ClassA := "a")) :> "b")
        `shouldBe`
         "<div id=\"a\">b</div>"
 
     it "handles attributes" $ do
 
-      renderString (div_A (IdA := "a") "b" # "c")
+      renderString (Div :@ (IdA := "a") :> "b" # "c")
        `shouldBe`
         "<div id=\"a\">b</div>c"
 
-      renderString (div_A (IdA := ()) "a")
+      renderString (Div :@ (IdA := ()) :> "a")
        `shouldBe`
         "<div id>a</div>"
 
-      renderString (div_A HiddenA "a")
+      renderString (Div :@ HiddenA :> "a")
        `shouldBe`
         "<div hidden>a</div>"
 
-      renderString (div_A HiddenA ())
+      renderString (Div :@ HiddenA :> ())
        `shouldBe`
         "<div hidden></div>"
 
-      renderString (div_A HiddenA () # "a")
+      renderString (Div :@ HiddenA :> () # "a")
        `shouldBe`
         "<div hidden></div>a"
 
-      renderString (div_A HiddenA () # img_)
+      renderString (Div :@ HiddenA :> () # Img)
        `shouldBe`
         "<div hidden></div><img>"
 
     it "handles custom attributes" $ do
 
-      renderString (div_A (hxPost_ "x") "y")
+      renderString (Div :@ (hxPost_ "x") :> "y")
         `shouldBe`
         "<div hx-post=\"x\">y</div>"
 
     it "handles Ints" $ do
 
       property $ \x ->
-        renderString (div_ (x :: Int))
+        renderString (Div :> (x :: Int))
         ===
-        renderString (div_ (show x))
+        renderString (Div :> (show x))
 
     it "handles complex compile time documents" $ do
 
-      renderString (div_ () # i_ ())
+      renderString (Div :> () # I :> ())
        `shouldBe`
         "<div></div><i></i>"
 
-      renderString (div_ () # "a")
+      renderString (Div :> () # "a")
        `shouldBe`
         "<div></div>a"
 
-      renderString ("a" # i_ ())
+      renderString ("a" # I :> ())
        `shouldBe`
         "a<i></i>"
 
-      renderString (div_ () # i_ (Proxy @"a"))
+      renderString (Div :> () # I :> (Proxy @"a"))
        `shouldBe`
         "<div></div><i>a</i>"
 
-      renderString (div_ (Proxy @"a") # i_ ())
+      renderString (Div :> (Proxy @"a") # I :> ())
        `shouldBe`
         "<div>a</div><i></i>"
 
@@ -269,13 +269,13 @@ spec = parallel $ do
        `shouldBe`
         "12"
 
-      renderString (div_ () # td_ (Proxy @"1" # "2" # div_ () # i_A (IdA := (Proxy @"3")) "4"))
+      renderString (Div :> () # Td :> (Proxy @"1" # "2" # Div :> () # I :@ (IdA := (Proxy @"3")) :> "4"))
        `shouldBe`
         "<div></div><td>12<div></div><i id=\"3\">4</i></td>"
 
     it "handles list of convertibles" $ do
 
-      renderString (div_ [1..5 :: Int])
+      renderString (Div :> [1..5 :: Int])
        `shouldBe`
         "<div>12345</div>"
 
@@ -283,6 +283,6 @@ spec = parallel $ do
        `shouldBe`
         "12345"
 
-      renderString (div_ ["abc"])
+      renderString (Div :> ["abc"])
        `shouldBe`
         "<div>abc</div>"

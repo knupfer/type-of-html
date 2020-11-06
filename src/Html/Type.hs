@@ -1,19 +1,17 @@
 {-# LANGUAGE ExplicitNamespaces #-}
 
 module Html.Type
-  ( type (>)
-  , type (:@:)(..)
-  , type (#)(..)
+  ( type (#)(..)
   , (#)
-  , type (?>)
-  , type (<?>)
+  , (:>)(..)
+  , (:@)(..)
   , (:=)(..)
-  , Raw(..)
   , Element(..)
   , Attribute(..)
   , CompactHTML
   , Put(..)
   , V(..)
+  , Raw(..)
   , Lawless(..)
   , Retrievable
   , Retrieve
