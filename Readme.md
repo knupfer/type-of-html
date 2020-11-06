@@ -16,34 +16,35 @@ mistakes into type errors.
 Let's check out the /type safety/ in ghci:
 
 ```haskell
->>> td_ (tr_ "a")
+>>> Td :> Tr :> "a"
 
 <interactive>:1:1: error:
-    • <tr> is not a valid child of <td>
-    • In the expression: td_ (tr_ "a")
-      In an equation for ‘it’: it = td_ (tr_ "a")
+    • tr is not a valid child of td.
+    • In the expression: Td :> Tr :> "a"
+      In an equation for ‘it’: it = Td :> Tr :> "a"
 
-<interactive>:1:6: error:
-    • <tr> can't contain a string
-    • In the first argument of ‘td_’, namely ‘(tr_ "a")’
-      In the expression: td_ (tr_ "a")
-      In an equation for ‘it’: it = td_ (tr_ "a")
+<interactive>:1:7: error:
+    • Char is not a valid child of tr.
+    • In the second argument of ‘(:>)’, namely ‘Tr :> "a"’
+      In the expression: Td :> Tr :> "a"
+      In an equation for ‘it’: it = Td :> Tr :> "a"
 
->>> tr_ (td_ "a")
+>>> Tr :> Td :> "a"
 <tr><td>a</td></tr>
 ```
 
 And
 
 ```haskell
->>> td_A (A.coords_ "a") "b"
+>>> Td :@ CoordsA := "a" :> "b"
 
 <interactive>:1:1: error:
-    • coords is not a valid attribute of <td>
-    • In the expression: td_A (A.coords_ "a") "b"
-      In an equation for ‘it’: it = td_A (A.coords_ "a") "b"
+    • coords is not a valid attribute of td.
+    • In the first argument of ‘(:>)’, namely ‘Td :@ CoordsA := "a"’
+      In the expression: Td :@ CoordsA := "a" :> "b"
+      In an equation for ‘it’: it = Td :@ CoordsA := "a" :> "b"
 
->>> td_A (A.id_ "a") "b"
+>>> Td :@ IdA := "a" :> "b"
 <td id="a">b</td>
 ```
 
@@ -66,62 +67,49 @@ These restrictions aren't fundamental, they could be turned into compile time er
 Html documents are just ordinary haskell values which can be composed or abstracted over:
 
 ```haskell
->>> let table = table_ . map (tr_ . map td_)
->>> :t table
-table :: ('Td ?> a) => [[a]] -> 'Table > ['Tr > ['Td > a]]
+>>> let table xxs = Table :> map (\xs -> Tr :> map (\x -> Td :> x) xs) xxs
+
 >>> table [["A","B"],["C"]]
 <table><tr><td>A</td><td>B</td></tr><tr><td>C</td></tr></table>
 >>> import Data.Char
->>> html_ . body_ . table $ map (\c -> [[c], show $ ord c]) ['a'..'d']
+>>> Html :> Body :> table (map (\c -> [[c], show $ ord c]) ['a'..'d'])
 <html><body><table><tr><td>a</td><td>97</td></tr><tr><td>b</td><td>98</td></tr><tr><td>c</td><td>99</td></tr><tr><td>d</td><td>100</td></tr></table></body></html>
 ```
 
 And here's an example module:
 
 ```haskell
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds     #-}
-
 module Main where
 
 import Html
-
-import qualified Html.Attribute as A
 
 main :: IO ()
 main
   = print
   . page
-  $ map td_ [1..(10::Int)]
-
-page
-  :: 'Tr ?> a
-  => a
-  -> ('Div :@: ('ClassA := String # 'IdA := String))
-        ( 'Div > String
-        # 'Div > String
-        # 'Table > 'Tr > a
-        )
-page tds =
-  div_A (A.class_ "qux" # A.id_ "baz")
-    ( div_ "foo"
-    # div_ "bar"
-    # table_ (tr_ tds)
-    )
+  $ map (Td :>) [1..(10::Int)]
+  where page tds =
+    Div :@ (ClassA:="qux" # IdA:="baz")
+    :> ( Div :> "foo"
+       # Div :> "bar"
+       # Table :> Tr :> tds
+       )
 ```
 
-Please note that the type of `page` is inferable, so ask ghc-mod or
-whatever you use to write it for you.  If you choose not to write the
-types, you don't need the language extensions.  I strongly suggest
-that you don't write type signatures for `type-of-html`.
+Please note that the type of `page` is inferable and quite
+complicated.  I strongly suggest that you don't write type signatures
+for `type-of-html`. Define your `type-of-html` related functions in an
+extra module in which you deactivate missing to signature
+warnings. For smaller tasks you can easily define your page in a where
+clause like above.
 
 All text will be automatically html escaped:
 
 ```haskell
->>> i_ "&"
+>>> I :> "&"
 <i>&amp;</i>
 
->>> div_A (A.id_ ">") ()
+>>> Div :@ IdA:=">" :> ()
 <div id="&gt;"></div>
 ```
 
@@ -131,7 +119,7 @@ trusted input. You can use this e.g. to embed some blaze-html code
 into type-of-html.
 
 ```haskell
->>> i_ (Raw "</i><script></script><i>")
+>>> I :> Raw "</i><script></script><i>"
 <i></i><script></script><i></i>
 ```
 
@@ -140,16 +128,16 @@ into type-of-html.
 You can use Either and Maybe in your documents:
 
 ```haskell
->>> div_ (Just (div_ "a"))
+>>> Div :> Just (Div :> "a")
 <div><div>a</div></div>
 
->>> div_ (if True then Nothing else Just (div_ "b"))
+>>> Div :> if True then Nothing else Just (Div :> "b")
 <div></div>
 
->>> div_ (if True then Left (div_ "a") else Right "b")
+>>> Div :> if True then Left (Div :> "a") else Right "b"
 <div><div>a</div></div>
 
->>> div_A (if True then Right (A.id_ "a") else Left (A.class_ "a")) "b"
+>>> Div :@ (if True then Right (IdA:="a") else Left (ClassA:="a")) :> "b"
 <div id="a">b</div>
 ```
 
@@ -191,7 +179,7 @@ automatically profit from future optimizations in ByteString.Builder.
 For example, if you write:
 
 ```haskell
-renderText $ tr_ (td_ "test")
+renderText $ Tr :> Td :> "test"
 ```
 
 The compiler does optimize it to the following (well, unpackCString#
@@ -211,7 +199,7 @@ escaped Builder without any intermediate structure, not even an
 allocated bytestring.
 
 ```haskell
-renderByteString $ tr_ (td_ "teſt")
+renderByteString $ Tr :> Td :> "teſt"
 ```
 
 Results in
@@ -227,7 +215,7 @@ toLazyByteString
 If you write
 
 ```haskell
-renderBuilder $ div_ (div_ ())
+renderBuilder $ Div :> Div
 ```
 
 The compiler does optimize it to the following:
@@ -256,7 +244,7 @@ This allows for a more efficient conversion to builder, because we
 know the length at compile time.
 
 ```haskell
-div_ 'a'
+Div :> 'a'
 ```
 
 If you know for sure that you don't need escaping, use `Raw`.
@@ -265,7 +253,7 @@ This allows for a more efficient conversion to builder, because we
 don't need to escape.
 
 ```haskell
-div_ (Raw "abc")
+Div :> Raw "abc"
 ```
 
 If you've got numeric attributes or contents, don't convert it to a
@@ -275,16 +263,16 @@ This allows for a more efficient conversion to builder, because we
 don't need to escape and don't need to handle utf8.
 
 ```haskell
-div_ (42 :: Int)
+Div :> (42 :: Int)
 ```
 
-If you know that an attribute or content is empty, use `()`.
+If you know that an attribute or child is empty, use `()` or omit it altogether.
 
 This allows for more compile time appending and avoids two runtime
 appends.
 
 ```haskell
-div_ ()
+Div :> ()
 ```
 
 If you know for sure a string at compile time which doesn't need
@@ -294,7 +282,7 @@ This allows for more compile time appending and avoids two runtime
 appends, escaping and conversion to a builder.
 
 ```haskell
-div_ (Proxy @"hello")
+Div :> (Proxy @"hello")
 ```
 
 These techniques can have dramatic performance implications,
@@ -322,11 +310,14 @@ technique is slower.
 
 import Html
 
-test x y = div_ "Hello, my name is: " # x # "I'm of age: " # y
+test x y = Div :> ("Hello, my name is: " # x)
+         # Div :> ("I'm of age: " # y)
 
+-- It is important that your CompactHTML is a top-level value.
 myDoc :: CompactHTML ["name", "age"]
-myDoc = compactHTML (test (V @"name") (V @"age"))
+myDoc = compactHTML $ test (V @"name") (V @"age")
 
+main :: IO ()
 main = putStrLn $ renderCompactString myDoc (Put "Bob") (Put (42 :: Int))
 ```
 
@@ -363,38 +354,36 @@ import Data.Text.Lazy.IO as TL
 main :: IO ()
 main = TL.putStrLn $ renderText example
 
-example =
-  html_
-    ( body_
-      ( h1_
-        ( img_
-        # strong_ "foo"
-        )
-      # div_
-        ( div_ "bar"
-        )
-      # div_
-        ( form_
-          ( fieldset_
-            ( div_
-              ( div_
-                ( label_ "zot"
-                # select_
-                  ( option_ 'b'
-                  # option_ 'c'
-                  )
-                # map div_ [1..5 :: Int]
-                )
+example
+  = Html
+  :> ( Body
+     :> ( H1
+        :> ( Img
+           # Strong :> "foo"
+           )
+        # Div :> Div :> "bar"
+        # Div
+        :> ( Form
+           :> ( Fieldset
+              :> ( Div
+                 :> ( Div
+                    :> ( Label :> "zot"
+                       # Select
+                       :> ( Option :> 'b'
+                          # Option :> 'c'
+                          )
+                       # map (Div :>) [1..5 :: Int]
+                       )
+                    )
+                 # Button :> I
+                 )
               )
-            # button_ (i_ ())
-            )
-          )
+           )
         )
-      )
-    )
+     )
 ```
 
-## Custom Attributes
+## Custom Attributes and Elements
 
 You can define your own attributes, for example data-* or htmx. These
 custom attributes reside as well 100% at the type level and don't
@@ -402,24 +391,41 @@ incur any performance penalty. Beware that it is up to you to choose a
 valid attribute name.
 
 ```haskell
-{-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds #-}
 
 module Main where
 
 import Html
-import qualified Html.Attribute as A
 
-dataName_ :: a -> 'CustomA "data-name" := a
-dataName_ = A.custom_
+dataName :: Attribute
+            "data-name"  -- name for rendering
+            'True         -- global attribute
+            'False        -- not a boolean attribute
+dataName = CustomA
 
 main :: IO ()
-main = print $ div_A (dataName_ "foo") "bar"
+main = print $ Div :@ dataName:="foo" :> "bar"
 ```
 
-I'd recommend that you put all your custom attributes in one module
-which reexports Html.Attribute, so you can just qualified import your
-module and have an uniform naming scheme.
+And you can define your custom elements:
+
+```haskell
+{-# LANGUAGE DataKinds #-}
+
+module Main where
+
+import Html
+
+banana :: Element
+          "banana"          -- name for rendering
+          '[Flow, Phrasing] -- content categories
+          Flow              -- content model
+          '["async", "for"] -- allowed attributes besides global attributes
+banana = CustomElement
+
+main :: IO ()
+main = print $ banana :@ AsyncA:="foo" :> "bar"
+```
 
 ## FAQ
 
