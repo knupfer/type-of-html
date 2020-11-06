@@ -18,6 +18,8 @@ module Html.Type
   , Variables
   , Document
   , Compactable
+  , ContentCategory(..)
+  , type (&)
   ) where
 
 import Html.Type.Internal

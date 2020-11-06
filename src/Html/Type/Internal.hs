@@ -203,8 +203,64 @@ type GlobalAttributes
   & OnwaitingA
   & OnwheelA
 
-  -- ... aria ?
-  -- ... data ?
+  & AriaAttributes
+
+type AriaAttributes
+  = RoleA
+
+  & AriaActivedescendantA
+  & AriaAtomicA
+  & AriaAutocompleteA
+  & AriaBraillelableA
+  & AriaBrailleroledescriptionA
+  & AriaBusyA
+  & AriaCheckedA
+  & AriaColcountA
+  & AriaColindexA
+  & AriaColindextextA
+  & AriaColspanA
+  & AriaControlsA
+  & AriaCurrentA
+  & AriaDescribedbyA
+  & AriaDescriptionA
+  & AriaDetailsA
+  & AriaDisabledA
+  & AriaDropeffectA
+  & AriaErrormessageA
+  & AriaExpandedA
+  & AriaFlowtoA
+  & AriaGrabbedA
+  & AriaHaspopupA
+  & AriaHiddenA
+  & AriaInvalidA
+  & AriaKeyshortcutsA
+  & AriaLabelA
+  & AriaLabelledByA
+  & AriaLevelA
+  & AriaLiveA
+  & AriaModalA
+  & AriaMultilineA
+  & AriaMultiselectableA
+  & AriaOrientationA
+  & AriaOwnsA
+  & AriaPlaceholderA
+  & AriaPosinsetA
+  & AriaPressedA
+  & AriaReadonlyA
+  & AriaRelevantA
+  & AriaRequiredA
+  & AriaRoledescriptionA
+  & AriaRowcountA
+  & AriaRowindexA
+  & AriaRowindextextA
+  & AriaRowspanA
+  & AriaSelectedA
+  & AriaSetsizeA
+  & AriaSortA
+  & AriaValuemaxA
+  & AriaValueminA
+  & AriaValuenowA
+  & AriaValuetextA
   & '[]
 
 
