@@ -65,7 +65,7 @@ renderByteString = BE.toLazyByteStringWith
   ) BL.empty . renderBuilder
 
 renderCompactHTML :: Retrievable a => (Builder -> f) -> CompactHTML a -> Retrieve f a
-renderCompactHTML = retrieve mempty
+renderCompactHTML = retrieve id
 
 -- | Render a compacted html document to a Builder.
 renderCompactBuilder :: Retrievable a => CompactHTML a -> Retrieve Builder a
@@ -102,7 +102,7 @@ compactHTML html
             go _ = []
             f = BL.toStrict . toLazyByteString . unConv . mconcat . lefts
     indexVar :: forall a. Compactable a => a -> String -> Int
-    indexVar _ s = fromJust (elemIndex s (showTypeList @ (Reverse (Variables a))))
+    indexVar _ s = fromJust (elemIndex s (showTypeList @ (Variables a)))
 
 -- | Show instances to faciliate ghci development.
 instance Document (a := b) => Show (a := b) where show = renderString

@@ -321,6 +321,17 @@ main :: IO ()
 main = putStrLn $ renderCompactString myDoc (Put "Bob") (Put (42 :: Int))
 ```
 
+You can easily investigate your CompactHTML in ghci thanks to a colorful prettified show instance:
+
+```haskell
+>>> myDoc
+"<div>Hello, my name is: "
+name
+"</div><div>I&#39;m of age: "
+age
+"</div>"
+```
+
 ## Comparision to lucid and blaze-html
 
 Advantages of `type-of-html`:

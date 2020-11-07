@@ -29,7 +29,7 @@ import Data.Semigroup ((<>), Semigroup)
 
 import qualified Data.Sequence as S
 
-type Compactable' a = (ShowTypeList (Reverse (Variables a)), R 'True (T (ToList a) a))
+type Compactable' a = (ShowTypeList (Variables a), R 'True (T (ToList a) a))
 
 -- | Constraint for compactable html documents.  It's a type family to avoid an
 -- error about FlexibleContexts and a warning about MonoLocalBinds.
@@ -45,13 +45,13 @@ type family Retrieve f xs where
 
 -- | List of Symbols for which a render function can be created.
 class Retrievable a where
-  retrieve :: [Builder] -> (Builder -> f) -> CompactHTML a -> Retrieve f a
+  retrieve :: ([Builder] -> [Builder]) -> (Builder -> f) -> CompactHTML a -> Retrieve f a
 
 instance (KnownSymbol x, Retrievable xs) => Retrievable (x ': xs) where
-  retrieve m f (MkCompactHTML c1 c2) (Put x) = retrieve (unConv (convert x) : m) f (MkCompactHTML @ xs c1 c2)
+  retrieve m f (MkCompactHTML c1 c2) (Put x) = retrieve (m . (unConv (convert x) :)) f (MkCompactHTML @ xs c1 c2)
 
 instance Retrievable '[] where
-  retrieve m f (MkCompactHTML bs is) = f $ byteString bs <> foldMap (\(i,b) -> m !! i <> byteString b) is
+  retrieve m f (MkCompactHTML bs is) = f $ byteString bs <> foldMap (\(i,b) -> m [] !! i <> byteString b) is
 
 type Document' a = R 'False (T (ToList a) a)
 

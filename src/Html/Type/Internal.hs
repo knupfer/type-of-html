@@ -1491,8 +1491,14 @@ newtype One a = One a
 -- | Unique set of variables in a html document in the order of occurence.
 type Variables a = Dedupe (GetV a)
 
--- | A compacted html documented with it's variables annoted as a list of Symbols.
-data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)] deriving Show
+-- | A compacted html documented with it's variables annoted as a list
+-- of Symbols.  It's Show instance is quite useful for developping: It
+-- highlights variables and renders the rest of the html.
+data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)]
+
+instance ShowTypeList a => Show (CompactHTML a) where
+  show (MkCompactHTML bs xs) = show bs <> foldMap (\(i,b) -> "\n\ESC[36m" <> vars !! i <> "\ESC[0m\n" <> show b) xs
+    where vars = showTypeList @ a
 
 type family GetV a :: [Symbol] where
   GetV (a # b)       = Append (GetV a) (GetV b)
@@ -1504,13 +1510,6 @@ type family GetV a :: [Symbol] where
   GetV (Either a b)  = Append (GetV a) (GetV b)
   GetV (V v)         = '[v]
   GetV x             = '[]
-
-type family Reverse xs where
-  Reverse xs = Reverse' xs '[]
-
-type family Reverse' xs ys where
-  Reverse' (x':xs) ys = Reverse' xs (x':ys)
-  Reverse' '[] ys = ys
 
 type family Dedupe xs :: [Symbol] where
   Dedupe (x ': xs) = x ': Dedupe (Delete x xs)
