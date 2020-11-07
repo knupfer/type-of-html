@@ -426,7 +426,8 @@ Disadvantages of 'type-of-html':
 - a bit noisy syntax (don't write types!)
 - sometimes unusual type error messages
 - compile times (30sec for a medium sized page, with `-O0` only ~2sec)
-- needs at least ghc 8
+- needs at least ghc 8.2
+- you may need to specify {-# OPTIONS_GHC -freduction-depth=0 #-}
 
 I'd generally recommend that you put your documents into an extra
 module to avoid frequent recompilations.  Additionally you can use
