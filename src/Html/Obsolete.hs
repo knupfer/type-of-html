@@ -3,9 +3,9 @@
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE PolyKinds     #-}
 
-module Html.Element.Obsolete where
+module Html.Obsolete where
 
-import Html.Type.Internal
+import Html.Type
 
 -- | Functions to create obsolete html elements.
 --
