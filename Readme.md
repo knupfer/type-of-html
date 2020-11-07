@@ -332,6 +332,89 @@ age
 "</div>"
 ```
 
+## Custom Attributes and Elements
+
+You can define your own attributes, for example data-* or htmx. These
+custom attributes reside as well 100% at the type level and don't
+incur any performance penalty. Beware that it is up to you to choose a
+valid attribute name.
+
+```haskell
+{-# LANGUAGE DataKinds #-}
+
+module Main where
+
+import Html
+
+dataName :: Attribute
+            "data-name"  -- name for rendering
+            'True         -- global attribute
+            'False        -- not a boolean attribute
+dataName = CustomA
+
+main :: IO ()
+main = print $ Div :@ dataName:="foo" :> "bar"
+```
+
+And you can define your custom elements:
+
+```haskell
+{-# LANGUAGE DataKinds #-}
+
+module Main where
+
+import Html
+
+banana :: Element
+          "banana"          -- name for rendering
+          '[Flow, Phrasing] -- content categories
+          Flow              -- content model
+          '["async", "for"] -- allowed attributes besides global attributes
+banana = CustomElement
+
+main :: IO ()
+main = print $ banana :@ AsyncA:="foo" :> "bar"
+```
+
+## Notation
+
+If you want a bit cleaner notation which resembles blaze, you can use
+the language pragma rebindable syntax:
+
+```haskell
+{-# OPTIONS_GHC -fno-warn-missing-signatures -fno-warn-unused-do-bind -fno-warn-name-shadowing #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE RebindableSyntax #-}
+
+import Prelude
+import Html
+
+main :: IO ()
+main = print $
+  Html :> do
+    Body :> do
+      H1 :@ IdA:="a" :> do
+        Img
+        Strong :@ ClassA:="b" :> (0 :: Int)
+      Div :> do
+        Div :@ IdA:="c" :> (1 :: Int)
+      Div :> do
+        Form :@ ClassA:="d" :> do
+          Fieldset :> do
+            Div :@ IdA:="e" :> do
+              Div :> do
+                Label :@ ClassA:="f" :> "a"
+                Select :> do
+                  Option :@ IdA:="g" :> "b"
+                  Option :> "c"
+                Div :@ ClassA:="h" :> "d"
+              I :> "a"
+            Button :@ IdA:="i" :> do
+              I :> "e"
+  where
+    (>>) = (#)
+```
+
 ## Comparision to lucid and blaze-html
 
 Advantages of `type-of-html`:
@@ -392,50 +475,6 @@ example
            )
         )
      )
-```
-
-## Custom Attributes and Elements
-
-You can define your own attributes, for example data-* or htmx. These
-custom attributes reside as well 100% at the type level and don't
-incur any performance penalty. Beware that it is up to you to choose a
-valid attribute name.
-
-```haskell
-{-# LANGUAGE DataKinds #-}
-
-module Main where
-
-import Html
-
-dataName :: Attribute
-            "data-name"  -- name for rendering
-            'True         -- global attribute
-            'False        -- not a boolean attribute
-dataName = CustomA
-
-main :: IO ()
-main = print $ Div :@ dataName:="foo" :> "bar"
-```
-
-And you can define your custom elements:
-
-```haskell
-{-# LANGUAGE DataKinds #-}
-
-module Main where
-
-import Html
-
-banana :: Element
-          "banana"          -- name for rendering
-          '[Flow, Phrasing] -- content categories
-          Flow              -- content model
-          '["async", "for"] -- allowed attributes besides global attributes
-banana = CustomElement
-
-main :: IO ()
-main = print $ banana :@ AsyncA:="foo" :> "bar"
 ```
 
 ## FAQ

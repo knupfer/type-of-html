@@ -95,7 +95,8 @@ blazePageA x =
                   B.option "c"
                 B.div ! BA.class_ "h" $ "d"
               B.i x
-            B.button ! BA.id "i" $ B.i "e"
+            B.button ! BA.id "i" $ do
+              B.i "e"
 
 blazeTable :: (Int, Int) -> B.Html
 blazeTable (n, m)

@@ -1,9 +1,11 @@
-{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -fno-warn-missing-signatures -fno-warn-unused-do-bind -fno-warn-name-shadowing #-}
 
 {-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE RebindableSyntax #-}
 
 module Medium where
 
+import Prelude
 import Html
 
 helloWorld x
@@ -74,25 +76,27 @@ attrLong x =
        # TitleA           := x
        ) :> "m"
 
-pageA x = Html :> Body
-  :> ( H1 :@ IdA:="a"
-     :> ( Img
-        # Strong :@ ClassA:="b" :> (0 :: Int)
-        )
-     # Div :> Div :@ IdA:="c" :> (1 :: Int)
-     # Div :> Form :@ ClassA:="d" :> Fieldset
-     :> ( Div :@ IdA:="e"
-        :> ( Div
-           :> ( Label :@ ClassA:="f" :> "h"
-              # Select
-              :> ( Option :@ IdA:="i" :> "j"
-                 # Option :> "k"
-                 )
-              # Div :@ ClassA:="l" :> "m"
-              )
-           # I :> x
-           )
-        # Button :@ IdA:="n" :> I :> "o"
-        )
-     )
+pageA x =
+  Html :> do
+    Body :> do
+      H1 :@ IdA:="a" :> do
+        Img
+        Strong :@ ClassA:="b" :> (0 :: Int)
+      Div :> do
+        Div :@ IdA:="c" :> (1 :: Int)
+      Div :> do
+        Form :@ ClassA:="d" :> do
+          Fieldset :> do
+            Div :@ IdA:="e" :> do
+              Div :> do
+                Label :@ ClassA:="f" :> "a"
+                Select :> do
+                  Option :@ IdA:="g" :> "b"
+                  Option :> "c"
+                Div :@ ClassA:="h" :> "d"
+              I :> x
+            Button :@ IdA:="i" :> do
+              I :> "e"
+  where
+    (>>) = (#)
 
