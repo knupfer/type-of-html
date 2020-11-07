@@ -437,46 +437,23 @@ efficient representation.
 
 ## Example usage
 
-```haskell
-{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+If you'd like to see a full fledged example, go to following module
+from the benchmarks of this library:
+[Example](https://github.com/knupfer/type-of-html/bench/ExampleTypeOfHtml.hs)
+It is a verbatim implementation of the source of
+http://hackage.haskell.org/upload
 
-module Main where
+If you wish, you can compare the clarity of the code with an
+implementation in blaze:
+[Example](https://github.com/knupfer/type-of-html/bench/ExampleBlaze.hs)
 
-import Html
+I'd argue that the source code in `type-of-html` has some visual advantages:
+- qualified imports aren't needed
+- it's more consistent, e.g. no spurious underscores (e.g. `rel_` vs `ref`)
+- clearer distinction between data and functions, in `type-of-html`
+  elements and attributes are capitalized
 
-import Data.Text.Lazy.IO as TL
-
-main :: IO ()
-main = TL.putStrLn $ renderText example
-
-example
-  = Html
-  :> ( Body
-     :> ( H1
-        :> ( Img
-           # Strong :> "foo"
-           )
-        # Div :> Div :> "bar"
-        # Div
-        :> ( Form
-           :> ( Fieldset
-              :> ( Div
-                 :> ( Div
-                    :> ( Label :> "zot"
-                       # Select
-                       :> ( Option :> 'b'
-                          # Option :> 'c'
-                          )
-                       # map (Div :>) [1..5 :: Int]
-                       )
-                    )
-                 # Button :> I
-                 )
-              )
-           )
-        )
-     )
-```
+Note that the type of `hackageUpload` is quite big (about 1kLOC of type signature), so don't even bother to ask ghci :).
 
 ## FAQ
 

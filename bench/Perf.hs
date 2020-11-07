@@ -9,10 +9,12 @@ module Main where
 
 import Html
 
-import qualified Blaze          as BL
-import qualified Small          as S
-import qualified Medium         as M
-import qualified Big            as B
+import qualified Blaze             as BL
+import qualified ExampleBlaze      as BL
+import qualified Small             as S
+import qualified Medium            as M
+import qualified Big               as B
+import qualified ExampleTypeOfHtml as ET
 
 import Criterion.Main
 import Data.String
@@ -133,6 +135,11 @@ comparison = bgroup "Comparison"
     [ bench "blaze-html"   $ nf (renderHtml . (\x -> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x)) (fromString "TEST")
     , bench "type-of-html" $ nf (renderByteString . (\x -> M.pageA x # M.pageA x # M.pageA x # M.pageA x)) "TEST"
     , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x"))) (Put "TEST")
+    ]
+  , bgroup "[2020-11-07] http://hackage.haskell.org/upload"
+    [ bench "blaze-html"   $ nf (renderHtml . BL.hackageUpload) (fromString "Uploading packages and package candidates | Hackage")
+    , bench "type-of-html" $ nf (renderByteString . ET.hackageUpload) "Uploading packages and package candidates | Hackage"
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ ET.hackageUpload (V @ "x"))) (Put "Uploading packages and package candidates | Hackage")
     ]
   ]
 

@@ -104,4 +104,3 @@ blazeTable (n, m)
   . replicateM_ n
   . B.tr
   $ mapM_ (B.td . B.toHtml) [1..m]
-
