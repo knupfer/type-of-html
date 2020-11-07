@@ -159,12 +159,19 @@ Remember this benchmark from `blaze-html`?
 
 This is comparing blaze with `type-of-html`:
 
-![type-of-html](https://user-images.githubusercontent.com/5609565/37879227-765df128-3075-11e8-9270-3839ce1852c8.png)
+![type-of-html](https://user-images.githubusercontent.com/5609565/98452828-48a97780-2153-11eb-8e6c-2981c69e7d0d.png)
 
 To look at the exact code of this benchmark look into the repo.  The
-big table benchmark here is only a 4x4 table. Using a 1000x10 table
-like on the blaze homepage yields even better relative performance (~9
-times faster), but would make the other benchmarks unreadable.
+big table benchmark here is only a 50x10 table. Using a 1000x10 table
+like on the blaze homepage yields even better relative performance,
+but would make the other benchmarks unreadable. The synthetic page is
+just a small page with a lot of elements and a lot of attributes but
+with minimal text. The hackage upload benchmark is a rendering of
+https://http://hackage.haskell.org/upload which contains a lot of text.
+
+Note how the `compactHTML` rendering is about 150 times faster than
+blaze for the real world case. Look below for the explanation of the
+difference between `type-of-html` and `compactHTML`.
 
 How is this possible? We supercompile lots of parts of the generation
 process. This is possible thanks to the new features of GHC 8.2:
