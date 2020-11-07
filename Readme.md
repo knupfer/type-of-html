@@ -446,13 +446,16 @@ efficient representation.
 
 If you'd like to see a full fledged example, go to following module
 from the benchmarks of this library:
-[Example](https://github.com/knupfer/type-of-html/bench/ExampleTypeOfHtml.hs)
+
+[Example](https://github.com/knupfer/type-of-html/tree/master/bench/ExampleTypeOfHtml.hs)
+
 It is a verbatim implementation of the source of
 http://hackage.haskell.org/upload
 
 If you wish, you can compare the clarity of the code with an
 implementation in blaze:
-[Example](https://github.com/knupfer/type-of-html/bench/ExampleBlaze.hs)
+
+[Example](https://github.com/knupfer/type-of-html/tree/master/bench/ExampleBlaze.hs)
 
 I'd argue that the source code in `type-of-html` has some visual advantages:
 - qualified imports aren't needed
