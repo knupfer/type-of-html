@@ -1,5 +1,11 @@
 # Revision history for type-of-html
 
+## 1.6.1.0  -- 2020-11-07
+
+* visual fixes
+* benchmark cleanup
+* added example
+
 ## 1.6.0.0  -- 2020-11-06
 
 * major overhaul
