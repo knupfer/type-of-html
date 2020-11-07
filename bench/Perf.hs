@@ -13,7 +13,6 @@ import qualified Blaze             as BL
 import qualified ExampleBlaze      as BL
 import qualified Small             as S
 import qualified Medium            as M
-import qualified Big               as B
 import qualified ExampleTypeOfHtml as ET
 
 import Criterion.Main
@@ -26,14 +25,13 @@ import qualified Data.Text.Lazy   as LT
 import qualified Data.Text        as T
 
 #if __GLASGOW_HASKELL__ <= 802
-import Data.Semigroup ((<>), Semigroup)
+import Data.Semigroup ((<>))
 #endif
 
 main :: IO ()
 main = defaultMain
   [ small
   , medium
-  , big
   , comparison
   , scaling
   ]
@@ -73,7 +71,6 @@ medium = bgroup "Medium"
   , bench "randomStrictTextRaw" $ nf renderByteString randomStrictTextRaw
   , bench "randomLazyText"      $ nf renderByteString randomLazyText
   , bench "randomLazyTextRaw"   $ nf renderByteString randomLazyTextRaw
-  , bench "table"               $ nf (renderByteString . M.table) (2,2)
   , bench "page"                $ nf (renderByteString . M.page) "medium"
   , bench "pageA"               $ nf (renderByteString . M.pageA) "medium"
   , bench "attrShort"           $ nf (renderByteString . M.attrShort) "medium"
@@ -104,39 +101,18 @@ randomLazyText = unsafePerformIO $ LT.pack . take 250 . randoms <$> newStdGen
 randomLazyTextRaw :: Raw LT.Text
 randomLazyTextRaw = unsafePerformIO $ Raw . LT.pack . take 250 . randoms <$> newStdGen
 
-big :: Benchmark
-big = bgroup "Big"
-  [ bench "table"  $ nf (renderByteString . M.table) (15,15)
-  , bench "page"   $ nf (renderByteString . B.page) "big"
-  ]
-
 comparison :: Benchmark
 comparison = bgroup "Comparison"
-  [ bgroup "hello world"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeHelloWorld) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . M.helloWorld) "TEST"
-    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.helloWorld (V @ "x"))) (Put "TEST")
-    ]
-  , bgroup "table"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeTable) (4,4)
-    , bench "type-of-html" $ nf (renderByteString . M.table) (4,4)
-    ]
-  , bgroup "small page"
-    [ bench "blaze-html"   $ nf (renderHtml . BL.blazePageA) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . M.pageA) "TEST"
-    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x"))) (Put "TEST")
-    ]
-  , bgroup "medium page"
-    [ bench "blaze-html"   $ nf (renderHtml . (\x -> BL.blazePageA x <> BL.blazePageA x)) (fromString "TEST")
-    , bench "type-of-html" $ nf (renderByteString . (\x -> M.pageA x # M.pageA x)) "TEST"
-    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x") # M.pageA (V @ "x"))) (Put "TEST")
-    ]
-  , bgroup "big page"
+  [ bgroup "synthetic page"
     [ bench "blaze-html"   $ nf (renderHtml . (\x -> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x)) (fromString "TEST")
     , bench "type-of-html" $ nf (renderByteString . (\x -> M.pageA x # M.pageA x # M.pageA x # M.pageA x)) "TEST"
     , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x"))) (Put "TEST")
     ]
-  , bgroup "[2020-11-07] http://hackage.haskell.org/upload"
+  , bgroup "table 50x10"
+    [ bench "blaze-html"   $ nf (renderHtml . BL.blazeTable) (50,10)
+    , bench "type-of-html" $ nf (renderByteString . M.table) (50,10)
+    ]
+  , bgroup "hackage upload"
     [ bench "blaze-html"   $ nf (renderHtml . BL.hackageUpload) (fromString "Uploading packages and package candidates | Hackage")
     , bench "type-of-html" $ nf (renderByteString . ET.hackageUpload) "Uploading packages and package candidates | Hackage"
     , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ ET.hackageUpload (V @ "x"))) (Put "Uploading packages and package candidates | Hackage")

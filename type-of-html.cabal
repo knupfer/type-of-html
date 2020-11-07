@@ -26,7 +26,7 @@ library
   exposed-modules:    Html
                     , Html.Type
                     , Html.Convert
-                    , Html.Element.Obsolete
+                    , Html.Obsolete
   other-modules:      Html.Type.Internal
                     , Html.Reify
   hs-source-dirs:     src
@@ -76,7 +76,7 @@ benchmark alloc
   main-is:            Alloc.hs
   other-modules:      Small
                     , Medium
-                    , Big
+                    , ExampleTypeOfHtml
   hs-source-dirs:     bench
   ghc-options:        -Wall -O2
   default-language:   Haskell2010
@@ -92,7 +92,6 @@ benchmark perf
   main-is:            Perf.hs
   other-modules:      Small
                     , Medium
-                    , Big
                     , Blaze
                     , ExampleBlaze
                     , ExampleTypeOfHtml
