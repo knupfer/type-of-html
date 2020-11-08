@@ -167,7 +167,7 @@ like on the blaze homepage yields even better relative performance,
 but would make the other benchmarks unreadable. The synthetic page is
 just a small page with a lot of elements and a lot of attributes but
 with minimal text. The hackage upload benchmark is a rendering of
-https://http://hackage.haskell.org/upload which contains a lot of text.
+https://hackage.haskell.org/upload which contains a lot of text.
 
 Note how the `compactHTML` rendering is about 150 times faster than
 blaze for the real world case. Look below for the explanation of the
