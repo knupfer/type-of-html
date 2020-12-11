@@ -106,7 +106,7 @@ comparison = bgroup "Comparison"
   [ bgroup "synthetic page"
     [ bench "blaze-html"   $ nf (renderHtml . (\x -> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x <> BL.blazePageA x)) (fromString "TEST")
     , bench "type-of-html" $ nf (renderByteString . (\x -> M.pageA x # M.pageA x # M.pageA x # M.pageA x)) "TEST"
-    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x") # M.pageA (V @ "x"))) (Put "TEST")
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ M.pageA (V @"x") # M.pageA (V @"x") # M.pageA (V @"x") # M.pageA (V @"x"))) (Put "TEST")
     ]
   , bgroup "table 50x10"
     [ bench "blaze-html"   $ nf (renderHtml . BL.blazeTable) (50,10)
@@ -115,7 +115,7 @@ comparison = bgroup "Comparison"
   , bgroup "hackage upload"
     [ bench "blaze-html"   $ nf (renderHtml . BL.hackageUpload) (fromString "Uploading packages and package candidates | Hackage")
     , bench "type-of-html" $ nf (renderByteString . ET.hackageUpload) "Uploading packages and package candidates | Hackage"
-    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ ET.hackageUpload (V @ "x"))) (Put "Uploading packages and package candidates | Hackage")
+    , bench "compactHTML"  $ nf (renderCompactByteString (compactHTML $ ET.hackageUpload (V @"x"))) (Put "Uploading packages and package candidates | Hackage")
     ]
   ]
 
@@ -123,23 +123,23 @@ scaling :: Benchmark
 scaling = bgroup "Scaling"
   [ bgroup "2 divs"
     [ bench "normal" $ nf (renderByteString . divs2) "input"
-    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs2 (V @ "x")) (Put "input")
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs2 (V @"x")) (Put "input")
     ]
   , bgroup "4 divs"
     [ bench "normal" $ nf (renderByteString . divs4) "input"
-    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs4 (V @ "x")) (Put "input")
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs4 (V @"x")) (Put "input")
     ]
   , bgroup "8 divs"
     [ bench "normal" $ nf (renderByteString . divs8) "input"
-    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs8 (V @ "x")) (Put "input")
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs8 (V @"x")) (Put "input")
     ]
   , bgroup "16 divs"
     [ bench "normal" $ nf (renderByteString . divs16) "input"
-    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs16 (V @ "x")) (Put "input")
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs16 (V @"x")) (Put "input")
     ]
   , bgroup "32 divs"
     [ bench "normal" $ nf (renderByteString . divs32) "input"
-    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs32 (V @ "x")) (Put "input")
+    , bench "compact" $ nf (renderCompactByteString . compactHTML $ divs32 (V @"x")) (Put "input")
     ]
   ]
   where

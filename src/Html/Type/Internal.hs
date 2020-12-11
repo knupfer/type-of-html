@@ -1498,7 +1498,7 @@ data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)]
 
 instance ShowTypeList a => Show (CompactHTML a) where
   show (MkCompactHTML bs xs) = show bs ++ foldMap (\(i,b) -> "\n\ESC[36m" ++ vars !! i ++ "\ESC[0m\n" ++ show b) xs
-    where vars = showTypeList @ a
+    where vars = showTypeList @a
 
 type family GetV a :: [Symbol] where
   GetV (a # b)       = Append (GetV a) (GetV b)
@@ -1524,7 +1524,7 @@ class ShowTypeList a where
   showTypeList :: [String]
 
 instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList (x ': xs) where
-  showTypeList = symbolVal (Proxy @ x) : showTypeList @ xs
+  showTypeList = symbolVal (Proxy @x) : showTypeList @xs
 
 instance ShowTypeList '[] where
   showTypeList = []

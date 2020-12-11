@@ -46,7 +46,7 @@ import qualified Data.Text.Lazy.Encoding       as T
 
 -- | Render a html document to a Builder.
 renderBuilder :: Document a => a -> Builder
-renderBuilder = unConv . (render @ 'False . (T :: a -> T (ToList a) a))
+renderBuilder = unConv . (render @'False . (T :: a -> T (ToList a) a))
 
 -- | Render a html document to a String.
 renderString :: Document a => a -> String
@@ -92,7 +92,7 @@ compactHTML html
   = uncurry MkCompactHTML
   . concatEithers
   . toList
-  . render @ 'True
+  . render @'True
   $ (T :: a -> T (ToList a) a) html
   where
     concatEithers :: [Either Converted String] -> (B.ByteString, [(Int, B.ByteString)])
@@ -102,7 +102,7 @@ compactHTML html
             go _ = []
             f = BL.toStrict . toLazyByteString . unConv . mconcat . lefts
     indexVar :: forall a. Compactable a => a -> String -> Int
-    indexVar _ s = fromJust (elemIndex s (showTypeList @ (Variables a)))
+    indexVar _ s = fromJust (elemIndex s (showTypeList @(Variables a)))
 
 -- | Show instances to faciliate ghci development.
 instance Document (a := b) => Show (a := b) where show = renderString

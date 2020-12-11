@@ -48,7 +48,7 @@ class Retrievable a where
   retrieve :: ([Builder] -> [Builder]) -> (Builder -> f) -> CompactHTML a -> Retrieve f a
 
 instance (KnownSymbol x, Retrievable xs) => Retrievable (x ': xs) where
-  retrieve m f (MkCompactHTML c1 c2) (Put x) = retrieve (m . (unConv (convert x) :)) f (MkCompactHTML @ xs c1 c2)
+  retrieve m f (MkCompactHTML c1 c2) (Put x) = retrieve (m . (unConv (convert x) :)) f (MkCompactHTML @xs c1 c2)
 
 instance Retrievable '[] where
   retrieve m f (MkCompactHTML bs is) = f $ byteString bs <> foldMap (\(i,b) -> m [] !! i <> byteString b) is
@@ -77,7 +77,7 @@ instance Convert s
 instance {-# INCOHERENT #-}
   KnownSymbol n =>
   R 'True (T '[ "" ] (V n)) where
-  render _ = pure (Right (symbolVal (Proxy @ n)))
+  render _ = pure (Right (symbolVal (Proxy @n)))
 
 -- | Common instances
 
@@ -95,21 +95,21 @@ instance
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] (a := b)) where
-  render (T (_ := x)) = render (One (Proxy @ s)) <> render (T x :: T '[ "" ] b)
+  render (T (_ := x)) = render (One (Proxy @s)) <> render (T x :: T '[ "" ] b)
 
 instance {-# INCOHERENT #-}
   ( R u (T '[ "" ] val)
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] val) where
-  render (T x) = render (One (Proxy @ s)) <> render (T x :: T '[ "" ] val)
+  render (T x) = render (One (Proxy @s)) <> render (T x :: T '[ "" ] val)
 
 instance {-# OVERLAPPING #-}
   ( R u (One (Proxy s))
   , R u (One String)
   , Semigroup (RenderOutput u)
   ) => R u (T '[s] String) where
-  render (T x) = render (One (Proxy @ s)) <> render (One x)
+  render (T x) = render (One (Proxy @s)) <> render (One x)
 
 instance {-# OVERLAPPING #-}
   ( R u (T xs val)
@@ -121,7 +121,7 @@ instance
   , R u (One (Proxy x))
   , Semigroup (RenderOutput u)
   ) => R u (T ('List xs x) val) where
-  render (T t) = render (T t :: T xs val) <> render (One (Proxy @ x))
+  render (T t) = render (T t :: T xs val) <> render (One (Proxy @x))
 
 instance
   ( R u (T (Take (Length a) ps) a)
@@ -160,7 +160,7 @@ instance
   , Monoid (RenderOutput u)
   ) => R u (T (s ': ss) [a]) where
   render (T xs)
-    = render (One (Proxy @ s))
+    = render (One (Proxy @s))
     <> foldMap (render . (T :: a -> T (ToList a) a)) xs
 
 instance
@@ -170,7 +170,7 @@ instance
   , Monoid (RenderOutput u)
   ) => R u (T (s ': ss) (Maybe a)) where
   render (T mx)
-    = render (One (Proxy @ s))
+    = render (One (Proxy @s))
     <> foldMap (render . (T :: a -> T (ToList a) a)) mx
 
 instance
@@ -180,5 +180,5 @@ instance
   , Semigroup (RenderOutput u)
   ) => R u (T (s ': ss) (Either a b)) where
   render (T eab)
-    = render (One (Proxy @ s))
+    = render (One (Proxy @s))
     <> either (render . (T :: a -> T (ToList a) a)) (render . (T :: b -> T (ToList b) b)) eab
