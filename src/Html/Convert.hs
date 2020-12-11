@@ -16,7 +16,7 @@ import Data.String
 import Data.Char (ord)
 import Data.Double.Conversion.ByteString
 import Numeric.Natural
-import GHC.Exts
+import GHC.Exts (Int(..), Addr#, ord#, indexCharOffAddr#, build)
 import GHC.TypeLits
 import GHC.CString (unpackCString#, unpackCStringUtf8#, unpackFoldrCString#)
 
