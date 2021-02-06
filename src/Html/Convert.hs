@@ -16,9 +16,9 @@ import Data.String
 import Data.Char (ord)
 import Data.Double.Conversion.ByteString
 import Numeric.Natural
-import GHC.Exts (Int(..), Addr#, ord#, indexCharOffAddr#, build)
+import GHC.Exts
 import GHC.TypeLits
-import GHC.CString (unpackCString#, unpackCStringUtf8#, unpackFoldrCString#)
+import GHC.CString (unpackCString#, unpackFoldrCString#)
 
 import qualified Data.Semigroup                   as S
 import qualified Data.Monoid                      as M
@@ -78,12 +78,13 @@ class Convert a where
 instance KnownSymbol a => Convert (Proxy a) where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . fromString . symbolVal
 
 instance Convert ()              where {-# INLINE convert #-}; convert = const mempty
+instance Convert Converted       where {-# INLINE convert #-}; convert = id
 instance Convert (Raw Char)      where {-# INLINE convert #-}; convert = Converted . B.charUtf8 . fromRaw
-instance Convert (Raw String)    where {-# INLINE convert #-}; convert = stringConvRaw . fromRaw
+instance Convert (Raw String)    where {-# INLINE convert #-}; convert = Converted . fromString . fromRaw
 instance Convert (Raw T.Text)    where {-# INLINE convert #-}; convert = Converted . T.encodeUtf8Builder . fromRaw
 instance Convert (Raw TL.Text)   where {-# INLINE convert #-}; convert = Converted . TL.encodeUtf8Builder . fromRaw
 instance Convert (Raw B.Builder) where {-# INLINE convert #-}; convert = Converted . fromRaw
-instance Convert Char            where {-# INLINE convert #-}; convert = Converted . BP.primBounded escapeUtf8
+instance Convert Char            where {-# INLINE convert #-}; convert = convert . T.singleton
 instance Convert String          where {-# INLINE convert #-}; convert = stringConv
 instance Convert T.Text          where {-# INLINE convert #-}; convert = Converted . T.encodeUtf8BuilderEscaped escape
 instance Convert TL.Text         where {-# INLINE convert #-}; convert = Converted . TL.encodeUtf8BuilderEscaped escape
@@ -94,41 +95,9 @@ instance Convert Float           where {-# INLINE convert #-}; convert = Convert
 instance Convert Double          where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . toShortest
 instance Convert Word            where {-# INLINE convert #-}; convert = Converted . B.wordDec
 
-{-# INLINE builderCString# #-}
-builderCString# :: BP.BoundedPrim Word8 -> Addr# -> Converted
-builderCString# bp addr = Converted $ BP.primUnfoldrBounded bp go 0
-  where
-    go !i | b /= 0 = Just (fromIntegral b, i+1)
-          | otherwise = Nothing
-      where
-        !b = I# (ord# (at# i))
-    at# (I# i#) = indexCharOffAddr# addr i#
-
 {-# INLINE [0] stringConv #-}
 stringConv :: String -> Converted
-stringConv = Converted . BP.primMapListBounded escapeUtf8
-
-{-# INLINE [0] stringConvRaw #-}
-stringConvRaw :: String -> Converted
-stringConvRaw = Converted . B.stringUtf8
-
-escapeUtf8 :: BP.BoundedPrim Char
-escapeUtf8
-  = BP.condB (>  '>' ) BP.charUtf8
-  . BP.condB (== '<' ) (fixed4 ('&',('l',('t',';'))))
-  . BP.condB (== '>' ) (fixed4 ('&',('g',('t',';'))))
-  . BP.condB (== '&' ) (fixed5 ('&',('a',('m',('p',';')))))
-  . BP.condB (== '"' ) (fixed5 ('&',('#',('3',('4',';')))))
-  . BP.condB (== '\'') (fixed5 ('&',('#',('3',('9',';')))))
-  $ BP.liftFixedToBounded BP.char7
-  where
-    {-# INLINE fixed4 #-}
-    fixed4 x = BP.liftFixedToBounded $ const x BP.>$<
-      BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7
-
-    {-# INLINE fixed5 #-}
-    fixed5 x = BP.liftFixedToBounded $ const x BP.>$<
-      BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7 BP.>*< BP.char7
+stringConv = convert . T.pack
 
 escape :: BP.BoundedPrim Word8
 escape
@@ -151,19 +120,7 @@ escape
       BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8 BP.>*< BP.word8
 
 {-# RULES "CONVERTED literal" forall a.
-    stringConv (unpackCString# a) = builderCString# escape a #-}
+    stringConv (unpackCString# a) = Converted (BP.primMapByteStringBounded escape (fromString (unpackCString# a))) #-}
 
 {-# RULES "CONVERTED foldr literal" forall a.
-    stringConv (build (unpackFoldrCString# a)) = builderCString# escape a #-}
-
-{-# RULES "CONVERTED literal raw" forall a.
-    stringConvRaw (unpackCString# a) = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
-
-{-# RULES "CONVERTED foldr literal raw" forall a.
-    stringConvRaw (build (unpackFoldrCString# a)) = builderCString# (BP.liftFixedToBounded BP.word8) a #-}
-
-{-# RULES "CONVERTED literal utf8" forall a.
-    stringConv (unpackCStringUtf8# a) = convert (T.pack (unpackCStringUtf8# a)) #-}
-
-{-# RULES "CONVERTED literal utf8 raw" forall a.
-    stringConvRaw (unpackCStringUtf8# a) = convert (Raw (T.pack (unpackCStringUtf8# a))) #-}
+    stringConv (build (unpackFoldrCString# a)) = Converted (BP.primMapByteStringBounded escape (fromString (unpackCString# a))) #-}
