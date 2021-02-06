@@ -1,5 +1,11 @@
 # Revision history for type-of-html
 
+## 1.6.2.0  -- 2021-02-06
+
+* simplifications
+* performance improvements
+* ghc 9 compatibility
+
 ## 1.6.1.0  -- 2020-11-07
 
 * visual fixes
