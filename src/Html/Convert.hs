@@ -16,9 +16,9 @@ import Data.String
 import Data.Char (ord)
 import Data.Double.Conversion.ByteString
 import Numeric.Natural
-import GHC.Exts
+import GHC.Exts (build)
 import GHC.TypeLits
-import GHC.CString (unpackCString#, unpackFoldrCString#)
+import GHC.CString
 
 import qualified Data.Semigroup                   as S
 import qualified Data.Monoid                      as M
