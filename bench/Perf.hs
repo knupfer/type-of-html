@@ -22,7 +22,7 @@ import Data.Proxy
 import Text.Blaze.Html.Renderer.Utf8
 import qualified Data.Text.Lazy   as LT
 import qualified Data.Text        as T
-import Data.ByteString.Lazy (foldl1')
+import Data.ByteString.Lazy (foldl')
 
 main :: IO ()
 main = defaultMain
@@ -72,7 +72,7 @@ string = bgroup "String"
 
 {-# INLINE run #-}
 run :: Document a => a -> Word8
-run = foldl1' (+) . renderByteString
+run = foldl' (+) 0 . renderByteString
 
 {-# NOINLINE randomString #-}
 randomString :: String
@@ -101,18 +101,18 @@ randomTextLazyRaw = unsafePerformIO $ Raw . LT.pack . take 10000 . randoms <$> n
 comparison :: Benchmark
 comparison = bgroup "Comparison"
   [ bgroup "synthetic page"
-    [ bench "blaze-html"   $ nf (foldl1' (+) . renderHtml . (\x -> BL.blazePageA x >> BL.blazePageA x >> BL.blazePageA x >> BL.blazePageA x)) (fromString "TEST")
+    [ bench "blaze-html"   $ nf (foldl' (+) 0 . renderHtml . (\x -> BL.blazePageA x >> BL.blazePageA x >> BL.blazePageA x >> BL.blazePageA x)) (fromString "TEST")
     , bench "type-of-html" $ nf (run . (\x -> M.pageA x # M.pageA x # M.pageA x # M.pageA x)) "TEST"
-    , bench "compactHTML"  $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ M.pageA (V @"x") # M.pageA (V @"x") # M.pageA (V @"x") # M.pageA (V @"x"))) (Put "TEST")
+    , bench "compactHTML"  $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ M.pageA (V @"x") # M.pageA (V @"x") # M.pageA (V @"x") # M.pageA (V @"x"))) (Put "TEST")
     ]
   , bgroup "table 50x10"
-    [ bench "blaze-html"   $ nf (foldl1' (+) . renderHtml . BL.blazeTable) (50,10)
+    [ bench "blaze-html"   $ nf (foldl' (+) 0 . renderHtml . BL.blazeTable) (50,10)
     , bench "type-of-html" $ nf (run . M.table) (50,10)
     ]
   , bgroup "hackage upload"
-    [ bench "blaze-html"   $ nf (foldl1' (+) . renderHtml . BL.hackageUpload) (fromString "Uploading packages and package candidates | Hackage")
+    [ bench "blaze-html"   $ nf (foldl' (+) 0 . renderHtml . BL.hackageUpload) (fromString "Uploading packages and package candidates | Hackage")
     , bench "type-of-html" $ nf (run . ET.hackageUpload) "Uploading packages and package candidates | Hackage"
-    , bench "compactHTML"  $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ ET.hackageUpload (V @"x"))) (Put "Uploading packages and package candidates | Hackage")
+    , bench "compactHTML"  $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ ET.hackageUpload (V @"x"))) (Put "Uploading packages and package candidates | Hackage")
     ]
   ]
 
@@ -120,23 +120,23 @@ scaling :: Benchmark
 scaling = bgroup "Scaling"
   [ bgroup "2 divs"
     [ bench "normal" $ nf (run . divs2) "input"
-    , bench "compact" $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ divs2 (V @"x"))) (Put "input")
+    , bench "compact" $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ divs2 (V @"x"))) (Put "input")
     ]
   , bgroup "4 divs"
     [ bench "normal" $ nf (run . divs4) "input"
-    , bench "compact" $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ divs4 (V @"x"))) (Put "input")
+    , bench "compact" $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ divs4 (V @"x"))) (Put "input")
     ]
   , bgroup "8 divs"
     [ bench "normal" $ nf (run . divs8) "input"
-    , bench "compact" $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ divs8 (V @"x"))) (Put "input")
+    , bench "compact" $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ divs8 (V @"x"))) (Put "input")
     ]
   , bgroup "16 divs"
     [ bench "normal" $ nf (run . divs16) "input"
-    , bench "compact" $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ divs16 (V @"x"))) (Put "input")
+    , bench "compact" $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ divs16 (V @"x"))) (Put "input")
     ]
   , bgroup "32 divs"
     [ bench "normal" $ nf (run . divs32) "input"
-    , bench "compact" $ nf (foldl1' (+) . renderCompactByteString (compactHTML $ divs32 (V @"x"))) (Put "input")
+    , bench "compact" $ nf (foldl' (+) 0 . renderCompactByteString (compactHTML $ divs32 (V @"x"))) (Put "input")
     ]
   ]
   where
