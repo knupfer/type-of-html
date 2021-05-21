@@ -422,6 +422,40 @@ main = print $
     (>>) = (#)
 ```
 
+If you are on GHC 9.0 or newer, you can also use the [`QualifiedDo`](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide/exts/qualified_do.html#extension-QualifiedDo) language extension via
+
+```haskell
+{-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
+{-# LANGUAGE QualifiedDo #-}
+
+import Prelude
+import Html
+import qualified Html.QualifiedDo as H
+
+main :: IO ()
+main = print $
+  Html :> H.do
+    Body :> H.do
+      H1 :@ IdA:="a" :> H.do
+        Img
+        Strong :@ ClassA:="b" :> (0 :: Int)
+      Div :> H.do
+        Div :@ IdA:="c" :> (1 :: Int)
+      Div :> H.do
+        Form :@ ClassA:="d" :> H.do
+          Fieldset :> H.do
+            Div :@ IdA:="e" :> H.do
+              Div :> H.do
+                Label :@ ClassA:="f" :> "a"
+                Select :> H.do
+                  Option :@ IdA:="g" :> "b"
+                  Option :> "c"
+                Div :@ ClassA:="h" :> "d"
+              I :> "a"
+            Button :@ IdA:="i" :> H.do
+              I :> "e"
+```
+
 ## Comparision to lucid and blaze-html
 
 Advantages of `type-of-html`:

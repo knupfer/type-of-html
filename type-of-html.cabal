@@ -28,6 +28,7 @@ library
                     , Html.Type
                     , Html.Convert
                     , Html.Obsolete
+                    , Html.QualifiedDo
   other-modules:      Html.Type.Internal
                     , Html.Reify
   hs-source-dirs:     src
