@@ -19,7 +19,6 @@ module Html.Type
   , Document
   , Compactable
   , ContentCategory(..)
-  , type (&)
   ) where
 
 import Html.Type.Internal

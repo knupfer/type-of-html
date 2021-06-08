@@ -25,6 +25,7 @@ source-repository     head
 
 library
   exposed-modules:    Html
+                    , Html.Aria
                     , Html.Type
                     , Html.Convert
                     , Html.Obsolete
@@ -52,17 +53,6 @@ test-suite value
                     , type-of-html
                     , QuickCheck
                     , hspec
-
-test-suite type
-  type:               exitcode-stdio-1.0
-  main-is:            Type.hs
-  hs-source-dirs:     test
-                    , src
-  other-modules:      Html.Type.Internal
-  ghc-options:        -Wall
-  default-language:   Haskell2010
-  build-depends:      base >= 4.10 && <= 5
-                    , bytestring
 
 benchmark reduction
   type:               exitcode-stdio-1.0

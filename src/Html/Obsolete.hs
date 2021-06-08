@@ -1,105 +1,185 @@
 {-# OPTIONS_GHC -fno-warn-unticked-promoted-constructors #-}
+
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE PolyKinds     #-}
 
 module Html.Obsolete where
 
 import Html.Type
 
--- | Functions to create obsolete html elements.
+-- | Obsolete html elements.
 --
 -- Usage:
 --
--- >>> center :> "barf"
+-- >>> Center :> "barf"
 -- <center>barf</center>
 
-type CustomElementDefault x
-  = Element
-  x
-  '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
-  '[]
+data instance Element
+    "applet"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Applet
 
-applet :: CustomElementDefault "applet"
-applet = CustomElement
+data instance Element
+    "acronym"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Acronym
 
-acronym :: CustomElementDefault "acronym"
-acronym = CustomElement
+data instance Element
+    "bgsound"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Bgsound
 
-bgsound :: CustomElementDefault "bgsound"
-bgsound = CustomElement
+data instance Element
+    "dir"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Dir
 
-dir :: CustomElementDefault "dir"
-dir = CustomElement
+data instance Element
+    "frame"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Frame
 
-frame :: CustomElementDefault "frame"
-frame = CustomElement
+data instance Element
+    "frameset"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Frameset
 
-frameset :: CustomElementDefault "frameset"
-frameset = CustomElement
+data instance Element
+    "noframes"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Noframes
 
-noframes :: CustomElementDefault "noframes"
-noframes = CustomElement
+data instance Element
+    "isindex"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Isindex
 
-isindex :: CustomElementDefault "isindex"
-isindex = CustomElement
+data instance Element
+    "keygen"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Keygen
 
-keygen :: CustomElementDefault "keygen"
-keygen = CustomElement
+data instance Element
+    "listing"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Listing
 
-listing :: CustomElementDefault "listing"
-listing = CustomElement
+data instance Element
+    "menuitem"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Menuitem
 
-menuitem :: CustomElementDefault "menuitem"
-menuitem = CustomElement
+data instance Element
+    "nextid"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Nextid
 
-nextid :: CustomElementDefault "nextid"
-nextid = CustomElement
+data instance Element
+    "noembed"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Noembed
 
-noembed :: CustomElementDefault "noembed"
-noembed = CustomElement
+data instance Element
+    "plaintext"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Plaintext
 
-plaintext :: CustomElementDefault "plaintext"
-plaintext = CustomElement
+data instance Element
+    "rb"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Rb
 
-rb :: CustomElementDefault "rb"
-rb = CustomElement
+data instance Element
+    "rtc"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Rtc
 
-rtc :: CustomElementDefault "rtc"
-rtc = CustomElement
+data instance Element
+    "strike"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Strike
 
-strike :: CustomElementDefault "strike"
-strike = CustomElement
+data instance Element
+    "xmp"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Xmp
 
-xmp :: CustomElementDefault "xmp"
-xmp = CustomElement
+data instance Element
+    "basefont"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Basefont
 
-basefont :: CustomElementDefault "basefont"
-basefont = CustomElement
+data instance Element
+    "big"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Big
 
-big :: CustomElementDefault "big"
-big = CustomElement
+data instance Element
+    "blink"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Blink
 
-blink :: CustomElementDefault "blink"
-blink = CustomElement
+data instance Element
+    "center"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Center
 
-center :: CustomElementDefault "center"
-center = CustomElement
+data instance Element
+    "font"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Font
 
-font :: CustomElementDefault "font"
-font = CustomElement
+data instance Element
+    "marquee"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Marquee
 
-marquee :: CustomElementDefault "marquee"
-marquee = CustomElement
+data instance Element
+    "multicol"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Multicol
 
-multicol :: CustomElementDefault "multicol"
-multicol = CustomElement
+data instance Element
+    "nobr"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Nobr
 
-nobr :: CustomElementDefault "nobr"
-nobr = CustomElement
+data instance Element
+    "spacer"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Spacer
 
-spacer :: CustomElementDefault "spacer"
-spacer = CustomElement
+data instance Element
+    "tt"
+    '[Metadata, Flow, Sectioning, Heading, Phrasing, Embedded, Interactive, Palpable, Scripting] (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Embedded :|: Interactive :|: Palpable :|: Scripting)
+    '[]
+  = Tt
 
-tt :: CustomElementDefault "tt"
-tt = CustomElement

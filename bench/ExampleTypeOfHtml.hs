@@ -5,7 +5,7 @@ module ExampleTypeOfHtml (hackageUpload) where
 
 import Prelude
 import Html
-import qualified Html.Obsolete as O
+import Html.Obsolete (Element(Tt))
 
 -- [2020-11-07] http://hackage.haskell.org/upload
 hackageUpload title = let (>>) = (#) in do
@@ -69,14 +69,14 @@ hackageUpload title = let (>>) = (#) in do
           Em :> "package"
           "-"
           Em :> "version"
-          O.tt :> ".tar.gz"
+          Tt :> ".tar.gz"
           " comprising a directory "
           Em :> "package"
           "-"
           Em :> "version"
           " containing a package of that name and version, including "
           Em :> "package"
-          O.tt :> ".cabal"
+          Tt :> ".cabal"
           ". See the notes at the bottom of the page."
         H3 :@ IdA:="versioning_and_curation" :> "Package versioning and curation"
         P :> do
@@ -109,23 +109,23 @@ hackageUpload title = let (>>) = (#) in do
           " need to be able to contact package maintainers, to inform them about and help to resolve issues with their packages (including its meta-data) which affect the Hackage ecosystem."
         P :> do
           "Package uploaders may choose to exclude individual package uploads from curation, by setting the "
-          O.tt :> "x-curation:"
+          Tt :> "x-curation:"
           " field of the package's cabal file to "
-          O.tt :> "uncurated"
+          Tt :> "uncurated"
           ". Packages which are uncurated have no expectations on them regarding versioning policy.  Trustees or maintainers may "
           I :> "adopt"
           " uncurated packages into the curated layer through metadata revisions. Metadata revisions must not set the value of the"
-          O.tt :> "x-curation"
+          Tt :> "x-curation"
           " field to any variant of "
-          O.tt :> "uncurated"
+          Tt :> "uncurated"
           "."
         P :> do
           "Two variants of the "
-          O.tt :> "uncurated"
+          Tt :> "uncurated"
           " property are supported. First, "
-          O.tt :> "uncurated-no-trustee-contact"
+          Tt :> "uncurated-no-trustee-contact"
           ", which indicates that maintainers do not wish to be contacted by trustees regarding any metadata issues with the package. (Contact may still occur over issues that are not related to curation, such as licensing, etc.). Second, "
-          O.tt :> "uncurated-seeking-adoption"
+          Tt :> "uncurated-seeking-adoption"
           ", which indicates that maintainers would like their package to be adopted in the curated layer, but currently some issue prevents this, which they would like assistance with."
         P :> "In the future, metadata regarding curation will be made available in the UI of Hackage, and different derived indexes will be provided for the uncurated and curated layers of packages."
         H3 :> "Open source licenses"

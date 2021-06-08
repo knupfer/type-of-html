@@ -1,8 +1,8 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds    #-}
 
 module Custom where
 
 import Html
 
-hxPost :: Attribute "hx-post" 'True 'False
-hxPost = CustomA
+data instance Attribute "hx-post" 'True 'False = HxPostA

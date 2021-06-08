@@ -8,8 +8,6 @@
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
 {-# LANGUAGE TypeInType             #-}
-{-# LANGUAGE DataKinds              #-}
-{-# LANGUAGE PolyKinds              #-}
 {-# LANGUAGE GADTs                  #-}
 
 {-# LANGUAGE CPP #-}
@@ -62,30 +60,30 @@ data ContentCategory
   -- | \ 3.2.5.2.9 Script-supporting elements
   | Scripting
 
--- | 4 The elements of HTML
-data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel :: ContentCategory) (contentAttributes :: [Symbol]) where
 
-  DOCTYPE
-    :: Element
+-- | 4 The elements of HTML
+data family Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel :: ContentCategory) (contentAttributes :: [Symbol])
+
+data instance Element
     "!DOCTYPE html"
     '[]
     None
     '[]
+  = DOCTYPE
 
   -- | \ 4.1 The document element
   --     4.1.1
-  Html
-    :: Element
+data instance Element
     "html"
     '[]
     -- A head element followed by a body element.
-    (Elements ["head", "body"])
-    (ManifestA & '[])
+    (Elements '["head", "body"])
+    '["manifest"]
+  = Html
 
   -- | \ 4.2 Document metadata
   --     4.2.1
-  Head
-    :: Element
+data instance Element
     "head"
     '[]
     -- If the document is an iframe srcdoc document or if title
@@ -97,262 +95,262 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     -- a base element.
     Metadata
     '[]
+  = Head
 
   -- | \ 4.2.2
-  Title
-    :: Element
+data instance Element
     "title"
     '[Metadata]
     -- Text that is not inter-element whitespace.
     OnlyText
     '[]
+  = Title
 
   -- | \ 4.2.3
-  Base
-    :: Element
+data instance Element
     "base"
     '[Metadata]
     None
-    (HrefA & TargetA & '[])
+    '["href", "target"]
+  = Base
 
   -- | \ 4.2.4
-  Link
-    :: Element
+data instance Element
     "link"
     '[Metadata, Flow, Phrasing]
     None
-    (HrefA & CrossoriginA & RelA & MediaA & IntegrityA & HreflangA & TypeA & ReferrerpolicyA & SizesA & ImagesrcsetA & ImagesizesA & AsA & RelA & ColorA & DisabledA & '[])
+    '["href", "crossorigin", "rel", "media", "integrity", "hreflang", "type", "referrerpolicy", "sizes", "imagesrcset", "imagesizes", "as", "rel", "color", "disabled"]
+  = Link
 
   -- | \ 4.2.5
-  Meta
-    :: Element
+data instance Element
     "meta"
     '[Metadata, Flow, Phrasing]
     None
-    (NameA & HttpEquivA & ContentA & CharsetA & '[])
+    '["name", "httpequiv", "content", "charset"]
+  = Meta
 
   -- | \ 4.2.6
-  Style
-    :: Element
+data instance Element
     "style"
     '[Metadata]
     -- Text that gives a conformant style sheet.
     OnlyText
-    (MediaA & '[])
+    '["media"]
+  = Style
 
   -- | \ 4.3 Sections
   --     4.3.1
-  Body
-    :: Element
+data instance Element
     "body"
     '[]
     Flow
-    (OnafterprintA & OnbeforeprintA & OnbeforeunloadA & OnhashchangeA & OnlanguagechangeA & OnmessageA & OnmessageerrorA & OnofflineA & OnonlineA & OnpagehideA & OnpageshowA & OnpopstateA & OnrejectionhandledA & OnstorageA & OnunhandledrejectionA & OnunloadA & '[])
+    '["onafterprint", "onbeforeprint", "onbeforeunload", "onhashchange", "onlanguagechange", "onmessage", "onmessageerror", "onoffline", "ononline", "onpagehide", "onpageshow", "onpopstate", "onrejectionhandled", "onstorage", "onunhandledrejection", "onunload"]
+  = Body
 
   -- | \ 4.3.2
-  Article
-    :: Element
+data instance Element
     "article"
     '[Flow, Sectioning, Palpable]
     Flow
     '[]
+  = Article
 
   -- | \ 4.3.3
-  Section
-    :: Element
+data instance Element
     "section"
     '[Flow, Sectioning, Palpable]
     Flow
     '[]
+  = Section
 
   -- | \ 4.3.4
-  Nav
-    :: Element
+data instance Element
     "nav"
     '[Flow, Sectioning, Palpable]
     Flow
     '[]
+  = Nav
 
   -- | \ 4.3.5
-  Aside
-    :: Element
+data instance Element
     "aside"
     '[Flow, Sectioning, Palpable]
     Flow
     '[]
+  = Aside
 
   -- | \ 4.3.6
-  H1
-    :: Element
+data instance Element
     "h1"
     '[Flow, Heading, Palpable]
     Phrasing
     '[]
+  = H1
 
-  H2
-    :: Element
+data instance Element
     "h2"
     '[Flow, Heading, Palpable]
     Phrasing
     '[]
+  = H2
 
-  H3
-    :: Element
+data instance Element
     "h3"
     '[Flow, Heading, Palpable]
     Phrasing
     '[]
+  = H3
 
-  H4
-    :: Element
+data instance Element
     "h4"
     '[Flow, Heading, Palpable]
     Phrasing
     '[]
+  = H4
 
-  H5
-    :: Element
+data instance Element
     "h5"
     '[Flow, Heading, Palpable]
     Phrasing
     '[]
+  = H5
 
-  H6
-    :: Element
+data instance Element
     "h6"
     '[Flow, Heading, Palpable]
     Phrasing
     '[]
+  = H6
 
   -- | \ 4.3.7
-  Hgroup
-    :: Element
+data instance Element
     "hgroup"
     '[Flow, Heading, Palpable]
     ((Heading :&: NOT (Elements '["hgroup"])) :|: Scripting)
     '[]
+  = Hgroup
 
   -- | \ 4.3.8
-  Header
-    :: Element
+data instance Element
     "header"
     '[Flow, Palpable]
     -- Flow content, but with no header or footer element descendants.
-    (Flow :&: NOT (Elements ["header", "footer"]))
+    (Flow :&: NOT (Elements '["header", "footer"]))
     '[]
+  = Header
 
   -- | \ 4.3.9
-  Footer
-    :: Element
+data instance Element
     "footer"
     '[Flow, Palpable]
     -- Flow content, but with no header or footer element descendants.
-    (Flow :&: NOT (Elements ["header", "footer"]))
+    (Flow :&: NOT (Elements '["header", "footer"]))
     '[]
+  = Footer
 
   -- | \ 4.3.10
-  Address
-    :: Element
+data instance Element
     "address"
     '[Flow, Palpable]
     -- Flow content, but with no heading content descendants, no
     -- sectioning content descendants, and no header, footer, or
     -- address element descendants.
-    (Flow :&: NOT (Heading :|: Sectioning :|: Elements ["header", "footer", "address"]))
+    (Flow :&: NOT (Heading :|: Sectioning :|: Elements '["header", "footer", "address"]))
     '[]
+  = Address
 
   -- | \ 4.4 Grouping content
   --     4.4.1
-  P
-    :: Element
+data instance Element
     "p"
     '[Flow, Palpable]
     Phrasing
     '[]
+  = P
 
   -- | \ 4.4.2
-  Hr
-    :: Element
+data instance Element
     "hr"
     '[Flow]
     None
     '[]
+  = Hr
 
   -- | \ 4.4.3
-  Pre
-    :: Element
+data instance Element
     "pre"
     '[Flow, Palpable]
     Phrasing
     '[]
+  = Pre
 
   -- | \ 4.4.4
-  Blockquote
-    :: Element
+data instance Element
     "blockquote"
     '[Flow, Palpable]
     Flow
-    (CiteA & '[])
+    '["cite"]
+  = Blockquote
 
   -- | \ 4.4.5
-  Ol
-    :: Element
+data instance Element
     "ol"
     '[Flow, Palpable]
     (Elements '["li"] :|: Scripting)
-    (ReversedA & StartA & TypeA & '[])
+    '["reversed", "start", "type"]
+  = Ol
 
   -- | \ 4.4.6
-  Ul
-    :: Element
+data instance Element
     "ul"
     '[Flow, Palpable]
     (Elements '["li"] :|: Scripting)
     '[]
+  = Ul
 
   -- | \ 4.4.7
-  Menu
-    :: Element
+data instance Element
     "menu"
     '[Flow, Palpable]
     (Elements '["li"] :|: Scripting)
     '[]
+  = Menu
 
   -- | \ 4.4.8
-  Li
-    :: Element
+data instance Element
     "li"
     '[]
     Flow
-    (ValueA & '[])
+    '["value"]
+  = Li
 
   -- | \ 4.4.9
-  Dl
-    :: Element
+data instance Element
     "dl"
     '[Flow, Palpable]
-    (Elements ["dt", "dd", "div"] :|: Scripting)
+    (Elements '["dt", "dd", "div"] :|: Scripting)
     '[]
+  = Dl
 
   -- | \ 4.4.10
-  Dt
-    :: Element
+data instance Element
     "dt"
     '[]
-    (Flow :&: NOT (Sectioning :|: Heading :|: Elements ["header", "footer"]))
+    (Flow :&: NOT (Sectioning :|: Heading :|: Elements '["header", "footer"]))
     '[]
+  = Dt
 
   -- | \ 4.4.11
-  Dd
-    :: Element
+data instance Element
     "dd"
     '[]
     Flow
     '[]
+  = Dd
 
   -- | \ 4.4.12
-  Figure
-    :: Element
+data instance Element
     "figure"
     '[Flow, Palpable]
     -- Either: one figcaption element followed by flow content. Or:
@@ -360,932 +358,860 @@ data Element (name :: Symbol) (categories :: [ContentCategory]) (contentModel ::
     -- content.
     (Flow :|: Elements '["figcaption"])
     '[]
+  = Figure
 
   -- | \ 4.4.13
-  Figcaption
-    :: Element
+data instance Element
     "figcaption"
     '[]
     Flow
     '[]
+  = Figcaption
 
   -- | \ 4.4.14
-  Main
-    :: Element
+data instance Element
     "main"
     '[Flow, Palpable]
     Flow
     '[]
+  = Main
 
   -- | \ 4.4.15
-  Div
-    :: Element
+data instance Element
     "div"
     '[Flow, Palpable]
     -- If the element is a child of a dl element: one or more dt
     -- elements followed by one or more dd elements, optionally
     -- intermixed with script-supporting elements. If the element is
     -- not a child of a dl element: flow content.
-    (Flow :|: Elements ["dt", "dt"] :|: Scripting)
+    (Flow :|: Elements '["dt", "dt"] :|: Scripting)
     '[]
+  = Div
 
   -- | \ 4.5 Text-level semantics
   --     4.5.1
-  A
-    :: Element
+data instance Element
     "a"
     '[Flow, Phrasing, Interactive, Palpable]
     -- Transparent, but there must be no interactive content
     -- descendant, a element descendant, or descendant with the
     -- tabindex attribute specified.
     ((Flow :|: Phrasing :|: Palpable) :&: NOT (Elements '["a"]))
-    (HrefA & TargetA & DownloadA & PingA & RelA & HreflangA & TypeA & ReferrerpolicyA & '[])
+    '["href", "target", "download", "ping", "rel", "hreflang", "type", "referrerpolicy"]
+  = A
 
   -- | \ 4.5.2
-  Em
-    :: Element
+data instance Element
     "em"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Em
 
   -- | \ 4.5.3
-  Strong
-    :: Element
+data instance Element
     "strong"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Strong
 
   -- | \ 4.5.4
-  Small
-    :: Element
+data instance Element
     "small"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Small
 
   -- | \ 4.5.5
-  S
-    :: Element
+data instance Element
     "s"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = S
 
   -- | \ 4.5.6
-  Cite
-    :: Element
+data instance Element
     "cite"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Cite
 
   -- | \ 4.5.7
-  Q
-    :: Element
+data instance Element
     "q"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    (CiteA & '[])
+    '["cite"]
+  = Q
 
   -- | \ 4.5.8
-  Dfn
-    :: Element
+data instance Element
     "dfn"
     '[Flow, Phrasing, Palpable]
     (Phrasing :&: NOT (Elements '["dfn"]))
     '[]
+  = Dfn
 
   -- | \ 4.5.9
-  Abbr
-    :: Element
+data instance Element
     "abbr"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Abbr
 
   -- | \ 4.5.10
-  Ruby
-    :: Element
+data instance Element
     "ruby"
     '[Flow, Phrasing, Palpable]
-    (Phrasing :|: Elements ["rt", "rp"])
+    (Phrasing :|: Elements '["rt", "rp"])
     '[]
+  = Ruby
 
   -- | \ 4.5.11
-  Rt
-    :: Element
+data instance Element
     "rt"
     '[]
     Phrasing
     '[]
+  = Rt
 
   -- | \ 4.5.12
-  Rp
-    :: Element
+data instance Element
     "rp"
     '[]
     OnlyText
     '[]
+  = Rp
 
   -- | \ 4.5.13
-  Data
-    :: Element
+data instance Element
     "data"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    (ValueA & '[])
+    '["value"]
+  = Data
 
   -- | \ 4.5.14
-  Time
-    :: Element
+data instance Element
     "time"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    (DatetimeA & '[])
+    '["datetime"]
+  = Time
 
   -- | \ 4.5.15
-  Code
-    :: Element
+data instance Element
     "code"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Code
 
   -- | \ 4.5.16
-  Var
-    :: Element
+data instance Element
     "var"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Var
 
   -- | \ 4.5.17
-  Samp
-    :: Element
+data instance Element
     "samp"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Samp
 
   -- | \ 4.5.18
-  Kbd
-    :: Element
+data instance Element
     "kbd"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Kbd
 
   -- | \ 4.5.19
-  Sub
-    :: Element
+data instance Element
     "sub"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Sub
 
-  Sup
-    :: Element
+data instance Element
     "sup"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Sup
 
   -- | \ 4.5.20
-  I
-    :: Element
+data instance Element
     "i"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = I
 
   -- | \ 4.5.21
-  B
-    :: Element
+data instance Element
     "b"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = B
 
   -- | \ 4.5.22
-  U
-    :: Element
+data instance Element
     "u"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = U
 
   -- | \ 4.5.23
-  Mark
-    :: Element
+data instance Element
     "mark"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Mark
 
   -- | \ 4.5.24
-  Bdi
-    :: Element
+data instance Element
     "bdi"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Bdi
 
   -- | \ 4.5.25
-  Bdo
-    :: Element
+data instance Element
     "bdo"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Bdo
 
   -- | \ 4.5.26
-  Span
-    :: Element
+data instance Element
     "span"
     '[Flow, Phrasing, Palpable]
     Phrasing
     '[]
+  = Span
 
   -- | \ 4.5.27
-  Br
-    :: Element
+data instance Element
     "br"
     '[Flow, Phrasing]
     None
     '[]
+  = Br
 
   -- | \ 4.5.28
-  Wbr
-    :: Element
+data instance Element
     "wbr"
     '[Flow, Phrasing]
     None
     '[]
+  = Wbr
 
   -- | \ 4.7 Edits
   --     4.7.1
-  Ins
-    :: Element
+data instance Element
     "ins"
     '[Flow, Phrasing, Palpable]
     (Flow :|: Phrasing :|: Palpable)
-    (CiteA & DatetimeA & '[])
+    '["cite", "datetime"]
+  = Ins
 
   -- | \ 4.7.2
-  Del
-    :: Element
+data instance Element
     "del"
     '[Flow, Phrasing]
     (Flow :|: Phrasing)
-    (CiteA & DatetimeA & '[])
+    '["cite", "datetime"]
+  = Del
 
   -- | \ 4.8 Embedded content
   --     4.8.1
-  Picture
-    :: Element
+data instance Element
     "picture"
     '[Flow, Phrasing, Embedded]
-    (Elements ["source", "img"] :|: Scripting)
+    (Elements '["source", "img"] :|: Scripting)
     '[]
+  = Picture
 
   -- | \ 4.8.2
-  Source
-    :: Element
+data instance Element
     "source"
     '[]
     None
-    (SrcA & TypeA & SrcsetA & SizesA & MediaA & '[])
+    '["src", "type", "srcset", "sizes", "media"]
+  = Source
 
   -- | \ 4.8.3
-  Img
-    :: Element
+data instance Element
     "img"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     None
-    (AltA & SrcA & SrcsetA & SizesA & CrossoriginA & UsemapA & IsmapA & WidthA & HeightA & ReferrerpolicyA & DecodingA & LoadingA & '[])
+    '["alt", "src", "srcset", "sizes", "crossorigin", "usemap", "ismap", "width", "height", "referrerpolicy", "decoding", "loading"]
+  = Img
 
   -- | \ 4.8.5
-  Iframe
-    :: Element
+data instance Element
     "iframe"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     None
-    (SrcA & SrcdocA & NameA & SandboxA & AllowA & AllowfullscreenA & WidthA & HeightA & ReferrerpolicyA & LoadingA & '[])
+    '["src", "srcdoc", "name", "sandbox", "allow", "allowfullscreen", "width", "height", "referrerpolicy", "loading"]
+  = Iframe
 
   -- | \ 4.8.6
-  Embed
-    :: Element
+data instance Element
     "embed"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     None
-    (SrcA & TypeA & WidthA & HeightA & '[])
+    '["src", "type", "width", "height"]
+  = Embed
 
   -- | \ 4.8.7
-  Object
-    :: Element
+data instance Element
     "object"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
     (Elements '["param"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable)
-    (DataA & TypeA & NameA & UsemapA & FormA & WidthA & HeightA & '[])
+    '["data", "type", "name", "usemap", "form", "width", "height"]
+  = Object
 
   -- | \ 4.8.8
-  Param
-    :: Element
+data instance Element
     "param"
     '[]
     None
-    (NameA & ValueA & '[])
+    '["name", "value"]
+  = Param
 
   -- | \ 4.8.9
-  Video
-    :: Element
+data instance Element
     "video"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
-    ((Elements ["track", "source"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable) :&: NOT (Elements ["audio", "video"]))
-    (SrcA & CrossoriginA & PosterA & PreloadA & AutoplayA & PlaysinlineA & LoopA & MutedA & ControlsA & WidthA & HeightA & '[])
+    ((Elements '["track", "source"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable) :&: NOT (Elements '["audio", "video"]))
+    '["src", "crossorigin", "poster", "preload", "autoplay", "playsinline", "loop", "muted", "controls", "width", "height"]
+  = Video
 
   -- | \ 4.8.10
-  Audio
-    :: Element
+data instance Element
     "audio"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
-    ((Elements ["track", "source"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable) :&: NOT (Elements ["audio", "video"]))
-    (SrcA & CrossoriginA & PreloadA & AutoplayA & LoopA & MutedA & ControlsA & '[])
+    ((Elements '["track", "source"] :|: Flow :|: Phrasing :|: Embedded :|: Interactive :|: Palpable) :&: NOT (Elements '["audio", "video"]))
+    '["src", "crossorigin", "preload", "autoplay", "loop", "muted", "controls"]
+  = Audio
 
   -- | \ 4.8.11
-  Track
-    :: Element
+data instance Element
     "track"
     '[]
     None
-    (KindA & SrcA & SrclangA & LabelA & DefaultA & '[])
+    '["kind", "src", "srclang", "label", "default"]
+  = Track
 
   -- | \ 4.8.13
-  Map
-    :: Element
+data instance Element
     "map"
     '[Flow, Phrasing, Palpable]
     (Flow :|: Phrasing :|: Palpable)
-    (NameA & '[])
+    '["name"]
+  = Map
 
   -- | \ 4.8.14
-  Area
-    :: Element
+data instance Element
     "area"
     '[Flow, Phrasing]
     None
-    (AltA & CoordsA & ShapeA & HrefA & TargetA & DownloadA & PingA & RelA & ReferrerpolicyA & '[])
+    '["alt", "coords", "shape", "href", "target", "download", "ping", "rel", "referrerpolicy"]
+  = Area
 
   -- | \ 4.9 Tabular data
   --     4.9.1
-  Table
-    :: Element
+data instance Element
     "table"
     '[Flow, Palpable]
-    (Elements ["caption", "colgroup", "thead", "tbody", "tr", "tfoot"] :|: Scripting)
+    (Elements '["caption", "colgroup", "thead", "tbody", "tr", "tfoot"] :|: Scripting)
     '[]
+  = Table
 
   -- | \ 4.9.2
-  Caption
-    :: Element
+data instance Element
     "caption"
     '[]
     (Flow :|: NOT (Elements '["table"]))
     '[]
+  = Caption
 
   -- | \ 4.9.3
-  Colgroup
-    :: Element
+data instance Element
     "colgroup"
     '[]
-    (Elements ["col", "template"])
-    (SpanA & '[])
+    (Elements '["col", "template"])
+    '["span"]
+  = Colgroup
 
   -- | \ 4.9.4
-  Col
-    :: Element
+data instance Element
     "col"
     '[]
     None
-    (SpanA & '[])
+    '["span"]
+  = Col
 
   -- | \ 4.9.5
-  Tbody
-    :: Element
+data instance Element
     "tbody"
     '[]
     (Elements '["tr"] :|: Scripting)
     '[]
+  = Tbody
 
   -- | \ 4.9.6
-  Thead
-    :: Element
+data instance Element
     "thead"
     '[]
     (Elements '["tr"] :|: Scripting)
     '[]
+  = Thead
 
   -- | \ 4.9.7
-  Tfoot
-    :: Element
+data instance Element
     "tfoot"
     '[]
     (Elements '["tr"] :|: Scripting)
     '[]
+  = Tfoot
 
   -- | \ 4.9.8
-  Tr
-    :: Element
+data instance Element
     "tr"
     '[]
-    (Elements ["td", "th"] :|: Scripting)
+    (Elements '["td", "th"] :|: Scripting)
     '[]
+  = Tr
 
   -- | \ 4.9.9
-  Td
-    :: Element
+data instance Element
     "td"
     '[]
     Flow
-    (ColspanA & RowspanA & HeadersA & '[])
+    '["colspan", "rowspan", "headers"]
+  = Td
 
   -- | \ 4.9.10
-  Th
-    :: Element
+data instance Element
     "th"
     '[]
-    (Flow :&: NOT (Elements ["header", "footer"] :|: Sectioning :|: Heading))
-    (ColspanA & RowspanA & HeadersA & ScopeA & AbbrA & '[])
+    (Flow :&: NOT (Elements '["header", "footer"] :|: Sectioning :|: Heading))
+    '["colspan", "rowspan", "headers", "scope", "abbr"]
+  = Th
 
   -- | \ 4.10 Forms
   --     4.10.3
-  Form
-    :: Element
+data instance Element
     "form"
     '[Flow, Palpable]
     (Flow :&: NOT (Elements '["form"]))
-    (AcceptCharsetA & ActionA & AutocompleteA & EnctypeA & MethodA & NameA & NovalidateA & TargetA & RelA & '[])
+    '["acceptcharset", "action", "autocomplete", "enctype", "method", "name", "novalidate", "target", "rel"]
+  = Form
 
   -- | \ 4.10.4
-  Label
-    :: Element
+data instance Element
     "label"
     '[Flow, Phrasing, Interactive, Palpable]
     (Phrasing :&: NOT (Elements '["label"]))
-    (ForA & '[])
+    '["for"]
+  = Label
 
   -- | \ 4.10.5
-  Input
-    :: Element
+data instance Element
     "input"
     '[Flow, Phrasing, Interactive, Palpable]
     None
-    (AcceptA & AltA & AutocompleteA & CheckedA & DirnameA & DisabledA & FormA & FormactionA & FormenctypeA & FormmethodA & FormnovalidateA & FormtargetA & HeightA & ListA & MaxA & MaxlengthA & MinA & MinlengthA & MultipleA & NameA & PatternA & PlaceholderA & ReadonlyA & RequiredA & SizeA & SrcA & StepA & TypeA & ValueA & WidthA & '[])
+    '["accept", "alt", "autocomplete", "checked", "dirname", "disabled", "form", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "height", "list", "max", "maxlength", "min", "minlength", "multiple", "name", "pattern", "placeholder", "readonly", "required", "size", "src", "step", "type", "value", "width"]
+  = Input
 
   -- | \ 4.10.6
-  Button
-    :: Element
+data instance Element
     "button"
     '[Flow, Phrasing, Interactive, Palpable]
     (Phrasing :&: NOT Interactive)
-    (DisabledA & FormA & FormactionA & FormenctypeA & FormmethodA & FormnovalidateA & FormtargetA & NameA & TypeA & ValueA & '[])
+    '["disabled", "form", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "name", "type", "value"]
+  = Button
 
   -- | \ 4.10.7
-  Select
-    :: Element
+data instance Element
     "select"
     '[Flow, Phrasing, Interactive, Palpable]
-    (Elements ["option", "optgroup"] :|: Scripting)
-    (AutocompleteA & DisabledA & FormA & MultipleA & NameA & RequiredA & SizeA & '[])
+    (Elements '["option", "optgroup"] :|: Scripting)
+    '["autocomplete", "disabled", "form", "multiple", "name", "required", "size"]
+  = Select
 
   -- | \ 4.10.8
-  Datalist
-    :: Element
+data instance Element
     "datalist"
     '[Flow, Phrasing]
     (Phrasing :|: Scripting :|: Elements '["option"])
     '[]
+  = Datalist
 
   -- | \ 4.10.9
-  Optgroup
-    :: Element
+data instance Element
     "optgroup"
     '[]
     (Elements '["option"] :|: Scripting)
-    (DisabledA & LabelA & '[])
+    '["disabled", "label"]
+  = Optgroup
 
   -- | \ 4.10.10
-  Option
-    :: Element
+data instance Element
     "option"
     '[]
     OnlyText
-    (DisabledA & LabelA & SelectedA & ValueA & '[])
+    '["disabled", "label", "selected", "value"]
+  = Option
 
   -- | \ 4.10.11
-  Textarea
-    :: Element
+data instance Element
     "textarea"
     '[Flow, Phrasing, Interactive, Palpable]
     OnlyText
-    (AutocompleteA & ColsA & DirnameA & DisabledA & FormA & MaxlengthA & MinlengthA & NameA & PlaceholderA & ReadonlyA & RequiredA & RowsA & WrapA & '[])
+    '["autocomplete", "cols", "dirname", "disabled", "form", "maxlength", "minlength", "name", "placeholder", "readonly", "required", "rows", "wrap"]
+  = Textarea
 
   -- | \ 4.10.12
-  Output
-    :: Element
+data instance Element
     "output"
     '[Flow, Phrasing, Palpable]
     Phrasing
-    (ForA & FormA & NameA & '[])
+    '["for", "form", "name"]
+  = Output
 
   -- | \ 4.10.13
-  Progress
-    :: Element
+data instance Element
     "progress"
     '[Flow, Phrasing, Palpable]
     (Phrasing :&: NOT (Elements '["progress"]))
-    (ValueA & MaxA & '[])
+    '["value", "max"]
+  = Progress
 
   -- | \ 4.10.14
-  Meter
-    :: Element
+data instance Element
     "meter"
     '[Flow, Phrasing, Palpable]
     (Phrasing :&: NOT (Elements '["meter"]))
-    (ValueA & MinA & MaxA & LowA & HighA & OptimumA & '[])
+    '["value", "min", "max", "low", "high", "optimum"]
+  = Meter
 
   -- | \ 4.10.15
-  Fieldset
-    :: Element
+data instance Element
     "fieldset"
     '[Flow, Palpable]
     (Elements '["legend"] :|: Flow)
-    (DisabledA & FormA & NameA & '[])
+    '["disabled", "form", "name"]
+  = Fieldset
 
   -- | \ 4.10.16
-  Legend
-    :: Element
+data instance Element
     "legend"
     '[]
     (Phrasing :|: Heading)
     '[]
+  = Legend
 
   -- | \ 4.11 Interactive elements
   --     4.11.1
-  Details
-    :: Element
+data instance Element
     "details"
     '[Flow, Interactive, Palpable]
     (Elements '["summary"] :|: Flow)
-    (OpenA & '[])
+    '["open"]
+  = Details
 
   -- | \ 4.11.2
-  Summary
-    :: Element
+data instance Element
     "summary"
     '[]
     (Phrasing :|: Heading)
     '[]
+  = Summary
 
   -- | \ 4.11.4
-  Dialog
-    :: Element
+data instance Element
     "dialog"
     '[Flow]
     Flow
-    (OpenA & '[])
+    '["open"]
+  = Dialog
 
   -- | \ 4.12 Scripting
   --     4.12.1
-  Script
-    :: Element
+data instance Element
     "script"
     '[Metadata, Flow, Phrasing, Scripting]
     OnlyText
-    (SrcA & TypeA & NomoduleA & AsyncA & DeferA & CrossoriginA & IntegrityA & ReferrerpolicyA & '[])
+    '["src", "type", "nomodule", "async", "defer", "crossorigin", "integrity", "referrerpolicy"]
+  = Script
 
   -- | \ 4.12.2
-  Noscript
-    :: Element
+data instance Element
     "noscript"
     '[Metadata, Flow, Phrasing]
-    ((Elements ["link", "style", "meta"] :|: Metadata :|: Flow :|: Phrasing) :&: NOT (Elements '["noscript"]))
+    ((Elements '["link", "style", "meta"] :|: Metadata :|: Flow :|: Phrasing) :&: NOT (Elements '["noscript"]))
     '[]
+  = Noscript
 
   -- | \ 4.12.3
-  Template
-    :: Element
+data instance Element
     "template"
     '[Metadata, Flow, Phrasing, Scripting]
     (Metadata :|: Flow :|: Sectioning :|: Heading :|: Phrasing :|: Palpable)
     '[]
+  = Template
 
   -- | \ 4.12.4
-  Slot
-    :: Element
+data instance Element
     "slot"
     '[Flow, Phrasing]
     (Flow :|: Phrasing)
-    (NameA & '[])
+    '["name"]
+  = Slot
 
   -- | \ 4.12.5
-  Canvas
-    :: Element
+data instance Element
     "canvas"
     '[Flow, Phrasing, Embedded, Palpable]
-    (((Flow :|: Phrasing :|: Embedded :|: Palpable) :&: NOT Interactive) :|: Elements ["a", "img", "button", "input", "select"])
-    (WidthA & HeightA & '[])
+    (((Flow :|: Phrasing :|: Embedded :|: Palpable) :&: NOT Interactive) :|: Elements '["a", "img", "button", "input", "select"])
+    '["width", "height"]
+  = Canvas
 
-  -- | \ 4.13 Custom elements
-  CustomElement
-    :: Element
-    name
-    categories
-    contentModel
-    contentAttributes
-
-data Attribute name global boolean where
-  CustomA                     :: Attribute name global boolean
+data family Attribute (name :: Symbol) (global :: Bool) (boolean :: Bool)
 
   -- List of attributes (excluding event handler content attributes)
-  AbbrA                       :: Attribute "abbr"                        False False
-  AcceptA                     :: Attribute "accept"                      False False
-  AcceptCharsetA              :: Attribute "accept-charset"              False False
-  AccesskeyA                  :: Attribute "accesskey"                   True  False
-  ActionA                     :: Attribute "action"                      False False
-  AllowA                      :: Attribute "allow"                       False False
-  AllowfullscreenA            :: Attribute "allowfullscreen"             False True
-  AltA                        :: Attribute "alt"                         False False
-  AsA                         :: Attribute "as"                          False False
-  AsyncA                      :: Attribute "async"                       False True
-  AutocapitalizeA             :: Attribute "autocapitalize"              True  False
-  AutocompleteA               :: Attribute "autocomplete"                False False
-  AutofocusA                  :: Attribute "autofocus"                   True  True
-  AutoplayA                   :: Attribute "autoplay"                    False True
-  CharsetA                    :: Attribute "charset"                     False False
-  CheckedA                    :: Attribute "checked"                     False True
-  CiteA                       :: Attribute "cite"                        False False
-  ClassA                      :: Attribute "class"                       True  False
-  ColorA                      :: Attribute "color"                       False False
-  ColsA                       :: Attribute "cols"                        False False
-  ColspanA                    :: Attribute "colspan"                     False False
-  ContentA                    :: Attribute "content"                     False False
-  ContenteditableA            :: Attribute "contenteditable"             True  False
-  ControlsA                   :: Attribute "controls"                    False True
-  CoordsA                     :: Attribute "coords"                      False False
-  CrossoriginA                :: Attribute "crossorigin"                 False False
-  DataA                       :: Attribute "data"                        False False
-  DatetimeA                   :: Attribute "datetime"                    False False
-  DecodingA                   :: Attribute "decoding"                    False False
-  DefaultA                    :: Attribute "default"                     False True
-  DeferA                      :: Attribute "defer"                       False True
-  DirA                        :: Attribute "dir"                         True  False
-  DirnameA                    :: Attribute "dirname"                     False False
-  DisabledA                   :: Attribute "disabled"                    False True
-  DownloadA                   :: Attribute "download"                    False False
-  DraggableA                  :: Attribute "draggable"                   True  False
-  EnctypeA                    :: Attribute "enctype"                     False False
-  EnterkeyhintA               :: Attribute "enterkeyhint"                True  False
-  ForA                        :: Attribute "for"                         False False
-  FormA                       :: Attribute "form"                        False False
-  FormactionA                 :: Attribute "formaction"                  False False
-  FormenctypeA                :: Attribute "formenctype"                 False False
-  FormmethodA                 :: Attribute "formmethod"                  False False
-  FormnovalidateA             :: Attribute "formnovalidate"              False True
-  FormtargetA                 :: Attribute "formtarget"                  False False
-  HeadersA                    :: Attribute "headers"                     False False
-  HeightA                     :: Attribute "height"                      False False
-  HiddenA                     :: Attribute "hidden"                      True  True
-  HighA                       :: Attribute "high"                        False False
-  HrefA                       :: Attribute "href"                        False False
-  HreflangA                   :: Attribute "hreflang"                    False False
-  HttpEquivA                  :: Attribute "httpEquiv"                   False False
-  IdA                         :: Attribute "id"                          True  False
-  ImagesizesA                 :: Attribute "imagesizes"                  False False
-  ImagesrcsetA                :: Attribute "imagesrcset"                 False False
-  InputmodeA                  :: Attribute "inputmode"                   True  False
-  IntegrityA                  :: Attribute "integrity"                   False False
-  IsA                         :: Attribute "is"                          True  False
-  IsmapA                      :: Attribute "ismap"                       False True
-  ItemidA                     :: Attribute "itemid"                      True  False
-  ItempropA                   :: Attribute "itemprop"                    True  False
-  ItemrefA                    :: Attribute "itemref"                     True  False
-  ItemscopeA                  :: Attribute "itemscope"                   True  True
-  ItemtypeA                   :: Attribute "itemtype"                    True  False
-  KindA                       :: Attribute "kind"                        False False
-  LabelA                      :: Attribute "label"                       False False
-  LangA                       :: Attribute "lang"                        True  False
-  ListA                       :: Attribute "list"                        False False
-  LoadingA                    :: Attribute "loading"                     False False
-  LoopA                       :: Attribute "loop"                        False True
-  LowA                        :: Attribute "low"                         False False
-  ManifestA                   :: Attribute "manifest"                    False False
-  MaxA                        :: Attribute "max"                         False False
-  MaxlengthA                  :: Attribute "maxlength"                   False False
-  MediaA                      :: Attribute "media"                       False False
-  MethodA                     :: Attribute "method"                      False False
-  MinA                        :: Attribute "min"                         False False
-  MinlengthA                  :: Attribute "minlength"                   False False
-  MultipleA                   :: Attribute "multiple"                    False True
-  MutedA                      :: Attribute "muted"                       False True
-  NameA                       :: Attribute "name"                        False False
-  NomoduleA                   :: Attribute "nomodule"                    False True
-  NonceA                      :: Attribute "nonce"                       True  False
-  NovalidateA                 :: Attribute "novalidate"                  False True
-  OpenA                       :: Attribute "open"                        False True
-  OptimumA                    :: Attribute "optimum"                     False False
-  PatternA                    :: Attribute "pattern"                     False False
-  PingA                       :: Attribute "ping"                        False False
-  PlaceholderA                :: Attribute "placeholder"                 False False
-  PlaysinlineA                :: Attribute "playsinline"                 False True
-  PosterA                     :: Attribute "poster"                      False False
-  PreloadA                    :: Attribute "preload"                     False False
-  ReadonlyA                   :: Attribute "readonly"                    False True
-  ReferrerpolicyA             :: Attribute "referrerpolicy"              False False
-  RelA                        :: Attribute "rel"                         False False
-  RequiredA                   :: Attribute "required"                    False True
-  ReversedA                   :: Attribute "reversed"                    False True
-  RowsA                       :: Attribute "rows"                        False False
-  RowspanA                    :: Attribute "rowspan"                     False False
-  SandboxA                    :: Attribute "sandbox"                     False False
-  ScopeA                      :: Attribute "scope"                       False False
-  SelectedA                   :: Attribute "selected"                    False True
-  ShapeA                      :: Attribute "shape"                       False False
-  SizeA                       :: Attribute "size"                        False False
-  SizesA                      :: Attribute "sizes"                       False False
-  SlotA                       :: Attribute "slot"                        True  False
-  SpanA                       :: Attribute "span"                        False False
-  SpellcheckA                 :: Attribute "spellcheck"                  True  False
-  SrcA                        :: Attribute "src"                         False False
-  SrcdocA                     :: Attribute "srcdoc"                      False False
-  SrclangA                    :: Attribute "srclang"                     False False
-  SrcsetA                     :: Attribute "srcset"                      False False
-  StartA                      :: Attribute "start"                       False False
-  StepA                       :: Attribute "step"                        False False
-  StyleA                      :: Attribute "style"                       True  False
-  TabindexA                   :: Attribute "tabindex"                    True  False
-  TargetA                     :: Attribute "target"                      False False
-  TitleA                      :: Attribute "title"                       True  False
-  TranslateA                  :: Attribute "translate"                   True  False
-  TypeA                       :: Attribute "type"                        False False
-  UsemapA                     :: Attribute "usemap"                      False False
-  ValueA                      :: Attribute "value"                       False False
-  WidthA                      :: Attribute "width"                       False False
-  WrapA                       :: Attribute "wrap"                        False False
+data instance Attribute "abbr"                      False False = AbbrA
+data instance Attribute "accept"                    False False = AcceptA
+data instance Attribute "accept-charset"            False False = AcceptCharsetA
+data instance Attribute "accesskey"                 True  False = AccesskeyA
+data instance Attribute "action"                    False False = ActionA
+data instance Attribute "allow"                     False False = AllowA
+data instance Attribute "allowfullscreen"           False True  = AllowfullscreenA
+data instance Attribute "alt"                       False False = AltA
+data instance Attribute "as"                        False False = AsA
+data instance Attribute "async"                     False True  = AsyncA
+data instance Attribute "autocapitalize"            True  False = AutocapitalizeA
+data instance Attribute "autocomplete"              False False = AutocompleteA
+data instance Attribute "autofocus"                 True  True  = AutofocusA
+data instance Attribute "autoplay"                  False True  = AutoplayA
+data instance Attribute "charset"                   False False = CharsetA
+data instance Attribute "checked"                   False True  = CheckedA
+data instance Attribute "cite"                      False False = CiteA
+data instance Attribute "class"                     True  False = ClassA
+data instance Attribute "color"                     False False = ColorA
+data instance Attribute "cols"                      False False = ColsA
+data instance Attribute "colspan"                   False False = ColspanA
+data instance Attribute "content"                   False False = ContentA
+data instance Attribute "contenteditable"           True  False = ContenteditableA
+data instance Attribute "controls"                  False True  = ControlsA
+data instance Attribute "coords"                    False False = CoordsA
+data instance Attribute "crossorigin"               False False = CrossoriginA
+data instance Attribute "data"                      False False = DataA
+data instance Attribute "datetime"                  False False = DatetimeA
+data instance Attribute "decoding"                  False False = DecodingA
+data instance Attribute "default"                   False True  = DefaultA
+data instance Attribute "defer"                     False True  = DeferA
+data instance Attribute "dir"                       True  False = DirA
+data instance Attribute "dirname"                   False False = DirnameA
+data instance Attribute "disabled"                  False True  = DisabledA
+data instance Attribute "download"                  False False = DownloadA
+data instance Attribute "draggable"                 True  False = DraggableA
+data instance Attribute "enctype"                   False False = EnctypeA
+data instance Attribute "enterkeyhint"              True  False = EnterkeyhintA
+data instance Attribute "for"                       False False = ForA
+data instance Attribute "form"                      False False = FormA
+data instance Attribute "formaction"                False False = FormactionA
+data instance Attribute "formenctype"               False False = FormenctypeA
+data instance Attribute "formmethod"                False False = FormmethodA
+data instance Attribute "formnovalidate"            False True  = FormnovalidateA
+data instance Attribute "formtarget"                False False = FormtargetA
+data instance Attribute "headers"                   False False = HeadersA
+data instance Attribute "height"                    False False = HeightA
+data instance Attribute "hidden"                    True  True  = HiddenA
+data instance Attribute "high"                      False False = HighA
+data instance Attribute "href"                      False False = HrefA
+data instance Attribute "hreflang"                  False False = HreflangA
+data instance Attribute "httpEquiv"                 False False = HttpEquivA
+data instance Attribute "id"                        True  False = IdA
+data instance Attribute "imagesizes"                False False = ImagesizesA
+data instance Attribute "imagesrcset"               False False = ImagesrcsetA
+data instance Attribute "inputmode"                 True  False = InputmodeA
+data instance Attribute "integrity"                 False False = IntegrityA
+data instance Attribute "is"                        True  False = IsA
+data instance Attribute "ismap"                     False True  = IsmapA
+data instance Attribute "itemid"                    True  False = ItemidA
+data instance Attribute "itemprop"                  True  False = ItempropA
+data instance Attribute "itemref"                   True  False = ItemrefA
+data instance Attribute "itemscope"                 True  True  = ItemscopeA
+data instance Attribute "itemtype"                  True  False = ItemtypeA
+data instance Attribute "kind"                      False False = KindA
+data instance Attribute "label"                     False False = LabelA
+data instance Attribute "lang"                      True  False = LangA
+data instance Attribute "list"                      False False = ListA
+data instance Attribute "loading"                   False False = LoadingA
+data instance Attribute "loop"                      False True  = LoopA
+data instance Attribute "low"                       False False = LowA
+data instance Attribute "manifest"                  False False = ManifestA
+data instance Attribute "max"                       False False = MaxA
+data instance Attribute "maxlength"                 False False = MaxlengthA
+data instance Attribute "media"                     False False = MediaA
+data instance Attribute "method"                    False False = MethodA
+data instance Attribute "min"                       False False = MinA
+data instance Attribute "minlength"                 False False = MinlengthA
+data instance Attribute "multiple"                  False True  = MultipleA
+data instance Attribute "muted"                     False True  = MutedA
+data instance Attribute "name"                      False False = NameA
+data instance Attribute "nomodule"                  False True  = NomoduleA
+data instance Attribute "nonce"                     True  False = NonceA
+data instance Attribute "novalidate"                False True  = NovalidateA
+data instance Attribute "open"                      False True  = OpenA
+data instance Attribute "optimum"                   False False = OptimumA
+data instance Attribute "pattern"                   False False = PatternA
+data instance Attribute "ping"                      False False = PingA
+data instance Attribute "placeholder"               False False = PlaceholderA
+data instance Attribute "playsinline"               False True  = PlaysinlineA
+data instance Attribute "poster"                    False False = PosterA
+data instance Attribute "preload"                   False False = PreloadA
+data instance Attribute "readonly"                  False True  = ReadonlyA
+data instance Attribute "referrerpolicy"            False False = ReferrerpolicyA
+data instance Attribute "rel"                       False False = RelA
+data instance Attribute "required"                  False True  = RequiredA
+data instance Attribute "reversed"                  False True  = ReversedA
+data instance Attribute "rows"                      False False = RowsA
+data instance Attribute "rowspan"                   False False = RowspanA
+data instance Attribute "sandbox"                   False False = SandboxA
+data instance Attribute "scope"                     False False = ScopeA
+data instance Attribute "selected"                  False True  = SelectedA
+data instance Attribute "shape"                     False False = ShapeA
+data instance Attribute "size"                      False False = SizeA
+data instance Attribute "sizes"                     False False = SizesA
+data instance Attribute "slot"                      True  False = SlotA
+data instance Attribute "span"                      False False = SpanA
+data instance Attribute "spellcheck"                True  False = SpellcheckA
+data instance Attribute "src"                       False False = SrcA
+data instance Attribute "srcdoc"                    False False = SrcdocA
+data instance Attribute "srclang"                   False False = SrclangA
+data instance Attribute "srcset"                    False False = SrcsetA
+data instance Attribute "start"                     False False = StartA
+data instance Attribute "step"                      False False = StepA
+data instance Attribute "style"                     True  False = StyleA
+data instance Attribute "tabindex"                  True  False = TabindexA
+data instance Attribute "target"                    False False = TargetA
+data instance Attribute "title"                     True  False = TitleA
+data instance Attribute "translate"                 True  False = TranslateA
+data instance Attribute "type"                      False False = TypeA
+data instance Attribute "usemap"                    False False = UsemapA
+data instance Attribute "value"                     False False = ValueA
+data instance Attribute "width"                     False False = WidthA
+data instance Attribute "wrap"                      False False = WrapA
 
   -- List of event handler content attributes
-  OnabortA                    :: Attribute "onabort"                     True  False
-  OnauxclickA                 :: Attribute "onauxclick"                  True  False
-  OnafterprintA               :: Attribute "onafterprint"                False False
-  OnbeforeprintA              :: Attribute "onbeforeprint"               False False
-  OnbeforeunloadA             :: Attribute "onbeforeunload"              False False
-  OnblurA                     :: Attribute "onblur"                      True  False
-  OncancelA                   :: Attribute "oncancel"                    True  False
-  OncanplayA                  :: Attribute "oncanplay"                   True  False
-  OncanplaythroughA           :: Attribute "oncanplaythrough"            True  False
-  OnchangeA                   :: Attribute "onchange"                    True  False
-  OnclickA                    :: Attribute "onclick"                     True  False
-  OncloseA                    :: Attribute "onclose"                     True  False
-  OncontextmenuA              :: Attribute "oncontextmenu"               True  False
-  OncopyA                     :: Attribute "oncopy"                      True  False
-  OncuechangeA                :: Attribute "oncuechange"                 True  False
-  OncutA                      :: Attribute "oncut"                       True  False
-  OndblclickA                 :: Attribute "ondblclick"                  True  False
-  OndragA                     :: Attribute "ondrag"                      True  False
-  OndragendA                  :: Attribute "ondragend"                   True  False
-  OndragenterA                :: Attribute "ondragenter"                 True  False
-  OndragleaveA                :: Attribute "ondragleave"                 True  False
-  OndragoverA                 :: Attribute "ondragover"                  True  False
-  OndragstartA                :: Attribute "ondragstart"                 True  False
-  OndropA                     :: Attribute "ondrop"                      True  False
-  OndurationchangeA           :: Attribute "ondurationchange"            True  False
-  OnemptiedA                  :: Attribute "onemptied"                   True  False
-  OnendedA                    :: Attribute "onended"                     True  False
-  OnerrorA                    :: Attribute "onerror"                     True  False
-  OnfocusA                    :: Attribute "onfocus"                     True  False
-  OnformdataA                 :: Attribute "onformdata"                  True  False
-  OnhashchangeA               :: Attribute "onhashchange"                False False
-  OninputA                    :: Attribute "oninput"                     True  False
-  OninvalidA                  :: Attribute "oninvalid"                   True  False
-  OnkeydownA                  :: Attribute "onkeydown"                   True  False
-  OnkeypressA                 :: Attribute "onkeypress"                  True  False
-  OnkeyupA                    :: Attribute "onkeyup"                     True  False
-  OnlanguagechangeA           :: Attribute "onlanguagechange"            False False
-  OnloadA                     :: Attribute "onload"                      True  False
-  OnloadeddataA               :: Attribute "onloadeddata"                True  False
-  OnloadedmetadataA           :: Attribute "onloadedmetadata"            True  False
-  OnloadstartA                :: Attribute "onloadstart"                 True  False
-  OnmessageA                  :: Attribute "onmessage"                   False False
-  OnmessageerrorA             :: Attribute "onmessageerror"              False False
-  OnmousedownA                :: Attribute "onmousedown"                 True  False
-  OnmouseenterA               :: Attribute "onmouseenter"                True  False
-  OnmouseleaveA               :: Attribute "onmouseleave"                True  False
-  OnmousemoveA                :: Attribute "onmousemove"                 True  False
-  OnmouseoutA                 :: Attribute "onmouseout"                  True  False
-  OnmouseoverA                :: Attribute "onmouseover"                 True  False
-  OnmouseupA                  :: Attribute "onmouseup"                   True  False
-  OnofflineA                  :: Attribute "onoffline"                   False False
-  OnonlineA                   :: Attribute "ononline"                    False False
-  OnpagehideA                 :: Attribute "onpagehide"                  False False
-  OnpageshowA                 :: Attribute "onpageshow"                  False False
-  OnpasteA                    :: Attribute "onpaste"                     True  False
-  OnpauseA                    :: Attribute "onpause"                     True  False
-  OnplayA                     :: Attribute "onplay"                      True  False
-  OnplayingA                  :: Attribute "onplaying"                   True  False
-  OnpopstateA                 :: Attribute "onpopstate"                  False False
-  OnprogressA                 :: Attribute "onprogress"                  True  False
-  OnratechangeA               :: Attribute "onratechange"                True  False
-  OnresetA                    :: Attribute "onreset"                     True  False
-  OnresizeA                   :: Attribute "onresize"                    True  False
-  OnrejectionhandledA         :: Attribute "onrejectionhandled"          False False
-  OnscrollA                   :: Attribute "onscroll"                    True  False
-  OnsecuritypolicyviolationA  :: Attribute "onsecuritypolicyviolation"   True  False
-  OnseekedA                   :: Attribute "onseeked"                    True  False
-  OnseekingA                  :: Attribute "onseeking"                   True  False
-  OnselectA                   :: Attribute "onselect"                    True  False
-  OnslotchangeA               :: Attribute "onslotchange"                True  False
-  OnstalledA                  :: Attribute "onstalled"                   True  False
-  OnstorageA                  :: Attribute "onstorage"                   False False
-  OnsubmitA                   :: Attribute "onsubmit"                    True  False
-  OnsuspendA                  :: Attribute "onsuspend"                   True  False
-  OntimeupdateA               :: Attribute "ontimeupdate"                True  False
-  OntoggleA                   :: Attribute "ontoggle"                    True  False
-  OnunhandledrejectionA       :: Attribute "onunhandledrejection"        False False
-  OnunloadA                   :: Attribute "onunload"                    False False
-  OnvolumechangeA             :: Attribute "onvolumechange"              True  False
-  OnwaitingA                  :: Attribute "onwaiting"                   True  False
-  OnwheelA                    :: Attribute "onwheel"                     True  False
-
-  -- [2020-11-03] ARIA https://w3c.github.io/aria/#states_and_properties
-  RoleA                       :: Attribute "role"                        True  False
-
-  -- 6.7 Definitios of States and Properties (all aria-* attributes)
-  AriaActivedescendantA       :: Attribute "aria-activedescendant"       True  False
-  AriaAtomicA                 :: Attribute "aria-atomic"                 True  False
-  AriaAutocompleteA           :: Attribute "aria-autocomplete"           True  False
-  AriaBraillelableA           :: Attribute "aria-braillelable"           True  False
-  AriaBrailleroledescriptionA :: Attribute "aria-brailleroledescription" True  False
-  AriaBusyA                   :: Attribute "aria-busy"                   True  False
-  AriaCheckedA                :: Attribute "aria-checked"                True  False
-  AriaColcountA               :: Attribute "aria-colcount"               True  False
-  AriaColindexA               :: Attribute "aria-colindex"               True  False
-  AriaColindextextA           :: Attribute "aria-colindextext"           True  False
-  AriaColspanA                :: Attribute "aria-colspan"                True  False
-  AriaControlsA               :: Attribute "aria-controls"               True  False
-  AriaCurrentA                :: Attribute "aria-current"                True  False
-  AriaDescribedbyA            :: Attribute "aria-describedby"            True  False
-  AriaDescriptionA            :: Attribute "aria-description"            True  False
-  AriaDetailsA                :: Attribute "aria-details"                True  False
-  AriaDisabledA               :: Attribute "aria-disabled"               True  False
-  AriaDropeffectA             :: Attribute "aria-dropeffect"             True  False
-  AriaErrormessageA           :: Attribute "aria-errormessage"           True  False
-  AriaExpandedA               :: Attribute "aria-expanded"               True  False
-  AriaFlowtoA                 :: Attribute "aria-flowto"                 True  False
-  AriaGrabbedA                :: Attribute "aria-grabbed"                True  False
-  AriaHaspopupA               :: Attribute "aria-haspopup"               True  False
-  AriaHiddenA                 :: Attribute "aria-hidden"                 True  False
-  AriaInvalidA                :: Attribute "aria-invalid"                True  False
-  AriaKeyshortcutsA           :: Attribute "aria-keyshortcuts"           True  False
-  AriaLabelA                  :: Attribute "aria-label"                  True  False
-  AriaLabelledByA             :: Attribute "aria-labelledBy"             True  False
-  AriaLevelA                  :: Attribute "aria-level"                  True  False
-  AriaLiveA                   :: Attribute "aria-live"                   True  False
-  AriaModalA                  :: Attribute "aria-modal"                  True  False
-  AriaMultilineA              :: Attribute "aria-multiline"              True  False
-  AriaMultiselectableA        :: Attribute "aria-multiselectable"        True  False
-  AriaOrientationA            :: Attribute "aria-orientation"            True  False
-  AriaOwnsA                   :: Attribute "aria-owns"                   True  False
-  AriaPlaceholderA            :: Attribute "aria-placeholder"            True  False
-  AriaPosinsetA               :: Attribute "aria-posinset"               True  False
-  AriaPressedA                :: Attribute "aria-pressed"                True  False
-  AriaReadonlyA               :: Attribute "aria-readonly"               True  False
-  AriaRelevantA               :: Attribute "aria-relevant"               True  False
-  AriaRequiredA               :: Attribute "aria-required"               True  False
-  AriaRoledescriptionA        :: Attribute "aria-roledescription"        True  False
-  AriaRowcountA               :: Attribute "aria-rowcount"               True  False
-  AriaRowindexA               :: Attribute "aria-rowindex"               True  False
-  AriaRowindextextA           :: Attribute "aria-rowindextext"           True  False
-  AriaRowspanA                :: Attribute "aria-rowspan"                True  False
-  AriaSelectedA               :: Attribute "aria-selected"               True  False
-  AriaSetsizeA                :: Attribute "aria-setsize"                True  False
-  AriaSortA                   :: Attribute "aria-sort"                   True  False
-  AriaValuemaxA               :: Attribute "aria-valuemax"               True  False
-  AriaValueminA               :: Attribute "aria-valuemin"               True  False
-  AriaValuenowA               :: Attribute "aria-valuenow"               True  False
-  AriaValuetextA              :: Attribute "aria-valuetext"              True  False
+data instance Attribute "onabort"                   True  False = OnabortA
+data instance Attribute "onauxclick"                True  False = OnauxclickA
+data instance Attribute "onafterprint"              False False = OnafterprintA
+data instance Attribute "onbeforeprint"             False False = OnbeforeprintA
+data instance Attribute "onbeforeunload"            False False = OnbeforeunloadA
+data instance Attribute "onblur"                    True  False = OnblurA
+data instance Attribute "oncancel"                  True  False = OncancelA
+data instance Attribute "oncanplay"                 True  False = OncanplayA
+data instance Attribute "oncanplaythrough"          True  False = OncanplaythroughA
+data instance Attribute "onchange"                  True  False = OnchangeA
+data instance Attribute "onclick"                   True  False = OnclickA
+data instance Attribute "onclose"                   True  False = OncloseA
+data instance Attribute "oncontextmenu"             True  False = OncontextmenuA
+data instance Attribute "oncopy"                    True  False = OncopyA
+data instance Attribute "oncuechange"               True  False = OncuechangeA
+data instance Attribute "oncut"                     True  False = OncutA
+data instance Attribute "ondblclick"                True  False = OndblclickA
+data instance Attribute "ondrag"                    True  False = OndragA
+data instance Attribute "ondragend"                 True  False = OndragendA
+data instance Attribute "ondragenter"               True  False = OndragenterA
+data instance Attribute "ondragleave"               True  False = OndragleaveA
+data instance Attribute "ondragover"                True  False = OndragoverA
+data instance Attribute "ondragstart"               True  False = OndragstartA
+data instance Attribute "ondrop"                    True  False = OndropA
+data instance Attribute "ondurationchange"          True  False = OndurationchangeA
+data instance Attribute "onemptied"                 True  False = OnemptiedA
+data instance Attribute "onended"                   True  False = OnendedA
+data instance Attribute "onerror"                   True  False = OnerrorA
+data instance Attribute "onfocus"                   True  False = OnfocusA
+data instance Attribute "onformdata"                True  False = OnformdataA
+data instance Attribute "onhashchange"              False False = OnhashchangeA
+data instance Attribute "oninput"                   True  False = OninputA
+data instance Attribute "oninvalid"                 True  False = OninvalidA
+data instance Attribute "onkeydown"                 True  False = OnkeydownA
+data instance Attribute "onkeypress"                True  False = OnkeypressA
+data instance Attribute "onkeyup"                   True  False = OnkeyupA
+data instance Attribute "onlanguagechange"          False False = OnlanguagechangeA
+data instance Attribute "onload"                    True  False = OnloadA
+data instance Attribute "onloadeddata"              True  False = OnloadeddataA
+data instance Attribute "onloadedmetadata"          True  False = OnloadedmetadataA
+data instance Attribute "onloadstart"               True  False = OnloadstartA
+data instance Attribute "onmessage"                 False False = OnmessageA
+data instance Attribute "onmessageerror"            False False = OnmessageerrorA
+data instance Attribute "onmousedown"               True  False = OnmousedownA
+data instance Attribute "onmouseenter"              True  False = OnmouseenterA
+data instance Attribute "onmouseleave"              True  False = OnmouseleaveA
+data instance Attribute "onmousemove"               True  False = OnmousemoveA
+data instance Attribute "onmouseout"                True  False = OnmouseoutA
+data instance Attribute "onmouseover"               True  False = OnmouseoverA
+data instance Attribute "onmouseup"                 True  False = OnmouseupA
+data instance Attribute "onoffline"                 False False = OnofflineA
+data instance Attribute "ononline"                  False False = OnonlineA
+data instance Attribute "onpagehide"                False False = OnpagehideA
+data instance Attribute "onpageshow"                False False = OnpageshowA
+data instance Attribute "onpaste"                   True  False = OnpasteA
+data instance Attribute "onpause"                   True  False = OnpauseA
+data instance Attribute "onplay"                    True  False = OnplayA
+data instance Attribute "onplaying"                 True  False = OnplayingA
+data instance Attribute "onpopstate"                False False = OnpopstateA
+data instance Attribute "onprogress"                True  False = OnprogressA
+data instance Attribute "onratechange"              True  False = OnratechangeA
+data instance Attribute "onreset"                   True  False = OnresetA
+data instance Attribute "onresize"                  True  False = OnresizeA
+data instance Attribute "onrejectionhandled"        False False = OnrejectionhandledA
+data instance Attribute "onscroll"                  True  False = OnscrollA
+data instance Attribute "onsecuritypolicyviolation" True  False = OnsecuritypolicyviolationA
+data instance Attribute "onseeked"                  True  False = OnseekedA
+data instance Attribute "onseeking"                 True  False = OnseekingA
+data instance Attribute "onselect"                  True  False = OnselectA
+data instance Attribute "onslotchange"              True  False = OnslotchangeA
+data instance Attribute "onstalled"                 True  False = OnstalledA
+data instance Attribute "onstorage"                 False False = OnstorageA
+data instance Attribute "onsubmit"                  True  False = OnsubmitA
+data instance Attribute "onsuspend"                 True  False = OnsuspendA
+data instance Attribute "ontimeupdate"              True  False = OntimeupdateA
+data instance Attribute "ontoggle"                  True  False = OntoggleA
+data instance Attribute "onunhandledrejection"      False False = OnunhandledrejectionA
+data instance Attribute "onunload"                  False False = OnunloadA
+data instance Attribute "onvolumechange"            True  False = OnvolumechangeA
+data instance Attribute "onwaiting"                 True  False = OnwaitingA
+data instance Attribute "onwheel"                   True  False = OnwheelA
 
 -- |
 -- = Utilities
 
-type GetAttributeName (e :: Attribute a global boolean) = a
-
-type (&) k b = GetAttributeName k ': b
-
 newtype Lawless a = Lawless a
-
-infixr 5 &
 
 -- | We need efficient cons, snoc and append.  This API has cons(O1)
 -- and snoc(O1) but append(On).  Optimal would be a FingerTree.
