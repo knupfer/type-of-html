@@ -26,9 +26,10 @@ source-repository     head
 library
   exposed-modules:    Html
                     , Html.Aria
+                    , Html.Obsolete
+                    , Html.Render
                     , Html.Type
                     , Html.Convert
-                    , Html.Obsolete
                     , Html.QualifiedDo
   other-modules:      Html.Type.Internal
                     , Html.Reify

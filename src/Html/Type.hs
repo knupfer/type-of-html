@@ -5,8 +5,8 @@ module Html.Type
   , (#)
   , (:>)(..)
   , (:@)(..)
-  , Element(..)
-  , Attribute(..)
+  , Element
+  , Attribute
   , CompactHTML
   , Put(..)
   , V(..)
