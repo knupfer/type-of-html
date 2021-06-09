@@ -4,7 +4,10 @@
 {-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE DataKinds     #-}
 
-module Html.Obsolete where
+module Html.Obsolete
+  ( module Html.Obsolete
+  , module Html.Type
+  ) where
 
 import Html.Type
 

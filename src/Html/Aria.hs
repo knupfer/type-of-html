@@ -3,7 +3,10 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds    #-}
 
-module Html.Aria where
+module Html.Aria
+  ( module Html.Aria
+  , module Html.Type
+  ) where
 
 import Html.Type
 

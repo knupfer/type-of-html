@@ -26,8 +26,8 @@ data instance Element
     '[]
   = DOCTYPE
 
-  -- | \ 4.1 The document element
-  --     4.1.1
+-- | \ 4.1 The document element
+--     4.1.1
 data instance Element
     "html"
     '[]
@@ -36,8 +36,8 @@ data instance Element
     '["manifest"]
   = Html
 
-  -- | \ 4.2 Document metadata
-  --     4.2.1
+-- | \ 4.2 Document metadata
+--     4.2.1
 data instance Element
     "head"
     '[]
@@ -52,7 +52,7 @@ data instance Element
     '[]
   = Head
 
-  -- | \ 4.2.2
+-- | \ 4.2.2
 data instance Element
     "title"
     '[Metadata]
@@ -61,7 +61,7 @@ data instance Element
     '[]
   = Title
 
-  -- | \ 4.2.3
+-- | \ 4.2.3
 data instance Element
     "base"
     '[Metadata]
@@ -69,7 +69,7 @@ data instance Element
     '["href", "target"]
   = Base
 
-  -- | \ 4.2.4
+-- | \ 4.2.4
 data instance Element
     "link"
     '[Metadata, Flow, Phrasing]
@@ -77,7 +77,7 @@ data instance Element
     '["href", "crossorigin", "rel", "media", "integrity", "hreflang", "type", "referrerpolicy", "sizes", "imagesrcset", "imagesizes", "as", "rel", "color", "disabled"]
   = Link
 
-  -- | \ 4.2.5
+-- | \ 4.2.5
 data instance Element
     "meta"
     '[Metadata, Flow, Phrasing]
@@ -85,7 +85,7 @@ data instance Element
     '["name", "httpequiv", "content", "charset"]
   = Meta
 
-  -- | \ 4.2.6
+-- | \ 4.2.6
 data instance Element
     "style"
     '[Metadata]
@@ -94,8 +94,8 @@ data instance Element
     '["media"]
   = Style
 
-  -- | \ 4.3 Sections
-  --     4.3.1
+-- | \ 4.3 Sections
+--     4.3.1
 data instance Element
     "body"
     '[]
@@ -103,7 +103,7 @@ data instance Element
     '["onafterprint", "onbeforeprint", "onbeforeunload", "onhashchange", "onlanguagechange", "onmessage", "onmessageerror", "onoffline", "ononline", "onpagehide", "onpageshow", "onpopstate", "onrejectionhandled", "onstorage", "onunhandledrejection", "onunload"]
   = Body
 
-  -- | \ 4.3.2
+-- | \ 4.3.2
 data instance Element
     "article"
     '[Flow, Sectioning, Palpable]
@@ -111,7 +111,7 @@ data instance Element
     '[]
   = Article
 
-  -- | \ 4.3.3
+-- | \ 4.3.3
 data instance Element
     "section"
     '[Flow, Sectioning, Palpable]
@@ -119,7 +119,7 @@ data instance Element
     '[]
   = Section
 
-  -- | \ 4.3.4
+-- | \ 4.3.4
 data instance Element
     "nav"
     '[Flow, Sectioning, Palpable]
@@ -127,7 +127,7 @@ data instance Element
     '[]
   = Nav
 
-  -- | \ 4.3.5
+-- | \ 4.3.5
 data instance Element
     "aside"
     '[Flow, Sectioning, Palpable]
@@ -135,7 +135,7 @@ data instance Element
     '[]
   = Aside
 
-  -- | \ 4.3.6
+-- | \ 4.3.6
 data instance Element
     "h1"
     '[Flow, Heading, Palpable]
@@ -178,7 +178,7 @@ data instance Element
     '[]
   = H6
 
-  -- | \ 4.3.7
+-- | \ 4.3.7
 data instance Element
     "hgroup"
     '[Flow, Heading, Palpable]
@@ -186,7 +186,7 @@ data instance Element
     '[]
   = Hgroup
 
-  -- | \ 4.3.8
+-- | \ 4.3.8
 data instance Element
     "header"
     '[Flow, Palpable]
@@ -195,7 +195,7 @@ data instance Element
     '[]
   = Header
 
-  -- | \ 4.3.9
+-- | \ 4.3.9
 data instance Element
     "footer"
     '[Flow, Palpable]
@@ -204,7 +204,7 @@ data instance Element
     '[]
   = Footer
 
-  -- | \ 4.3.10
+-- | \ 4.3.10
 data instance Element
     "address"
     '[Flow, Palpable]
@@ -215,8 +215,8 @@ data instance Element
     '[]
   = Address
 
-  -- | \ 4.4 Grouping content
-  --     4.4.1
+-- | \ 4.4 Grouping content
+--     4.4.1
 data instance Element
     "p"
     '[Flow, Palpable]
@@ -224,7 +224,7 @@ data instance Element
     '[]
   = P
 
-  -- | \ 4.4.2
+-- | \ 4.4.2
 data instance Element
     "hr"
     '[Flow]
@@ -232,7 +232,7 @@ data instance Element
     '[]
   = Hr
 
-  -- | \ 4.4.3
+-- | \ 4.4.3
 data instance Element
     "pre"
     '[Flow, Palpable]
@@ -240,7 +240,7 @@ data instance Element
     '[]
   = Pre
 
-  -- | \ 4.4.4
+-- | \ 4.4.4
 data instance Element
     "blockquote"
     '[Flow, Palpable]
@@ -248,7 +248,7 @@ data instance Element
     '["cite"]
   = Blockquote
 
-  -- | \ 4.4.5
+-- | \ 4.4.5
 data instance Element
     "ol"
     '[Flow, Palpable]
@@ -256,7 +256,7 @@ data instance Element
     '["reversed", "start", "type"]
   = Ol
 
-  -- | \ 4.4.6
+-- | \ 4.4.6
 data instance Element
     "ul"
     '[Flow, Palpable]
@@ -264,7 +264,7 @@ data instance Element
     '[]
   = Ul
 
-  -- | \ 4.4.7
+-- | \ 4.4.7
 data instance Element
     "menu"
     '[Flow, Palpable]
@@ -272,7 +272,7 @@ data instance Element
     '[]
   = Menu
 
-  -- | \ 4.4.8
+-- | \ 4.4.8
 data instance Element
     "li"
     '[]
@@ -280,7 +280,7 @@ data instance Element
     '["value"]
   = Li
 
-  -- | \ 4.4.9
+-- | \ 4.4.9
 data instance Element
     "dl"
     '[Flow, Palpable]
@@ -288,7 +288,7 @@ data instance Element
     '[]
   = Dl
 
-  -- | \ 4.4.10
+-- | \ 4.4.10
 data instance Element
     "dt"
     '[]
@@ -296,7 +296,7 @@ data instance Element
     '[]
   = Dt
 
-  -- | \ 4.4.11
+-- | \ 4.4.11
 data instance Element
     "dd"
     '[]
@@ -304,7 +304,7 @@ data instance Element
     '[]
   = Dd
 
-  -- | \ 4.4.12
+-- | \ 4.4.12
 data instance Element
     "figure"
     '[Flow, Palpable]
@@ -315,7 +315,7 @@ data instance Element
     '[]
   = Figure
 
-  -- | \ 4.4.13
+-- | \ 4.4.13
 data instance Element
     "figcaption"
     '[]
@@ -323,7 +323,7 @@ data instance Element
     '[]
   = Figcaption
 
-  -- | \ 4.4.14
+-- | \ 4.4.14
 data instance Element
     "main"
     '[Flow, Palpable]
@@ -331,7 +331,7 @@ data instance Element
     '[]
   = Main
 
-  -- | \ 4.4.15
+-- | \ 4.4.15
 data instance Element
     "div"
     '[Flow, Palpable]
@@ -343,8 +343,8 @@ data instance Element
     '[]
   = Div
 
-  -- | \ 4.5 Text-level semantics
-  --     4.5.1
+-- | \ 4.5 Text-level semantics
+--     4.5.1
 data instance Element
     "a"
     '[Flow, Phrasing, Interactive, Palpable]
@@ -355,7 +355,7 @@ data instance Element
     '["href", "target", "download", "ping", "rel", "hreflang", "type", "referrerpolicy"]
   = A
 
-  -- | \ 4.5.2
+-- | \ 4.5.2
 data instance Element
     "em"
     '[Flow, Phrasing, Palpable]
@@ -363,7 +363,7 @@ data instance Element
     '[]
   = Em
 
-  -- | \ 4.5.3
+-- | \ 4.5.3
 data instance Element
     "strong"
     '[Flow, Phrasing, Palpable]
@@ -371,7 +371,7 @@ data instance Element
     '[]
   = Strong
 
-  -- | \ 4.5.4
+-- | \ 4.5.4
 data instance Element
     "small"
     '[Flow, Phrasing, Palpable]
@@ -379,7 +379,7 @@ data instance Element
     '[]
   = Small
 
-  -- | \ 4.5.5
+-- | \ 4.5.5
 data instance Element
     "s"
     '[Flow, Phrasing, Palpable]
@@ -387,7 +387,7 @@ data instance Element
     '[]
   = S
 
-  -- | \ 4.5.6
+-- | \ 4.5.6
 data instance Element
     "cite"
     '[Flow, Phrasing, Palpable]
@@ -395,7 +395,7 @@ data instance Element
     '[]
   = Cite
 
-  -- | \ 4.5.7
+-- | \ 4.5.7
 data instance Element
     "q"
     '[Flow, Phrasing, Palpable]
@@ -403,7 +403,7 @@ data instance Element
     '["cite"]
   = Q
 
-  -- | \ 4.5.8
+-- | \ 4.5.8
 data instance Element
     "dfn"
     '[Flow, Phrasing, Palpable]
@@ -411,7 +411,7 @@ data instance Element
     '[]
   = Dfn
 
-  -- | \ 4.5.9
+-- | \ 4.5.9
 data instance Element
     "abbr"
     '[Flow, Phrasing, Palpable]
@@ -419,7 +419,7 @@ data instance Element
     '[]
   = Abbr
 
-  -- | \ 4.5.10
+-- | \ 4.5.10
 data instance Element
     "ruby"
     '[Flow, Phrasing, Palpable]
@@ -427,7 +427,7 @@ data instance Element
     '[]
   = Ruby
 
-  -- | \ 4.5.11
+-- | \ 4.5.11
 data instance Element
     "rt"
     '[]
@@ -435,7 +435,7 @@ data instance Element
     '[]
   = Rt
 
-  -- | \ 4.5.12
+-- | \ 4.5.12
 data instance Element
     "rp"
     '[]
@@ -443,7 +443,7 @@ data instance Element
     '[]
   = Rp
 
-  -- | \ 4.5.13
+-- | \ 4.5.13
 data instance Element
     "data"
     '[Flow, Phrasing, Palpable]
@@ -451,7 +451,7 @@ data instance Element
     '["value"]
   = Data
 
-  -- | \ 4.5.14
+-- | \ 4.5.14
 data instance Element
     "time"
     '[Flow, Phrasing, Palpable]
@@ -459,7 +459,7 @@ data instance Element
     '["datetime"]
   = Time
 
-  -- | \ 4.5.15
+-- | \ 4.5.15
 data instance Element
     "code"
     '[Flow, Phrasing, Palpable]
@@ -467,7 +467,7 @@ data instance Element
     '[]
   = Code
 
-  -- | \ 4.5.16
+-- | \ 4.5.16
 data instance Element
     "var"
     '[Flow, Phrasing, Palpable]
@@ -475,7 +475,7 @@ data instance Element
     '[]
   = Var
 
-  -- | \ 4.5.17
+-- | \ 4.5.17
 data instance Element
     "samp"
     '[Flow, Phrasing, Palpable]
@@ -483,7 +483,7 @@ data instance Element
     '[]
   = Samp
 
-  -- | \ 4.5.18
+-- | \ 4.5.18
 data instance Element
     "kbd"
     '[Flow, Phrasing, Palpable]
@@ -491,7 +491,7 @@ data instance Element
     '[]
   = Kbd
 
-  -- | \ 4.5.19
+-- | \ 4.5.19
 data instance Element
     "sub"
     '[Flow, Phrasing, Palpable]
@@ -506,7 +506,7 @@ data instance Element
     '[]
   = Sup
 
-  -- | \ 4.5.20
+-- | \ 4.5.20
 data instance Element
     "i"
     '[Flow, Phrasing, Palpable]
@@ -514,7 +514,7 @@ data instance Element
     '[]
   = I
 
-  -- | \ 4.5.21
+-- | \ 4.5.21
 data instance Element
     "b"
     '[Flow, Phrasing, Palpable]
@@ -522,7 +522,7 @@ data instance Element
     '[]
   = B
 
-  -- | \ 4.5.22
+-- | \ 4.5.22
 data instance Element
     "u"
     '[Flow, Phrasing, Palpable]
@@ -530,7 +530,7 @@ data instance Element
     '[]
   = U
 
-  -- | \ 4.5.23
+-- | \ 4.5.23
 data instance Element
     "mark"
     '[Flow, Phrasing, Palpable]
@@ -538,7 +538,7 @@ data instance Element
     '[]
   = Mark
 
-  -- | \ 4.5.24
+-- | \ 4.5.24
 data instance Element
     "bdi"
     '[Flow, Phrasing, Palpable]
@@ -546,7 +546,7 @@ data instance Element
     '[]
   = Bdi
 
-  -- | \ 4.5.25
+-- | \ 4.5.25
 data instance Element
     "bdo"
     '[Flow, Phrasing, Palpable]
@@ -554,7 +554,7 @@ data instance Element
     '[]
   = Bdo
 
-  -- | \ 4.5.26
+-- | \ 4.5.26
 data instance Element
     "span"
     '[Flow, Phrasing, Palpable]
@@ -562,7 +562,7 @@ data instance Element
     '[]
   = Span
 
-  -- | \ 4.5.27
+-- | \ 4.5.27
 data instance Element
     "br"
     '[Flow, Phrasing]
@@ -570,7 +570,7 @@ data instance Element
     '[]
   = Br
 
-  -- | \ 4.5.28
+-- | \ 4.5.28
 data instance Element
     "wbr"
     '[Flow, Phrasing]
@@ -578,8 +578,8 @@ data instance Element
     '[]
   = Wbr
 
-  -- | \ 4.7 Edits
-  --     4.7.1
+-- | \ 4.7 Edits
+--     4.7.1
 data instance Element
     "ins"
     '[Flow, Phrasing, Palpable]
@@ -587,7 +587,7 @@ data instance Element
     '["cite", "datetime"]
   = Ins
 
-  -- | \ 4.7.2
+-- | \ 4.7.2
 data instance Element
     "del"
     '[Flow, Phrasing]
@@ -595,8 +595,8 @@ data instance Element
     '["cite", "datetime"]
   = Del
 
-  -- | \ 4.8 Embedded content
-  --     4.8.1
+-- | \ 4.8 Embedded content
+--     4.8.1
 data instance Element
     "picture"
     '[Flow, Phrasing, Embedded]
@@ -604,7 +604,7 @@ data instance Element
     '[]
   = Picture
 
-  -- | \ 4.8.2
+-- | \ 4.8.2
 data instance Element
     "source"
     '[]
@@ -612,7 +612,7 @@ data instance Element
     '["src", "type", "srcset", "sizes", "media"]
   = Source
 
-  -- | \ 4.8.3
+-- | \ 4.8.3
 data instance Element
     "img"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
@@ -620,7 +620,7 @@ data instance Element
     '["alt", "src", "srcset", "sizes", "crossorigin", "usemap", "ismap", "width", "height", "referrerpolicy", "decoding", "loading"]
   = Img
 
-  -- | \ 4.8.5
+-- | \ 4.8.5
 data instance Element
     "iframe"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
@@ -628,7 +628,7 @@ data instance Element
     '["src", "srcdoc", "name", "sandbox", "allow", "allowfullscreen", "width", "height", "referrerpolicy", "loading"]
   = Iframe
 
-  -- | \ 4.8.6
+-- | \ 4.8.6
 data instance Element
     "embed"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
@@ -636,7 +636,7 @@ data instance Element
     '["src", "type", "width", "height"]
   = Embed
 
-  -- | \ 4.8.7
+-- | \ 4.8.7
 data instance Element
     "object"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
@@ -644,7 +644,7 @@ data instance Element
     '["data", "type", "name", "usemap", "form", "width", "height"]
   = Object
 
-  -- | \ 4.8.8
+-- | \ 4.8.8
 data instance Element
     "param"
     '[]
@@ -652,7 +652,7 @@ data instance Element
     '["name", "value"]
   = Param
 
-  -- | \ 4.8.9
+-- | \ 4.8.9
 data instance Element
     "video"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
@@ -660,7 +660,7 @@ data instance Element
     '["src", "crossorigin", "poster", "preload", "autoplay", "playsinline", "loop", "muted", "controls", "width", "height"]
   = Video
 
-  -- | \ 4.8.10
+-- | \ 4.8.10
 data instance Element
     "audio"
     '[Flow, Phrasing, Embedded, Interactive, Palpable]
@@ -668,7 +668,7 @@ data instance Element
     '["src", "crossorigin", "preload", "autoplay", "loop", "muted", "controls"]
   = Audio
 
-  -- | \ 4.8.11
+-- | \ 4.8.11
 data instance Element
     "track"
     '[]
@@ -676,7 +676,7 @@ data instance Element
     '["kind", "src", "srclang", "label", "default"]
   = Track
 
-  -- | \ 4.8.13
+-- | \ 4.8.13
 data instance Element
     "map"
     '[Flow, Phrasing, Palpable]
@@ -684,7 +684,7 @@ data instance Element
     '["name"]
   = Map
 
-  -- | \ 4.8.14
+-- | \ 4.8.14
 data instance Element
     "area"
     '[Flow, Phrasing]
@@ -692,8 +692,8 @@ data instance Element
     '["alt", "coords", "shape", "href", "target", "download", "ping", "rel", "referrerpolicy"]
   = Area
 
-  -- | \ 4.9 Tabular data
-  --     4.9.1
+-- | \ 4.9 Tabular data
+--     4.9.1
 data instance Element
     "table"
     '[Flow, Palpable]
@@ -701,7 +701,7 @@ data instance Element
     '[]
   = Table
 
-  -- | \ 4.9.2
+-- | \ 4.9.2
 data instance Element
     "caption"
     '[]
@@ -709,7 +709,7 @@ data instance Element
     '[]
   = Caption
 
-  -- | \ 4.9.3
+-- | \ 4.9.3
 data instance Element
     "colgroup"
     '[]
@@ -717,7 +717,7 @@ data instance Element
     '["span"]
   = Colgroup
 
-  -- | \ 4.9.4
+-- | \ 4.9.4
 data instance Element
     "col"
     '[]
@@ -725,7 +725,7 @@ data instance Element
     '["span"]
   = Col
 
-  -- | \ 4.9.5
+-- | \ 4.9.5
 data instance Element
     "tbody"
     '[]
@@ -733,7 +733,7 @@ data instance Element
     '[]
   = Tbody
 
-  -- | \ 4.9.6
+-- | \ 4.9.6
 data instance Element
     "thead"
     '[]
@@ -741,7 +741,7 @@ data instance Element
     '[]
   = Thead
 
-  -- | \ 4.9.7
+-- | \ 4.9.7
 data instance Element
     "tfoot"
     '[]
@@ -749,7 +749,7 @@ data instance Element
     '[]
   = Tfoot
 
-  -- | \ 4.9.8
+-- | \ 4.9.8
 data instance Element
     "tr"
     '[]
@@ -757,7 +757,7 @@ data instance Element
     '[]
   = Tr
 
-  -- | \ 4.9.9
+-- | \ 4.9.9
 data instance Element
     "td"
     '[]
@@ -765,7 +765,7 @@ data instance Element
     '["colspan", "rowspan", "headers"]
   = Td
 
-  -- | \ 4.9.10
+-- | \ 4.9.10
 data instance Element
     "th"
     '[]
@@ -773,8 +773,8 @@ data instance Element
     '["colspan", "rowspan", "headers", "scope", "abbr"]
   = Th
 
-  -- | \ 4.10 Forms
-  --     4.10.3
+-- | \ 4.10 Forms
+--     4.10.3
 data instance Element
     "form"
     '[Flow, Palpable]
@@ -782,7 +782,7 @@ data instance Element
     '["acceptcharset", "action", "autocomplete", "enctype", "method", "name", "novalidate", "target", "rel"]
   = Form
 
-  -- | \ 4.10.4
+-- | \ 4.10.4
 data instance Element
     "label"
     '[Flow, Phrasing, Interactive, Palpable]
@@ -790,7 +790,7 @@ data instance Element
     '["for"]
   = Label
 
-  -- | \ 4.10.5
+-- | \ 4.10.5
 data instance Element
     "input"
     '[Flow, Phrasing, Interactive, Palpable]
@@ -798,7 +798,7 @@ data instance Element
     '["accept", "alt", "autocomplete", "checked", "dirname", "disabled", "form", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "height", "list", "max", "maxlength", "min", "minlength", "multiple", "name", "pattern", "placeholder", "readonly", "required", "size", "src", "step", "type", "value", "width"]
   = Input
 
-  -- | \ 4.10.6
+-- | \ 4.10.6
 data instance Element
     "button"
     '[Flow, Phrasing, Interactive, Palpable]
@@ -806,7 +806,7 @@ data instance Element
     '["disabled", "form", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "name", "type", "value"]
   = Button
 
-  -- | \ 4.10.7
+-- | \ 4.10.7
 data instance Element
     "select"
     '[Flow, Phrasing, Interactive, Palpable]
@@ -814,7 +814,7 @@ data instance Element
     '["autocomplete", "disabled", "form", "multiple", "name", "required", "size"]
   = Select
 
-  -- | \ 4.10.8
+-- | \ 4.10.8
 data instance Element
     "datalist"
     '[Flow, Phrasing]
@@ -822,7 +822,7 @@ data instance Element
     '[]
   = Datalist
 
-  -- | \ 4.10.9
+-- | \ 4.10.9
 data instance Element
     "optgroup"
     '[]
@@ -830,7 +830,7 @@ data instance Element
     '["disabled", "label"]
   = Optgroup
 
-  -- | \ 4.10.10
+-- | \ 4.10.10
 data instance Element
     "option"
     '[]
@@ -838,7 +838,7 @@ data instance Element
     '["disabled", "label", "selected", "value"]
   = Option
 
-  -- | \ 4.10.11
+-- | \ 4.10.11
 data instance Element
     "textarea"
     '[Flow, Phrasing, Interactive, Palpable]
@@ -846,7 +846,7 @@ data instance Element
     '["autocomplete", "cols", "dirname", "disabled", "form", "maxlength", "minlength", "name", "placeholder", "readonly", "required", "rows", "wrap"]
   = Textarea
 
-  -- | \ 4.10.12
+-- | \ 4.10.12
 data instance Element
     "output"
     '[Flow, Phrasing, Palpable]
@@ -854,7 +854,7 @@ data instance Element
     '["for", "form", "name"]
   = Output
 
-  -- | \ 4.10.13
+-- | \ 4.10.13
 data instance Element
     "progress"
     '[Flow, Phrasing, Palpable]
@@ -862,7 +862,7 @@ data instance Element
     '["value", "max"]
   = Progress
 
-  -- | \ 4.10.14
+-- | \ 4.10.14
 data instance Element
     "meter"
     '[Flow, Phrasing, Palpable]
@@ -870,7 +870,7 @@ data instance Element
     '["value", "min", "max", "low", "high", "optimum"]
   = Meter
 
-  -- | \ 4.10.15
+-- | \ 4.10.15
 data instance Element
     "fieldset"
     '[Flow, Palpable]
@@ -878,7 +878,7 @@ data instance Element
     '["disabled", "form", "name"]
   = Fieldset
 
-  -- | \ 4.10.16
+-- | \ 4.10.16
 data instance Element
     "legend"
     '[]
@@ -886,8 +886,8 @@ data instance Element
     '[]
   = Legend
 
-  -- | \ 4.11 Interactive elements
-  --     4.11.1
+-- | \ 4.11 Interactive elements
+--     4.11.1
 data instance Element
     "details"
     '[Flow, Interactive, Palpable]
@@ -895,7 +895,7 @@ data instance Element
     '["open"]
   = Details
 
-  -- | \ 4.11.2
+-- | \ 4.11.2
 data instance Element
     "summary"
     '[]
@@ -903,7 +903,7 @@ data instance Element
     '[]
   = Summary
 
-  -- | \ 4.11.4
+-- | \ 4.11.4
 data instance Element
     "dialog"
     '[Flow]
@@ -911,8 +911,8 @@ data instance Element
     '["open"]
   = Dialog
 
-  -- | \ 4.12 Scripting
-  --     4.12.1
+-- | \ 4.12 Scripting
+--     4.12.1
 data instance Element
     "script"
     '[Metadata, Flow, Phrasing, Scripting]
@@ -920,7 +920,7 @@ data instance Element
     '["src", "type", "nomodule", "async", "defer", "crossorigin", "integrity", "referrerpolicy"]
   = Script
 
-  -- | \ 4.12.2
+-- | \ 4.12.2
 data instance Element
     "noscript"
     '[Metadata, Flow, Phrasing]
@@ -928,7 +928,7 @@ data instance Element
     '[]
   = Noscript
 
-  -- | \ 4.12.3
+-- | \ 4.12.3
 data instance Element
     "template"
     '[Metadata, Flow, Phrasing, Scripting]
@@ -936,7 +936,7 @@ data instance Element
     '[]
   = Template
 
-  -- | \ 4.12.4
+-- | \ 4.12.4
 data instance Element
     "slot"
     '[Flow, Phrasing]
@@ -944,7 +944,7 @@ data instance Element
     '["name"]
   = Slot
 
-  -- | \ 4.12.5
+-- | \ 4.12.5
 data instance Element
     "canvas"
     '[Flow, Phrasing, Embedded, Palpable]
@@ -955,7 +955,7 @@ data instance Element
 -- |
 -- = Attributes
 
-  -- List of attributes (excluding event handler content attributes)
+-- List of attributes (excluding event handler content attributes)
 newtype instance Attribute "abbr"                      False v  = AbbrA v
 newtype instance Attribute "accept"                    False v  = AcceptA v
 newtype instance Attribute "accept-charset"            False v  = AcceptCharsetA v
@@ -1081,7 +1081,7 @@ newtype instance Attribute "value"                     False v  = ValueA v
 newtype instance Attribute "width"                     False v  = WidthA v
 newtype instance Attribute "wrap"                      False v  = WrapA v
 
-  -- List of event handler content attributes
+-- List of event handler content attributes
 newtype instance Attribute "onabort"                   True  v  = OnabortA v
 newtype instance Attribute "onauxclick"                True  v  = OnauxclickA v
 newtype instance Attribute "onafterprint"              False v  = OnafterprintA v

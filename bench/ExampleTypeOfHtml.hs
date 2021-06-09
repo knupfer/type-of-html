@@ -5,7 +5,7 @@ module ExampleTypeOfHtml (hackageUpload) where
 
 import Prelude
 import Html
-import Html.Obsolete (Element(Tt))
+import Html.Obsolete
 
 -- [2020-11-07] http://hackage.haskell.org/upload
 hackageUpload title = let (>>) = (#) in do
