@@ -1,5 +1,10 @@
 # Revision history for type-of-html
 
+* use data families for elements and attributes to allow seamless extensibility
+* remove := operator, make attributes newtype instances
+* reduction in allocations
+* cleaner and more consistent syntax
+
 ## 1.6.2.0  -- 2021-02-06
 
 * simplifications
