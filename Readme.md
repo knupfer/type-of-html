@@ -36,15 +36,15 @@ Let's check out the /type safety/ in ghci:
 And
 
 ```haskell
->>> Td :@ CoordsA := "a" :> "b"
+>>> Td :@ CoordsA "a" :> "b"
 
 <interactive>:1:1: error:
     • coords is not a valid attribute of td.
-    • In the first argument of ‘(:>)’, namely ‘Td :@ CoordsA := "a"’
-      In the expression: Td :@ CoordsA := "a" :> "b"
-      In an equation for ‘it’: it = Td :@ CoordsA := "a" :> "b"
+    • In the first argument of ‘(:>)’, namely ‘Td :@ CoordsA "a"’
+      In the expression: Td :@ CoordsA "a" :> "b"
+      In an equation for ‘it’: it = Td :@ CoordsA "a" :> "b"
 
->>> Td :@ IdA := "a" :> "b"
+>>> Td :@ IdA "a" :> "b"
 <td id="a">b</td>
 ```
 
@@ -89,7 +89,7 @@ main
   . page
   $ map (Td :>) [1..(10::Int)]
   where page tds =
-    Div :@ (ClassA:="qux" # IdA:="baz")
+    Div :@ (ClassA "qux" # IdA "baz")
     :> ( Div :> "foo"
        # Div :> "bar"
        # Table :> Tr :> tds
@@ -109,7 +109,7 @@ All text will be automatically html escaped:
 >>> I :> "&"
 <i>&amp;</i>
 
->>> Div :@ IdA:=">" :> ()
+>>> Div :@ IdA ">" :> ()
 <div id="&gt;"></div>
 ```
 
@@ -137,7 +137,7 @@ You can use Either and Maybe in your documents:
 >>> Div :> if True then Left (Div :> "a") else Right "b"
 <div><div>a</div></div>
 
->>> Div :@ (if True then Right (IdA:="a") else Left (ClassA:="a")) :> "b"
+>>> Div :@ (if True then Right (IdA "a") else Left (ClassA "a")) :> "b"
 <div id="a">b</div>
 ```
 
@@ -347,40 +347,52 @@ incur any performance penalty. Beware that it is up to you to choose a
 valid attribute name.
 
 ```haskell
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds    #-}
 
 module Main where
 
 import Html
 
-dataName :: Attribute
-            "data-name"  -- name for rendering
-            'True         -- global attribute
-            'False        -- not a boolean attribute
-dataName = CustomA
+newtype instance Attribute
+    "data-name"  -- name for rendering
+    'True        -- global attribute
+    v            -- value
+  = DataNameA v
+
+data instance Attribute
+    "person-vegan" -- name for rendering
+    'True          -- global attribute
+    ()             -- boolean attribute
+  = PersonVeganA
 
 main :: IO ()
-main = print $ Div :@ dataName:="foo" :> "bar"
+main = print $ Div :@ (DataNameA "foo" # PersonVeganA) :> "bar"
 ```
+
+Please note that you have to use `newtype instance` for attributes with
+values and `data instance` for boolean attribute.  Otherwise you'll get
+a compiler error about roles.
 
 And you can define your custom elements:
 
 ```haskell
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds    #-}
 
 module Main where
 
 import Html
 
-banana :: Element
-          "banana"          -- name for rendering
-          '[Flow, Phrasing] -- content categories
-          Flow              -- content model
-          '["async", "for"] -- allowed attributes besides global attributes
-banana = CustomElement
+data instance Element
+    "banana"          -- name for rendering
+    '[Flow, Phrasing] -- content categories
+    Flow              -- content model
+    '["async", "for"] -- allowed attributes besides global attributes
+  = Banana
 
 main :: IO ()
-main = print $ banana :@ AsyncA:="foo" :> "bar"
+main = print $ Banana :@ AsyncA "foo" :> "bar"
 ```
 
 ## Notation
@@ -400,23 +412,23 @@ main :: IO ()
 main = print $
   Html :> do
     Body :> do
-      H1 :@ IdA:="a" :> do
+      H1 :@ IdA "a" :> do
         Img
-        Strong :@ ClassA:="b" :> (0 :: Int)
+        Strong :@ ClassA "b" :> (0 :: Int)
       Div :> do
-        Div :@ IdA:="c" :> (1 :: Int)
+        Div :@ IdA "c" :> (1 :: Int)
       Div :> do
-        Form :@ ClassA:="d" :> do
+        Form :@ ClassA "d" :> do
           Fieldset :> do
-            Div :@ IdA:="e" :> do
+            Div :@ IdA "e" :> do
               Div :> do
-                Label :@ ClassA:="f" :> "a"
+                Label :@ ClassA "f" :> "a"
                 Select :> do
-                  Option :@ IdA:="g" :> "b"
+                  Option :@ IdA "g" :> "b"
                   Option :> "c"
-                Div :@ ClassA:="h" :> "d"
+                Div :@ ClassA "h" :> "d"
               I :> "a"
-            Button :@ IdA:="i" :> do
+            Button :@ IdA "i" :> do
               I :> "e"
   where
     (>>) = (#)
@@ -436,23 +448,23 @@ main :: IO ()
 main = print $
   Html :> H.do
     Body :> H.do
-      H1 :@ IdA:="a" :> H.do
+      H1 :@ IdA "a" :> H.do
         Img
-        Strong :@ ClassA:="b" :> (0 :: Int)
+        Strong :@ ClassA "b" :> (0 :: Int)
       Div :> H.do
-        Div :@ IdA:="c" :> (1 :: Int)
+        Div :@ IdA "c" :> (1 :: Int)
       Div :> H.do
-        Form :@ ClassA:="d" :> H.do
+        Form :@ ClassA "d" :> H.do
           Fieldset :> H.do
-            Div :@ IdA:="e" :> H.do
+            Div :@ IdA "e" :> H.do
               Div :> H.do
-                Label :@ ClassA:="f" :> "a"
+                Label :@ ClassA "f" :> "a"
                 Select :> H.do
-                  Option :@ IdA:="g" :> "b"
+                  Option :@ IdA "g" :> "b"
                   Option :> "c"
-                Div :@ ClassA:="h" :> "d"
+                Div :@ ClassA "h" :> "d"
               I :> "a"
-            Button :@ IdA:="i" :> H.do
+            Button :@ IdA "i" :> H.do
               I :> "e"
 ```
 

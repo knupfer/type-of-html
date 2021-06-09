@@ -105,10 +105,9 @@ compactHTML html
     indexVar _ s = fromJust (elemIndex s (showTypeList @(Variables a)))
 
 -- | Show instances to faciliate ghci development.
-instance Document (a := b) => Show (a := b) where show = renderString
 instance Document (a # b) => Show (a # b) where show = renderString
 
 instance Document (a :@ b) => Show (a :@ b) where show = renderString
 instance Document (a :> b) => Show (a :> b) where show = renderString
-instance Document (Attribute a global boolean) => Show (Attribute a global boolean) where show = renderString
+instance Document (Attribute a global value) => Show (Attribute a global value) where show = renderString
 instance Document (Element name categories contentModel contentAttributes) => Show (Element name categories contentModel contentAttributes) where show = renderString

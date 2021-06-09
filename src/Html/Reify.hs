@@ -22,6 +22,7 @@ import Html.Convert
 import Data.Proxy
 import GHC.TypeLits
 import Data.ByteString.Builder
+import Data.Coerce
 
 #if __GLASGOW_HASKELL__ <= 802
 import Data.Semigroup ((<>), Semigroup)
@@ -91,11 +92,12 @@ instance {-# INCOHERENT #-}
   render (T x) = render (One x)
 
 instance
-  ( R u (T '[ "" ] b)
+  ( R u (T '[ "" ] value)
   , R u (One (Proxy s))
   , Semigroup (RenderOutput u)
-  ) => R u (T '[s] (a := b)) where
-  render (T (_ := x)) = render (One (Proxy @s)) <> render (T x :: T '[ "" ] b)
+  , Coercible (Attribute name global value) value
+  ) => R u (T '[s] (Attribute name global value)) where
+  render (T attr) = render (One (Proxy @s)) <> render (T (coerce attr) :: T '[ "" ] value)
 
 instance {-# INCOHERENT #-}
   ( R u (T '[ "" ] val)

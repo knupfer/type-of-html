@@ -48,13 +48,13 @@ small = bgroup "Small"
   , bench "oneElement Proxy"             $ nf (run . S.oneElement) (Proxy :: Proxy "abc")
   , bench "()"                           $ nf run ()
   , bench "oneElement ()"                $ nf (run . S.oneElement) ()
-  , bench "oneAttribute"                 $ nf (run . (ClassA :=)) ""
-  , bench "oneAttribute ()"              $ nf (run . (ClassA :=))  ()
-  , bench "oneAttribute Proxy"           $ nf (run . (ClassA :=))  (Proxy :: Proxy "abc")
-  , bench "parallelAttribute"            $ nf (\x -> run $ ClassA := x # IdA := x) ""
-  , bench "elementWithAttribute"         $ nf (\x -> run $ Div :@ (ClassA := x) :> x) ""
-  , bench "elementWithParallelAttribute" $ nf (\x -> run $ Div :@ (ClassA := x # IdA := x) :> x) ""
-  , bench "listOfAttributes"             $ nf (\x -> run [ClassA := x, ClassA := x]) ""
+  , bench "oneAttribute"                 $ nf (run . ClassA) ""
+  , bench "oneAttribute ()"              $ nf (run . ClassA)  ()
+  , bench "oneAttribute Proxy"           $ nf (run . ClassA)  (Proxy :: Proxy "abc")
+  , bench "parallelAttribute"            $ nf (\x -> run $ ClassA x # IdA x) ""
+  , bench "elementWithAttribute"         $ nf (\x -> run $ Div :@ (ClassA x) :> x) ""
+  , bench "elementWithParallelAttribute" $ nf (\x -> run $ Div :@ (ClassA x # IdA x) :> x) ""
+  , bench "listOfAttributes"             $ nf (\x -> run [ClassA x, ClassA x]) ""
   , bench "listOfListOf"                 $ nf (\x -> run $ Div :> [I :> [Span :> x]]) ""
   ]
 

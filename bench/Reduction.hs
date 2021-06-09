@@ -21,7 +21,7 @@ import Html
 
 main = print p9
 
-p1 = Div :@ (IdA := 'a') :> 'b'
+p1 = Div :@ (IdA 'a') :> 'b'
 
 p2 = Div :> (p1 # p1)
 

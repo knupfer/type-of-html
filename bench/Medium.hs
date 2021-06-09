@@ -46,56 +46,56 @@ page x
      )
 
 attrShort x
-  = I :@ AccesskeyA:="a"
-    :> I :@ ClassA:="b"
-       :> I :@ ContenteditableA:="c"
-          :> I :@ TranslateA:="d"
-             :> I :@ DirA:="e"
-                :> I :@ DraggableA:="f"
+  = I :@ AccesskeyA "a"
+    :> I :@ ClassA "b"
+       :> I :@ ContenteditableA "c"
+          :> I :@ TranslateA "d"
+             :> I :@ DirA "e"
+                :> I :@ DraggableA "f"
                    :> I :@ HiddenA
-                      :> I :@ IdA:="h"
-                         :> I :@ ItempropA:="i"
-                            :> I :@ LangA:="j"
-                               :> I :@ SpellcheckA:="k"
-                                  :> I :@ StyleA:="l"
-                                     :> I :@ TitleA:=x :> "m"
+                      :> I :@ IdA "h"
+                         :> I :@ ItempropA "i"
+                            :> I :@ LangA "j"
+                               :> I :@ SpellcheckA "k"
+                                  :> I :@ StyleA "l"
+                                     :> I :@ TitleA x :> "m"
 
 attrLong x =
-  I :@ ( AccesskeyA       := "a"
-       # ClassA           := "b"
-       # ContenteditableA := "c"
-       # TranslateA       := "d"
-       # DirA             := "e"
-       # DraggableA       := "f"
+  I :@ ( AccesskeyA         "a"
+       # ClassA             "b"
+       # ContenteditableA   "c"
+       # TranslateA         "d"
+       # DirA               "e"
+       # DraggableA         "f"
        # HiddenA
-       # IdA              := "h"
-       # ItempropA        := "i"
-       # LangA            := "j"
-       # SpellcheckA      := "k"
-       # StyleA           := "l"
-       # TitleA           := x
+       # IdA                "h"
+       # ItempropA          "i"
+       # LangA              "j"
+       # SpellcheckA        "k"
+       # StyleA             "l"
+       # TitleA             x
        ) :> "m"
 
 pageA x =
   Html :> do
     Body :> do
-      H1 :@ IdA:="a" :> do
+      H1 :@ IdA "a" :> do
         Img
-        Strong :@ ClassA:="b" :> (0 :: Int)
+        Strong :@ ClassA "b" :> (0 :: Int)
       Div :> do
-        Div :@ IdA:="c" :> (1 :: Int)
+        Div :@ IdA "c" :> (1 :: Int)
       Div :> do
-        Form :@ ClassA:="d" :> do
+        Form :@ ClassA "d" :> do
           Fieldset :> do
-            Div :@ IdA:="e" :> do
+            Div :@ IdA "e" :> do
               Div :> do
-                Label :@ ClassA:="f" :> "a"
+                Label :@ ClassA "f" :> "a"
                 Select :> do
-                  Option :@ IdA:="g" :> "b"
+                  Option :@ IdA "g" :> "b"
                   Option :> "c"
-                Div :@ ClassA:="h" :> "d"
+                Div :@ ClassA "h" :> "d"
               I :> x
-            Button :@ IdA:="i" :> do
+            Button :@ IdA "i" :> do
               I :> "e"
   where
     (>>) = (#)

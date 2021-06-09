@@ -5,4 +5,4 @@ module Custom where
 
 import Html
 
-data instance Attribute "hx-post" 'True 'False = HxPostA
+newtype instance Attribute "hx-post" 'True v = HxPostA v

@@ -997,216 +997,218 @@ data instance Element
     '["width", "height"]
   = Canvas
 
-data family Attribute (name :: Symbol) (global :: Bool) (boolean :: Bool)
+
+
+data family Attribute (name :: Symbol) (global :: Bool) value
 
   -- List of attributes (excluding event handler content attributes)
-data instance Attribute "abbr"                      False False = AbbrA
-data instance Attribute "accept"                    False False = AcceptA
-data instance Attribute "accept-charset"            False False = AcceptCharsetA
-data instance Attribute "accesskey"                 True  False = AccesskeyA
-data instance Attribute "action"                    False False = ActionA
-data instance Attribute "allow"                     False False = AllowA
-data instance Attribute "allowfullscreen"           False True  = AllowfullscreenA
-data instance Attribute "alt"                       False False = AltA
-data instance Attribute "as"                        False False = AsA
-data instance Attribute "async"                     False True  = AsyncA
-data instance Attribute "autocapitalize"            True  False = AutocapitalizeA
-data instance Attribute "autocomplete"              False False = AutocompleteA
-data instance Attribute "autofocus"                 True  True  = AutofocusA
-data instance Attribute "autoplay"                  False True  = AutoplayA
-data instance Attribute "charset"                   False False = CharsetA
-data instance Attribute "checked"                   False True  = CheckedA
-data instance Attribute "cite"                      False False = CiteA
-data instance Attribute "class"                     True  False = ClassA
-data instance Attribute "color"                     False False = ColorA
-data instance Attribute "cols"                      False False = ColsA
-data instance Attribute "colspan"                   False False = ColspanA
-data instance Attribute "content"                   False False = ContentA
-data instance Attribute "contenteditable"           True  False = ContenteditableA
-data instance Attribute "controls"                  False True  = ControlsA
-data instance Attribute "coords"                    False False = CoordsA
-data instance Attribute "crossorigin"               False False = CrossoriginA
-data instance Attribute "data"                      False False = DataA
-data instance Attribute "datetime"                  False False = DatetimeA
-data instance Attribute "decoding"                  False False = DecodingA
-data instance Attribute "default"                   False True  = DefaultA
-data instance Attribute "defer"                     False True  = DeferA
-data instance Attribute "dir"                       True  False = DirA
-data instance Attribute "dirname"                   False False = DirnameA
-data instance Attribute "disabled"                  False True  = DisabledA
-data instance Attribute "download"                  False False = DownloadA
-data instance Attribute "draggable"                 True  False = DraggableA
-data instance Attribute "enctype"                   False False = EnctypeA
-data instance Attribute "enterkeyhint"              True  False = EnterkeyhintA
-data instance Attribute "for"                       False False = ForA
-data instance Attribute "form"                      False False = FormA
-data instance Attribute "formaction"                False False = FormactionA
-data instance Attribute "formenctype"               False False = FormenctypeA
-data instance Attribute "formmethod"                False False = FormmethodA
-data instance Attribute "formnovalidate"            False True  = FormnovalidateA
-data instance Attribute "formtarget"                False False = FormtargetA
-data instance Attribute "headers"                   False False = HeadersA
-data instance Attribute "height"                    False False = HeightA
-data instance Attribute "hidden"                    True  True  = HiddenA
-data instance Attribute "high"                      False False = HighA
-data instance Attribute "href"                      False False = HrefA
-data instance Attribute "hreflang"                  False False = HreflangA
-data instance Attribute "httpEquiv"                 False False = HttpEquivA
-data instance Attribute "id"                        True  False = IdA
-data instance Attribute "imagesizes"                False False = ImagesizesA
-data instance Attribute "imagesrcset"               False False = ImagesrcsetA
-data instance Attribute "inputmode"                 True  False = InputmodeA
-data instance Attribute "integrity"                 False False = IntegrityA
-data instance Attribute "is"                        True  False = IsA
-data instance Attribute "ismap"                     False True  = IsmapA
-data instance Attribute "itemid"                    True  False = ItemidA
-data instance Attribute "itemprop"                  True  False = ItempropA
-data instance Attribute "itemref"                   True  False = ItemrefA
-data instance Attribute "itemscope"                 True  True  = ItemscopeA
-data instance Attribute "itemtype"                  True  False = ItemtypeA
-data instance Attribute "kind"                      False False = KindA
-data instance Attribute "label"                     False False = LabelA
-data instance Attribute "lang"                      True  False = LangA
-data instance Attribute "list"                      False False = ListA
-data instance Attribute "loading"                   False False = LoadingA
-data instance Attribute "loop"                      False True  = LoopA
-data instance Attribute "low"                       False False = LowA
-data instance Attribute "manifest"                  False False = ManifestA
-data instance Attribute "max"                       False False = MaxA
-data instance Attribute "maxlength"                 False False = MaxlengthA
-data instance Attribute "media"                     False False = MediaA
-data instance Attribute "method"                    False False = MethodA
-data instance Attribute "min"                       False False = MinA
-data instance Attribute "minlength"                 False False = MinlengthA
-data instance Attribute "multiple"                  False True  = MultipleA
-data instance Attribute "muted"                     False True  = MutedA
-data instance Attribute "name"                      False False = NameA
-data instance Attribute "nomodule"                  False True  = NomoduleA
-data instance Attribute "nonce"                     True  False = NonceA
-data instance Attribute "novalidate"                False True  = NovalidateA
-data instance Attribute "open"                      False True  = OpenA
-data instance Attribute "optimum"                   False False = OptimumA
-data instance Attribute "pattern"                   False False = PatternA
-data instance Attribute "ping"                      False False = PingA
-data instance Attribute "placeholder"               False False = PlaceholderA
-data instance Attribute "playsinline"               False True  = PlaysinlineA
-data instance Attribute "poster"                    False False = PosterA
-data instance Attribute "preload"                   False False = PreloadA
-data instance Attribute "readonly"                  False True  = ReadonlyA
-data instance Attribute "referrerpolicy"            False False = ReferrerpolicyA
-data instance Attribute "rel"                       False False = RelA
-data instance Attribute "required"                  False True  = RequiredA
-data instance Attribute "reversed"                  False True  = ReversedA
-data instance Attribute "rows"                      False False = RowsA
-data instance Attribute "rowspan"                   False False = RowspanA
-data instance Attribute "sandbox"                   False False = SandboxA
-data instance Attribute "scope"                     False False = ScopeA
-data instance Attribute "selected"                  False True  = SelectedA
-data instance Attribute "shape"                     False False = ShapeA
-data instance Attribute "size"                      False False = SizeA
-data instance Attribute "sizes"                     False False = SizesA
-data instance Attribute "slot"                      True  False = SlotA
-data instance Attribute "span"                      False False = SpanA
-data instance Attribute "spellcheck"                True  False = SpellcheckA
-data instance Attribute "src"                       False False = SrcA
-data instance Attribute "srcdoc"                    False False = SrcdocA
-data instance Attribute "srclang"                   False False = SrclangA
-data instance Attribute "srcset"                    False False = SrcsetA
-data instance Attribute "start"                     False False = StartA
-data instance Attribute "step"                      False False = StepA
-data instance Attribute "style"                     True  False = StyleA
-data instance Attribute "tabindex"                  True  False = TabindexA
-data instance Attribute "target"                    False False = TargetA
-data instance Attribute "title"                     True  False = TitleA
-data instance Attribute "translate"                 True  False = TranslateA
-data instance Attribute "type"                      False False = TypeA
-data instance Attribute "usemap"                    False False = UsemapA
-data instance Attribute "value"                     False False = ValueA
-data instance Attribute "width"                     False False = WidthA
-data instance Attribute "wrap"                      False False = WrapA
+newtype instance Attribute "abbr"                      False v  = AbbrA v
+newtype instance Attribute "accept"                    False v  = AcceptA v
+newtype instance Attribute "accept-charset"            False v  = AcceptCharsetA v
+newtype instance Attribute "accesskey"                 True  v  = AccesskeyA v
+newtype instance Attribute "action"                    False v  = ActionA v
+newtype instance Attribute "allow"                     False v  = AllowA v
+data    instance Attribute "allowfullscreen"           False () = AllowfullscreenA
+newtype instance Attribute "alt"                       False v  = AltA v
+newtype instance Attribute "as"                        False v  = AsA v
+data    instance Attribute "async"                     False () = AsyncA
+newtype instance Attribute "autocapitalize"            True  v  = AutocapitalizeA v
+newtype instance Attribute "autocomplete"              False v  = AutocompleteA v
+data    instance Attribute "autofocus"                 True  () = AutofocusA
+data    instance Attribute "autoplay"                  False () = AutoplayA
+newtype instance Attribute "charset"                   False v  = CharsetA v
+data    instance Attribute "checked"                   False () = CheckedA
+newtype instance Attribute "cite"                      False v  = CiteA v
+newtype instance Attribute "class"                     True  v  = ClassA v
+newtype instance Attribute "color"                     False v  = ColorA v
+newtype instance Attribute "cols"                      False v  = ColsA v
+newtype instance Attribute "colspan"                   False v  = ColspanA v
+newtype instance Attribute "content"                   False v  = ContentA v
+newtype instance Attribute "contenteditable"           True  v  = ContenteditableA v
+data    instance Attribute "controls"                  False () = ControlsA
+newtype instance Attribute "coords"                    False v  = CoordsA v
+newtype instance Attribute "crossorigin"               False v  = CrossoriginA v
+newtype instance Attribute "data"                      False v  = DataA v
+newtype instance Attribute "datetime"                  False v  = DatetimeA v
+newtype instance Attribute "decoding"                  False v  = DecodingA v
+data    instance Attribute "default"                   False () = DefaultA
+data    instance Attribute "defer"                     False () = DeferA
+newtype instance Attribute "dir"                       True  v  = DirA v
+newtype instance Attribute "dirname"                   False v  = DirnameA v
+data    instance Attribute "disabled"                  False () = DisabledA
+newtype instance Attribute "download"                  False v  = DownloadA v
+newtype instance Attribute "draggable"                 True  v  = DraggableA v
+newtype instance Attribute "enctype"                   False v  = EnctypeA v
+newtype instance Attribute "enterkeyhint"              True  v  = EnterkeyhintA v
+newtype instance Attribute "for"                       False v  = ForA v
+newtype instance Attribute "form"                      False v  = FormA v
+newtype instance Attribute "formaction"                False v  = FormactionA v
+newtype instance Attribute "formenctype"               False v  = FormenctypeA v
+newtype instance Attribute "formmethod"                False v  = FormmethodA v
+data    instance Attribute "formnovalidate"            False () = FormnovalidateA
+newtype instance Attribute "formtarget"                False v  = FormtargetA v
+newtype instance Attribute "headers"                   False v  = HeadersA v
+newtype instance Attribute "height"                    False v  = HeightA v
+data    instance Attribute "hidden"                    True  () = HiddenA
+newtype instance Attribute "high"                      False v  = HighA v
+newtype instance Attribute "href"                      False v  = HrefA v
+newtype instance Attribute "hreflang"                  False v  = HreflangA v
+newtype instance Attribute "httpEquiv"                 False v  = HttpEquivA v
+newtype instance Attribute "id"                        True  v  = IdA v
+newtype instance Attribute "imagesizes"                False v  = ImagesizesA v
+newtype instance Attribute "imagesrcset"               False v  = ImagesrcsetA v
+newtype instance Attribute "inputmode"                 True  v  = InputmodeA v
+newtype instance Attribute "integrity"                 False v  = IntegrityA v
+newtype instance Attribute "is"                        True  v  = IsA v
+data    instance Attribute "ismap"                     False () = IsmapA
+newtype instance Attribute "itemid"                    True  v  = ItemidA v
+newtype instance Attribute "itemprop"                  True  v  = ItempropA v
+newtype instance Attribute "itemref"                   True  v  = ItemrefA v
+data    instance Attribute "itemscope"                 True  () = ItemscopeA
+newtype instance Attribute "itemtype"                  True  v  = ItemtypeA v
+newtype instance Attribute "kind"                      False v  = KindA v
+newtype instance Attribute "label"                     False v  = LabelA v
+newtype instance Attribute "lang"                      True  v  = LangA v
+newtype instance Attribute "list"                      False v  = ListA v
+newtype instance Attribute "loading"                   False v  = LoadingA v
+data    instance Attribute "loop"                      False () = LoopA
+newtype instance Attribute "low"                       False v  = LowA v
+newtype instance Attribute "manifest"                  False v  = ManifestA v
+newtype instance Attribute "max"                       False v  = MaxA v
+newtype instance Attribute "maxlength"                 False v  = MaxlengthA v
+newtype instance Attribute "media"                     False v  = MediaA v
+newtype instance Attribute "method"                    False v  = MethodA v
+newtype instance Attribute "min"                       False v  = MinA v
+newtype instance Attribute "minlength"                 False v  = MinlengthA v
+data    instance Attribute "multiple"                  False () = MultipleA
+data    instance Attribute "muted"                     False () = MutedA
+newtype instance Attribute "name"                      False v  = NameA v
+data    instance Attribute "nomodule"                  False () = NomoduleA
+newtype instance Attribute "nonce"                     True  v  = NonceA v
+data    instance Attribute "novalidate"                False () = NovalidateA
+data    instance Attribute "open"                      False () = OpenA
+newtype instance Attribute "optimum"                   False v  = OptimumA v
+newtype instance Attribute "pattern"                   False v  = PatternA v
+newtype instance Attribute "ping"                      False v  = PingA v
+newtype instance Attribute "placeholder"               False v  = PlaceholderA v
+data    instance Attribute "playsinline"               False () = PlaysinlineA
+newtype instance Attribute "poster"                    False v  = PosterA v
+newtype instance Attribute "preload"                   False v  = PreloadA v
+data    instance Attribute "readonly"                  False () = ReadonlyA
+newtype instance Attribute "referrerpolicy"            False v  = ReferrerpolicyA v
+newtype instance Attribute "rel"                       False v  = RelA v
+data    instance Attribute "required"                  False () = RequiredA
+data    instance Attribute "reversed"                  False () = ReversedA
+newtype instance Attribute "rows"                      False v  = RowsA v
+newtype instance Attribute "rowspan"                   False v  = RowspanA v
+newtype instance Attribute "sandbox"                   False v  = SandboxA v
+newtype instance Attribute "scope"                     False v  = ScopeA v
+data    instance Attribute "selected"                  False () = SelectedA
+newtype instance Attribute "shape"                     False v  = ShapeA v
+newtype instance Attribute "size"                      False v  = SizeA v
+newtype instance Attribute "sizes"                     False v  = SizesA v
+newtype instance Attribute "slot"                      True  v  = SlotA v
+newtype instance Attribute "span"                      False v  = SpanA v
+newtype instance Attribute "spellcheck"                True  v  = SpellcheckA v
+newtype instance Attribute "src"                       False v  = SrcA v
+newtype instance Attribute "srcdoc"                    False v  = SrcdocA v
+newtype instance Attribute "srclang"                   False v  = SrclangA v
+newtype instance Attribute "srcset"                    False v  = SrcsetA v
+newtype instance Attribute "start"                     False v  = StartA v
+newtype instance Attribute "step"                      False v  = StepA v
+newtype instance Attribute "style"                     True  v  = StyleA v
+newtype instance Attribute "tabindex"                  True  v  = TabindexA v
+newtype instance Attribute "target"                    False v  = TargetA v
+newtype instance Attribute "title"                     True  v  = TitleA v
+newtype instance Attribute "translate"                 True  v  = TranslateA v
+newtype instance Attribute "type"                      False v  = TypeA v
+newtype instance Attribute "usemap"                    False v  = UsemapA v
+newtype instance Attribute "value"                     False v  = ValueA v
+newtype instance Attribute "width"                     False v  = WidthA v
+newtype instance Attribute "wrap"                      False v  = WrapA v
 
   -- List of event handler content attributes
-data instance Attribute "onabort"                   True  False = OnabortA
-data instance Attribute "onauxclick"                True  False = OnauxclickA
-data instance Attribute "onafterprint"              False False = OnafterprintA
-data instance Attribute "onbeforeprint"             False False = OnbeforeprintA
-data instance Attribute "onbeforeunload"            False False = OnbeforeunloadA
-data instance Attribute "onblur"                    True  False = OnblurA
-data instance Attribute "oncancel"                  True  False = OncancelA
-data instance Attribute "oncanplay"                 True  False = OncanplayA
-data instance Attribute "oncanplaythrough"          True  False = OncanplaythroughA
-data instance Attribute "onchange"                  True  False = OnchangeA
-data instance Attribute "onclick"                   True  False = OnclickA
-data instance Attribute "onclose"                   True  False = OncloseA
-data instance Attribute "oncontextmenu"             True  False = OncontextmenuA
-data instance Attribute "oncopy"                    True  False = OncopyA
-data instance Attribute "oncuechange"               True  False = OncuechangeA
-data instance Attribute "oncut"                     True  False = OncutA
-data instance Attribute "ondblclick"                True  False = OndblclickA
-data instance Attribute "ondrag"                    True  False = OndragA
-data instance Attribute "ondragend"                 True  False = OndragendA
-data instance Attribute "ondragenter"               True  False = OndragenterA
-data instance Attribute "ondragleave"               True  False = OndragleaveA
-data instance Attribute "ondragover"                True  False = OndragoverA
-data instance Attribute "ondragstart"               True  False = OndragstartA
-data instance Attribute "ondrop"                    True  False = OndropA
-data instance Attribute "ondurationchange"          True  False = OndurationchangeA
-data instance Attribute "onemptied"                 True  False = OnemptiedA
-data instance Attribute "onended"                   True  False = OnendedA
-data instance Attribute "onerror"                   True  False = OnerrorA
-data instance Attribute "onfocus"                   True  False = OnfocusA
-data instance Attribute "onformdata"                True  False = OnformdataA
-data instance Attribute "onhashchange"              False False = OnhashchangeA
-data instance Attribute "oninput"                   True  False = OninputA
-data instance Attribute "oninvalid"                 True  False = OninvalidA
-data instance Attribute "onkeydown"                 True  False = OnkeydownA
-data instance Attribute "onkeypress"                True  False = OnkeypressA
-data instance Attribute "onkeyup"                   True  False = OnkeyupA
-data instance Attribute "onlanguagechange"          False False = OnlanguagechangeA
-data instance Attribute "onload"                    True  False = OnloadA
-data instance Attribute "onloadeddata"              True  False = OnloadeddataA
-data instance Attribute "onloadedmetadata"          True  False = OnloadedmetadataA
-data instance Attribute "onloadstart"               True  False = OnloadstartA
-data instance Attribute "onmessage"                 False False = OnmessageA
-data instance Attribute "onmessageerror"            False False = OnmessageerrorA
-data instance Attribute "onmousedown"               True  False = OnmousedownA
-data instance Attribute "onmouseenter"              True  False = OnmouseenterA
-data instance Attribute "onmouseleave"              True  False = OnmouseleaveA
-data instance Attribute "onmousemove"               True  False = OnmousemoveA
-data instance Attribute "onmouseout"                True  False = OnmouseoutA
-data instance Attribute "onmouseover"               True  False = OnmouseoverA
-data instance Attribute "onmouseup"                 True  False = OnmouseupA
-data instance Attribute "onoffline"                 False False = OnofflineA
-data instance Attribute "ononline"                  False False = OnonlineA
-data instance Attribute "onpagehide"                False False = OnpagehideA
-data instance Attribute "onpageshow"                False False = OnpageshowA
-data instance Attribute "onpaste"                   True  False = OnpasteA
-data instance Attribute "onpause"                   True  False = OnpauseA
-data instance Attribute "onplay"                    True  False = OnplayA
-data instance Attribute "onplaying"                 True  False = OnplayingA
-data instance Attribute "onpopstate"                False False = OnpopstateA
-data instance Attribute "onprogress"                True  False = OnprogressA
-data instance Attribute "onratechange"              True  False = OnratechangeA
-data instance Attribute "onreset"                   True  False = OnresetA
-data instance Attribute "onresize"                  True  False = OnresizeA
-data instance Attribute "onrejectionhandled"        False False = OnrejectionhandledA
-data instance Attribute "onscroll"                  True  False = OnscrollA
-data instance Attribute "onsecuritypolicyviolation" True  False = OnsecuritypolicyviolationA
-data instance Attribute "onseeked"                  True  False = OnseekedA
-data instance Attribute "onseeking"                 True  False = OnseekingA
-data instance Attribute "onselect"                  True  False = OnselectA
-data instance Attribute "onslotchange"              True  False = OnslotchangeA
-data instance Attribute "onstalled"                 True  False = OnstalledA
-data instance Attribute "onstorage"                 False False = OnstorageA
-data instance Attribute "onsubmit"                  True  False = OnsubmitA
-data instance Attribute "onsuspend"                 True  False = OnsuspendA
-data instance Attribute "ontimeupdate"              True  False = OntimeupdateA
-data instance Attribute "ontoggle"                  True  False = OntoggleA
-data instance Attribute "onunhandledrejection"      False False = OnunhandledrejectionA
-data instance Attribute "onunload"                  False False = OnunloadA
-data instance Attribute "onvolumechange"            True  False = OnvolumechangeA
-data instance Attribute "onwaiting"                 True  False = OnwaitingA
-data instance Attribute "onwheel"                   True  False = OnwheelA
+newtype instance Attribute "onabort"                   True  v  = OnabortA v
+newtype instance Attribute "onauxclick"                True  v  = OnauxclickA v
+newtype instance Attribute "onafterprint"              False v  = OnafterprintA v
+newtype instance Attribute "onbeforeprint"             False v  = OnbeforeprintA v
+newtype instance Attribute "onbeforeunload"            False v  = OnbeforeunloadA v
+newtype instance Attribute "onblur"                    True  v  = OnblurA v
+newtype instance Attribute "oncancel"                  True  v  = OncancelA v
+newtype instance Attribute "oncanplay"                 True  v  = OncanplayA v
+newtype instance Attribute "oncanplaythrough"          True  v  = OncanplaythroughA v
+newtype instance Attribute "onchange"                  True  v  = OnchangeA v
+newtype instance Attribute "onclick"                   True  v  = OnclickA v
+newtype instance Attribute "onclose"                   True  v  = OncloseA v
+newtype instance Attribute "oncontextmenu"             True  v  = OncontextmenuA v
+newtype instance Attribute "oncopy"                    True  v  = OncopyA v
+newtype instance Attribute "oncuechange"               True  v  = OncuechangeA v
+newtype instance Attribute "oncut"                     True  v  = OncutA v
+newtype instance Attribute "ondblclick"                True  v  = OndblclickA v
+newtype instance Attribute "ondrag"                    True  v  = OndragA v
+newtype instance Attribute "ondragend"                 True  v  = OndragendA v
+newtype instance Attribute "ondragenter"               True  v  = OndragenterA v
+newtype instance Attribute "ondragleave"               True  v  = OndragleaveA v
+newtype instance Attribute "ondragover"                True  v  = OndragoverA v
+newtype instance Attribute "ondragstart"               True  v  = OndragstartA v
+newtype instance Attribute "ondrop"                    True  v  = OndropA v
+newtype instance Attribute "ondurationchange"          True  v  = OndurationchangeA v
+newtype instance Attribute "onemptied"                 True  v  = OnemptiedA v
+newtype instance Attribute "onended"                   True  v  = OnendedA v
+newtype instance Attribute "onerror"                   True  v  = OnerrorA v
+newtype instance Attribute "onfocus"                   True  v  = OnfocusA v
+newtype instance Attribute "onformdata"                True  v  = OnformdataA v
+newtype instance Attribute "onhashchange"              False v  = OnhashchangeA v
+newtype instance Attribute "oninput"                   True  v  = OninputA v
+newtype instance Attribute "oninvalid"                 True  v  = OninvalidA v
+newtype instance Attribute "onkeydown"                 True  v  = OnkeydownA v
+newtype instance Attribute "onkeypress"                True  v  = OnkeypressA v
+newtype instance Attribute "onkeyup"                   True  v  = OnkeyupA v
+newtype instance Attribute "onlanguagechange"          False v  = OnlanguagechangeA v
+newtype instance Attribute "onload"                    True  v  = OnloadA v
+newtype instance Attribute "onloadeddata"              True  v  = OnloadeddataA v
+newtype instance Attribute "onloadedmetadata"          True  v  = OnloadedmetadataA v
+newtype instance Attribute "onloadstart"               True  v  = OnloadstartA v
+newtype instance Attribute "onmessage"                 False v  = OnmessageA v
+newtype instance Attribute "onmessageerror"            False v  = OnmessageerrorA v
+newtype instance Attribute "onmousedown"               True  v  = OnmousedownA v
+newtype instance Attribute "onmouseenter"              True  v  = OnmouseenterA v
+newtype instance Attribute "onmouseleave"              True  v  = OnmouseleaveA v
+newtype instance Attribute "onmousemove"               True  v  = OnmousemoveA v
+newtype instance Attribute "onmouseout"                True  v  = OnmouseoutA v
+newtype instance Attribute "onmouseover"               True  v  = OnmouseoverA v
+newtype instance Attribute "onmouseup"                 True  v  = OnmouseupA v
+newtype instance Attribute "onoffline"                 False v  = OnofflineA v
+newtype instance Attribute "ononline"                  False v  = OnonlineA v
+newtype instance Attribute "onpagehide"                False v  = OnpagehideA v
+newtype instance Attribute "onpageshow"                False v  = OnpageshowA v
+newtype instance Attribute "onpaste"                   True  v  = OnpasteA v
+newtype instance Attribute "onpause"                   True  v  = OnpauseA v
+newtype instance Attribute "onplay"                    True  v  = OnplayA v
+newtype instance Attribute "onplaying"                 True  v  = OnplayingA v
+newtype instance Attribute "onpopstate"                False v  = OnpopstateA v
+newtype instance Attribute "onprogress"                True  v  = OnprogressA v
+newtype instance Attribute "onratechange"              True  v  = OnratechangeA v
+newtype instance Attribute "onreset"                   True  v  = OnresetA v
+newtype instance Attribute "onresize"                  True  v  = OnresizeA v
+newtype instance Attribute "onrejectionhandled"        False v  = OnrejectionhandledA v
+newtype instance Attribute "onscroll"                  True  v  = OnscrollA v
+newtype instance Attribute "onsecuritypolicyviolation" True  v  = OnsecuritypolicyviolationA v
+newtype instance Attribute "onseeked"                  True  v  = OnseekedA v
+newtype instance Attribute "onseeking"                 True  v  = OnseekingA v
+newtype instance Attribute "onselect"                  True  v  = OnselectA v
+newtype instance Attribute "onslotchange"              True  v  = OnslotchangeA v
+newtype instance Attribute "onstalled"                 True  v  = OnstalledA v
+newtype instance Attribute "onstorage"                 False v  = OnstorageA v
+newtype instance Attribute "onsubmit"                  True  v  = OnsubmitA v
+newtype instance Attribute "onsuspend"                 True  v  = OnsuspendA v
+newtype instance Attribute "ontimeupdate"              True  v  = OntimeupdateA v
+newtype instance Attribute "ontoggle"                  True  v  = OntoggleA v
+newtype instance Attribute "onunhandledrejection"      False v  = OnunhandledrejectionA v
+newtype instance Attribute "onunload"                  False v  = OnunloadA v
+newtype instance Attribute "onvolumechange"            True  v  = OnvolumechangeA v
+newtype instance Attribute "onwaiting"                 True  v  = OnwaitingA v
+newtype instance Attribute "onwheel"                   True  v  = OnwheelA v
 
 -- |
 -- = Utilities
@@ -1238,9 +1240,8 @@ type family ToList a :: List where
   ToList (Element name categories contentModel contentAttributes :@ at)   = AppendSymbol "<" name <| ToList at |> AppendSymbol "></" (AppendSymbol name ">")
   ToList (a # b)         = ToList a >< ToList b
   ToList (Lawless a)     = ToList a
-  ToList (Attribute a global boolean) = 'List '[] (AppendSymbol " " a)
-  ToList (Attribute a global boolean := ())       = 'List '[] (AppendSymbol " " a)
-  ToList (Attribute a global boolean := b)        = AppendSymbol " " (AppendSymbol a "=\"") <| ToList b |> "\""
+  ToList (Attribute a global ())       = 'List '[] (AppendSymbol " " a)
+  ToList (Attribute a global b)        = AppendSymbol " " (AppendSymbol a "=\"") <| ToList b |> "\""
   ToList ()              = 'List '[] ""
   ToList (Proxy x)       = 'List '[] x
   ToList x               = 'List '[""] ""
@@ -1250,7 +1251,7 @@ type family ToList a :: List where
 -- >>> I # Div
 -- <i></i><div></div>
 --
--- >>> I :@ (IdA:="a" # ClassA:="b") :> "c"
+-- >>> I :@ (IdA "a" # ClassA "b") :> "c"
 -- <i id="a" class="b">c</i>
 data (#) a b = (:#:) a b
 {-# INLINE (#) #-}
@@ -1267,15 +1268,13 @@ type family Lawful relationship father child :: Constraint where
   Lawful relation x [y] = Lawful relation x y
   Lawful relation x (c :@ _) = Lawful relation x c
   Lawful relation x (c :> _) = Lawful relation x c
-  Lawful relation x (c := _) = Lawful relation x c
 
-  Lawful AttributeValue (Attribute name1 global1 boolean1) (Attribute name2 global2 boolean2) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the attribute " :<>: Text name2 :<>: Text ".")
-  Lawful AttributeValue (Attribute name1 global1 boolean1) (Element name2 categories contentModel contentAttributes) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the element " :<>: Text name2 :<>: Text ".")
-  Lawful AttributeValue (Attribute name global boolean) v = If boolean (TypeError (Text "The attribute " :<>: Text name :<>: Text " is boolean and can't contain a value.")) (() :: Constraint)
-  Lawful AttributeValue x v = TypeError (ShowType x :<>: Text " is not an attribute.")
+  Lawful AttributeValue (Attribute name1 global1 value1) (Attribute name2 global2 value2) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the attribute " :<>: Text name2 :<>: Text ".")
+  Lawful AttributeValue (Attribute name1 global1 value1) (Element name2 categories contentModel contentAttributes) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the element " :<>: Text name2 :<>: Text ".")
+  Lawful AttributeValue _ _ = () :: Constraint
 
   Lawful Fatherhood (e :@ _) c = Lawful Fatherhood e c
-  Lawful Fatherhood (Element name categories contentModel contentAttributes) (Attribute name2 global boolean) = TypeError (Text name :<>: Text " can't have an attribute as children.")
+  Lawful Fatherhood (Element name categories contentModel contentAttributes) (Attribute name2 global value) = TypeError (Text name :<>: Text " can't have an attribute as children.")
   Lawful Fatherhood (Element name categories None contentAttributes) _ = TypeError (Text name :<>: Text " can't have children.")
 
   Lawful Fatherhood (Element name1 categories1 contentModel1 contentAttributes1)
@@ -1283,9 +1282,9 @@ type family Lawful relationship father child :: Constraint where
   Lawful Fatherhood (Element name categories contentModel contentAttributes) string = MaybeTypeError name (ShowType string) (CheckContentCategory "" contentModel '[OnlyText, Flow, Phrasing])
   Lawful Fatherhood _ _ = TypeError (Text "Only Elements and Elements with Attributes can father children.")
 
-  Lawful Attribution (Element name categories contentModel contentAttributes) (Attribute a global boolean)
+  Lawful Attribution (Element name categories contentModel contentAttributes) (Attribute a global value)
     = If (global || Elem a contentAttributes)
-    (() :: Constraint)
+    (Lawful AttributeValue (Attribute a global value) value)
     (TypeError (Text a :<>: Text " is not a valid attribute of " :<>: Text name :<>: Text "."))
   Lawful Attribution (Element name categories contentModel contentAttributes) a = TypeError (ShowType a :<>: Text " is not a valid attribute of " :<>: Text name :<>: Text ".")
   Lawful Attribution a _ = TypeError (ShowType a :<>: Text " is not an attributable element.")
@@ -1305,12 +1304,8 @@ data (:>) father child where
 data (:@) element attribution where
   (:@) :: Lawful Attribution e a => e -> a -> e :@ a
 
-data (:=) a v where
-  (:=) :: Lawful AttributeValue a v => a -> v -> a := v
-
 infixr 6 :>
 infixr 9 :@
-infixr 9 :=
 
 -- | Wrapper for types which won't be escaped.
 newtype Raw a = Raw {fromRaw :: a}
@@ -1323,9 +1318,8 @@ type family Length c where
   Length (a :> b) = Length a + Length b
   Length (a :@ b) = Length b
   Length (a # b)       = Length a + Length b
-  Length (_ := b)      = Length b
   Length (Lawless a)   = Length a
-  Length (Attribute a global boolean) = 0
+  Length (Attribute a global b) = Length b
   Length (Element name categories contentModel contentAttributes) = 0
   Length ()            = 0
   Length (Proxy _)     = 0
@@ -1430,7 +1424,7 @@ type family GetV a :: [Symbol] where
   GetV (a # b)       = Append (GetV a) (GetV b)
   GetV (a :> b)      = Append (GetV a) (GetV b)
   GetV (a :@ b)      = Append (GetV a) (GetV b)
-  GetV (a := b)      = GetV b
+  GetV (Attribute a global b) = GetV b
   GetV (Maybe a)     = GetV a
   GetV [a]           = GetV a
   GetV (Either a b)  = Append (GetV a) (GetV b)

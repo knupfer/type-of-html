@@ -161,7 +161,7 @@ spec = parallel $ do
        `shouldBe`
         "<div>a ä € 𝄞</div>"
 
-      renderString (Img :@ (IdA := "a ä € 𝄞"))
+      renderString (Img :@ (IdA "a ä € 𝄞"))
        `shouldBe`
         "<img id=\"a ä € 𝄞\">"
 
@@ -182,7 +182,7 @@ spec = parallel $ do
        `shouldBe`
         "42"
 
-      renderString (Div :@ (Just (IdA := "a")) :> "b")
+      renderString (Div :@ (Just (IdA "a")) :> "b")
        `shouldBe`
         "<div id=\"a\">b</div>"
 
@@ -196,17 +196,17 @@ spec = parallel $ do
        `shouldBe`
         "<div><div>a</div></div>"
 
-      renderString (Div :@ (if True then Right (IdA := "a") else Left (ClassA := "a")) :> "b")
+      renderString (Div :@ (if True then Right (IdA "a") else Left (ClassA "a")) :> "b")
        `shouldBe`
         "<div id=\"a\">b</div>"
 
     it "handles attributes" $ do
 
-      renderString (Div :@ (IdA := "a") :> "b" # "c")
+      renderString (Div :@ (IdA "a") :> "b" # "c")
        `shouldBe`
         "<div id=\"a\">b</div>c"
 
-      renderString (Div :@ (IdA := ()) :> "a")
+      renderString (Div :@ (IdA ()) :> "a")
        `shouldBe`
         "<div id>a</div>"
 
@@ -228,7 +228,7 @@ spec = parallel $ do
 
     it "handles custom attributes" $ do
 
-      renderString (Div :@ (HxPostA := "x") :> "y")
+      renderString (Div :@ (HxPostA "x") :> "y")
         `shouldBe`
         "<div hx-post=\"x\">y</div>"
 
@@ -269,7 +269,7 @@ spec = parallel $ do
        `shouldBe`
         "12"
 
-      renderString (Div :> () # Td :> (Proxy @"1" # "2" # Div :> () # I :@ (IdA := (Proxy @"3")) :> "4"))
+      renderString (Div :> () # Td :> (Proxy @"1" # "2" # Div :> () # I :@ (IdA (Proxy @"3")) :> "4"))
        `shouldBe`
         "<div></div><td>12<div></div><i id=\"3\">4</i></td>"
 
