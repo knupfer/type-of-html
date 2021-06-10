@@ -125,7 +125,7 @@ type family Lawful relationship father child :: Constraint where
 
   Lawful AttributeValue (Attribute name1 global1 value1) (Attribute name2 global2 value2) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the attribute " :<>: Text name2 :<>: Text ".")
   Lawful AttributeValue (Attribute name1 global1 value1) (Element name2 categories contentModel contentAttributes) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the element " :<>: Text name2 :<>: Text ".")
-  Lawful AttributeValue _ _ = () :: Constraint
+  Lawful AttributeValue _ _ = (() :: Constraint)
 
   Lawful Fatherhood (e :@ _) c = Lawful Fatherhood e c
   Lawful Fatherhood (Element name categories contentModel contentAttributes) (Attribute name2 global value) = TypeError (Text name :<>: Text " can't have an attribute as children.")
