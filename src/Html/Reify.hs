@@ -19,6 +19,7 @@ module Html.Reify where
 import Html.Type.Internal
 import Html.Convert
 
+import Data.Kind (Type)
 import Data.Proxy
 import GHC.TypeLits
 import Data.ByteString.Builder
@@ -37,18 +38,18 @@ type Compactable' a = (ShowTypeList (Variables a), R 'True (T (ToList a) a))
 type family Compactable a where Compactable a = Compactable' a
 
 -- | Data for putting variables into a rendered compacted html document.
-data Put (n :: Symbol) = forall a. Convert a => Put a
+data Put (n :: Symbol) (a :: Type) = Convert a => Put a
 
 -- | Type of a rendered compact html which determines the amount of arguments.
 type family Retrieve f xs where
-  Retrieve f (x ': xs) = Put x -> Retrieve f xs
+  Retrieve f ( '(x, a) ': xs) = Put x a -> Retrieve f xs
   Retrieve f '[] = f
 
 -- | List of Symbols for which a render function can be created.
 class Retrievable a where
   retrieve :: ([Builder] -> [Builder]) -> (Builder -> f) -> CompactHTML a -> Retrieve f a
 
-instance (KnownSymbol x, Retrievable xs) => Retrievable (x ': xs) where
+instance (KnownSymbol x, Retrievable xs) => Retrievable ( '(x, a) ': xs ) where
   retrieve m f (MkCompactHTML c1 c2) (Put x) = retrieve (m . (unConv (convert x) :)) f (MkCompactHTML @xs c1 c2)
 
 instance Retrievable '[] where
@@ -77,7 +78,7 @@ instance Convert s
 
 instance {-# INCOHERENT #-}
   KnownSymbol n =>
-  R 'True (T '[ "" ] (V n)) where
+  R 'True (T '[ "" ] (V n typeForPut)) where
   render _ = pure (Right (symbolVal (Proxy @n)))
 
 -- | Common instances

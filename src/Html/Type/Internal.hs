@@ -8,6 +8,7 @@
 {-# LANGUAGE ConstraintKinds        #-}
 {-# LANGUAGE TypeOperators          #-}
 {-# LANGUAGE TypeInType             #-}
+{-# LANGUAGE FlexibleInstances      #-}
 {-# LANGUAGE GADTs                  #-}
 
 {-# LANGUAGE CPP #-}
@@ -15,6 +16,7 @@
 module Html.Type.Internal where
 
 import GHC.TypeLits
+import Data.Kind (Type)
 import GHC.Exts (Constraint)
 import Data.Proxy
 import Data.Type.Bool
@@ -122,6 +124,7 @@ type family Lawful relationship father child :: Constraint where
   Lawful relation x [y] = Lawful relation x y
   Lawful relation x (c :@ _) = Lawful relation x c
   Lawful relation x (c :> _) = Lawful relation x c
+  Lawful relation x (V _ t) = Lawful relation x t
 
   Lawful AttributeValue (Attribute name1 global1 value1) (Attribute name2 global2 value2) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the attribute " :<>: Text name2 :<>: Text ".")
   Lawful AttributeValue (Attribute name1 global1 value1) (Element name2 categories contentModel contentAttributes) = TypeError (Text "The attribute " :<>: Text name1 :<>: Text " can't contain the element " :<>: Text name2 :<>: Text ".")
@@ -257,8 +260,8 @@ type family Elem (a :: k) (xs :: [k]) where
 
 newtype T (proxies :: k) target = T target
 
--- | Data for declaring variables in a html document which will be compacted.
-data V (n :: Symbol) = V
+-- | Data for declaring variables and their type in a html document which will be compacted.
+data V (name :: Symbol) (t :: Type) = V
 
 newtype One a = One a
 
@@ -268,13 +271,13 @@ type Variables a = Dedupe (GetV a)
 -- | A compacted html documented with it's variables annoted as a list
 -- of Symbols.  It's Show instance is quite useful for developping: It
 -- highlights variables and renders the rest of the html.
-data CompactHTML (a :: [Symbol]) = MkCompactHTML ByteString [(Int, ByteString)]
+data CompactHTML (a :: [(Symbol, Type)]) = MkCompactHTML ByteString [(Int, ByteString)]
 
 instance ShowTypeList a => Show (CompactHTML a) where
   show (MkCompactHTML bs xs) = show bs ++ foldMap (\(i,b) -> "\n\ESC[36m" ++ vars !! i ++ "\ESC[0m\n" ++ show b) xs
     where vars = showTypeList @a
 
-type family GetV a :: [Symbol] where
+type family GetV a :: [(Symbol, Type)] where
   GetV (a # b)       = Append (GetV a) (GetV b)
   GetV (a :> b)      = Append (GetV a) (GetV b)
   GetV (a :@ b)      = Append (GetV a) (GetV b)
@@ -282,14 +285,14 @@ type family GetV a :: [Symbol] where
   GetV (Maybe a)     = GetV a
   GetV [a]           = GetV a
   GetV (Either a b)  = Append (GetV a) (GetV b)
-  GetV (V v)         = '[v]
+  GetV (V v typeForPut) = '[ '(v, typeForPut) ]
   GetV x             = '[]
 
-type family Dedupe xs :: [Symbol] where
+type family Dedupe xs :: [t] where
   Dedupe (x ': xs) = x ': Dedupe (Delete x xs)
   Dedupe '[] = '[]
 
-type family Delete x xs :: [Symbol] where
+type family Delete x xs :: [t] where
   Delete x (x ': xs) = Delete x xs
   Delete x (y ': xs) = y ': Delete x xs
   Delete _ _ = '[]
@@ -297,7 +300,7 @@ type family Delete x xs :: [Symbol] where
 class ShowTypeList a where
   showTypeList :: [String]
 
-instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList (x ': xs) where
+instance (ShowTypeList xs, KnownSymbol x) => ShowTypeList ( '(x, a) ': xs) where
   showTypeList = symbolVal (Proxy @x) : showTypeList @xs
 
 instance ShowTypeList '[] where
