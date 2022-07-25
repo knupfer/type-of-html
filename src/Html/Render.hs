@@ -109,3 +109,6 @@ instance Document (a :@ b) => Show (a :@ b) where show = renderString
 instance Document (a :> b) => Show (a :> b) where show = renderString
 instance Document (Attribute a global value) => Show (Attribute a global value) where show = renderString
 instance Document (Element name categories contentModel contentAttributes) => Show (Element name categories contentModel contentAttributes) where show = renderString
+
+instance Document (Attribute a global value) => Convert (Attribute a global value) where {-# INLINE convert #-}; convert = Converted . renderBuilder
+instance Document (Element name categories contentModel contentAttributes) => Convert (Element name categories contentModel contentAttributes) where {-# INLINE convert #-}; convert = Converted . renderBuilder

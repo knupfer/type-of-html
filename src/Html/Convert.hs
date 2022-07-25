@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE BangPatterns               #-}
 {-# LANGUAGE MagicHash                  #-}
@@ -94,6 +95,8 @@ instance Convert Natural         where {-# INLINE convert #-}; convert = Convert
 instance Convert Float           where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . toShortest . realToFrac
 instance Convert Double          where {-# INLINE convert #-}; convert = Converted . U.byteStringCopy . toShortest
 instance Convert Word            where {-# INLINE convert #-}; convert = Converted . B.wordDec
+instance Convert a => Convert (Maybe a) where {-# INLINE convert #-}; convert = maybe mempty convert
+instance (Convert a, Convert b) => Convert (Either a b) where {-# INLINE convert #-}; convert = either convert convert
 
 {-# INLINE [0] stringConv #-}
 stringConv :: String -> Converted
